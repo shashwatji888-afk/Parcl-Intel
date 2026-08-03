@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Parcl Intel - Buyer Segmentation</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=Space+Mono:wght@400;700&amp;family=Public+Sans:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        background: '#0A0F1E',
+                        surface1: '#0F172A',
+                        surface2: '#1E293B',
+                        surface3: '#243044',
+                        primary: '#2563EB',
+                        secondary: '#8B5CF6',
+                        accent: '#10B981',
+                        warning: '#F59E0B',
+                        danger: '#EF4444',
+                        textPrimary: '#F8FAFC',
+                        textSecondary: '#94A3B8',
+                        textMuted: '#475569',
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.25rem",
+                        lg: "0.5rem",
+                        xl: "0.75rem",
+                        full: "9999px"
+                    },
+                    fontFamily: {
+                        headline: ["Sora", "sans-serif"],
+                        display: ["Sora", "sans-serif"],
+                        body: ["IBM Plex Sans", "sans-serif"],
+                        label: ["Space Mono", "monospace"],
+                        micro: ["IBM Plex Sans", "sans-serif"]
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #0A0F1E;
+            color: #F8FAFC;
+        }
+        .glass-card {
+            background-color: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.06);
+            transition: transform 200ms ease, box-shadow 200ms ease;
+        }
+        .glass-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .glow-blue {
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.3);
+        }
+        .glow-emerald {
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+        }
+        .glow-amber {
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+        }
+        .glow-violet {
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+        }
+        
+        /* Simple Donut Chart CSS for visualization */
+        .donut-chart {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: conic-gradient(
+                #2563EB 0% 28%, 
+                #10B981 28% 63%, 
+                #F59E0B 63% 82%, 
+                #8B5CF6 82% 100%
+            );
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .donut-hole {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background-color: #1E293B; /* Matches card bg */
+        }
+    </style>
+</head>
+<body class="font-body antialiased flex h-screen overflow-hidden">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-screen w-[240px] bg-[#0F172A] border-r border-white/5 shadow-2xl shadow-black/50 flex flex-col py-6 z-50">
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary flex items-center justify-center glow-blue text-white font-headline font-bold">P</div>
+<div>
+<h1 class="font-headline font-bold text-xl tracking-tight text-[#F8FAFC]">Parcl Intel</h1>
+<p class="font-micro text-xs text-textMuted mt-1">ML Real Estate Intelligence</p>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto px-4 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-colors duration-150 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined text-xl">dashboard</span>
+<span class="font-headline text-xs uppercase tracking-wider font-semibold">Overview</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#2563EB] bg-[#2563EB]/10 border-r-2 border-[#2563EB] glow-blue transition-colors duration-150 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">pie_chart</span>
+<span class="font-headline text-xs uppercase tracking-wider font-bold">Segments</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-colors duration-150 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined text-xl">group</span>
+<span class="font-headline text-xs uppercase tracking-wider font-semibold">Investors</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-colors duration-150 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined text-xl">map</span>
+<span class="font-headline text-xs uppercase tracking-wider font-semibold">Geography</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-colors duration-150 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined text-xl">analytics</span>
+<span class="font-headline text-xs uppercase tracking-wider font-semibold">Profiler</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-colors duration-150 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined text-xl">description</span>
+<span class="font-headline text-xs uppercase tracking-wider font-semibold">Reports</span>
+</a>
+</div>
+<div class="px-4 mt-auto">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-colors duration-150 active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined text-xl">settings</span>
+<span class="font-headline text-xs uppercase tracking-wider font-semibold">Settings</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="ml-[240px] flex-1 flex flex-col h-screen overflow-y-auto relative">
+<!-- TopAppBar Context -->
+<header class="sticky top-0 z-40 bg-[#0A0F1E]/80 backdrop-blur-xl border-b border-white/5 flex justify-between items-center px-8 h-20 w-full shrink-0">
+<div>
+<h2 class="font-headline font-bold text-2xl text-[#F8FAFC]">Buyer Segmentation</h2>
+<p class="font-body text-sm text-textSecondary mt-1">K-Means clustering analysis across 4 buyer profiles</p>
+</div>
+<button class="bg-primary/10 border border-primary text-primary hover:bg-primary/20 px-6 py-2.5 rounded-lg font-headline text-sm font-semibold tracking-wide transition-all glow-blue flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">play_arrow</span>
+                Run Pipeline
+            </button>
+</header>
+<!-- Dashboard Content -->
+<div class="p-8 space-y-8 max-w-[1600px] w-full mx-auto">
+<!-- KPI Row -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- KPI 1 -->
+<div class="glass-card rounded-xl p-5 relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-16 h-16 bg-blue-500/10 rounded-bl-full blur-xl transition-all group-hover:bg-blue-500/20"></div>
+<div class="flex justify-between items-start mb-4">
+<span class="font-headline text-xs text-textSecondary uppercase tracking-wider">Total Buyers</span>
+<span class="material-symbols-outlined text-textMuted text-sm">group</span>
+</div>
+<div class="font-label text-3xl font-bold text-textPrimary">50,247</div>
+<div class="mt-2 text-xs text-accent flex items-center gap-1 font-micro">
+<span class="material-symbols-outlined text-[10px]">arrow_upward</span>
+                        12.4% vs last month
+                    </div>
+</div>
+<!-- KPI 2 -->
+<div class="glass-card rounded-xl p-5 relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-16 h-16 bg-emerald-500/10 rounded-bl-full blur-xl transition-all group-hover:bg-emerald-500/20"></div>
+<div class="flex justify-between items-start mb-4">
+<span class="font-headline text-xs text-textSecondary uppercase tracking-wider">Active Clusters</span>
+<span class="material-symbols-outlined text-textMuted text-sm">category</span>
+</div>
+<div class="font-label text-3xl font-bold text-textPrimary">4</div>
+<div class="mt-2 text-xs text-textMuted flex items-center gap-1 font-micro">
+                        Optimal k-value maintained
+                    </div>
+</div>
+<!-- KPI 3 -->
+<div class="glass-card rounded-xl p-5 relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-16 h-16 bg-purple-500/10 rounded-bl-full blur-xl transition-all group-hover:bg-purple-500/20"></div>
+<div class="flex justify-between items-start mb-4">
+<span class="font-headline text-xs text-textSecondary uppercase tracking-wider">Silhouette Score</span>
+<span class="material-symbols-outlined text-textMuted text-sm">scatter_plot</span>
+</div>
+<div class="font-label text-3xl font-bold text-textPrimary">0.73</div>
+<div class="mt-2 text-xs text-accent flex items-center gap-1 font-micro">
+<span class="material-symbols-outlined text-[10px]">arrow_upward</span>
+                        High cluster separation
+                    </div>
+</div>
+<!-- KPI 4 -->
+<div class="glass-card rounded-xl p-5 relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-16 h-16 bg-amber-500/10 rounded-bl-full blur-xl transition-all group-hover:bg-amber-500/20"></div>
+<div class="flex justify-between items-start mb-4">
+<span class="font-headline text-xs text-textSecondary uppercase tracking-wider">Avg Satisfaction</span>
+<span class="material-symbols-outlined text-textMuted text-sm">sentiment_satisfied</span>
+</div>
+<div class="font-label text-3xl font-bold text-textPrimary">8.2<span class="text-textMuted text-lg">/10</span></div>
+<div class="mt-2 text-xs text-accent flex items-center gap-1 font-micro">
+<span class="material-symbols-outlined text-[10px]">arrow_upward</span>
+                        +0.4 over aggregate
+                    </div>
+</div>
+</div>
+<!-- Analytics Section -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+<!-- Donut Chart Card -->
+<div class="glass-card rounded-xl p-6 flex flex-col">
+<h3 class="font-headline text-sm text-textSecondary uppercase tracking-wider mb-6">Cluster Distribution</h3>
+<div class="flex-1 flex flex-col sm:flex-row items-center justify-center gap-8 py-4">
+<div class="donut-chart shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+<div class="donut-hole flex items-center justify-center flex-col shadow-inner">
+<span class="font-label text-2xl font-bold text-textPrimary">100%</span>
+<span class="font-micro text-xs text-textMuted">N=50,247</span>
+</div>
+</div>
+<div class="flex flex-col gap-4">
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 rounded-full bg-primary glow-blue"></div>
+<div class="flex flex-col">
+<span class="font-body text-sm font-medium text-textPrimary">C1 Global Investors</span>
+<span class="font-label text-xs text-textSecondary">28% <span class="text-textMuted px-1">|</span> 14.1k</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 rounded-full bg-accent glow-emerald"></div>
+<div class="flex flex-col">
+<span class="font-body text-sm font-medium text-textPrimary">C2 First-Time Buyers</span>
+<span class="font-label text-xs text-textSecondary">35% <span class="text-textMuted px-1">|</span> 17.6k</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 rounded-full bg-warning glow-amber"></div>
+<div class="flex flex-col">
+<span class="font-body text-sm font-medium text-textPrimary">C3 Corporate Buyers</span>
+<span class="font-label text-xs text-textSecondary">19% <span class="text-textMuted px-1">|</span> 9.5k</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 rounded-full bg-secondary glow-violet"></div>
+<div class="flex flex-col">
+<span class="font-body text-sm font-medium text-textPrimary">C4 Luxury Investors</span>
+<span class="font-label text-xs text-textSecondary">18% <span class="text-textMuted px-1">|</span> 9.0k</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bar Chart Card -->
+<div class="glass-card rounded-xl p-6 flex flex-col">
+<h3 class="font-headline text-sm text-textSecondary uppercase tracking-wider mb-6">Cluster Size Comparison</h3>
+<div class="flex-1 flex flex-col justify-center gap-6 py-4 px-2">
+<div class="flex flex-col gap-2">
+<div class="flex justify-between text-xs">
+<span class="font-label text-textSecondary">C2 First-Time Buyers</span>
+<span class="font-label text-textPrimary">17,586</span>
+</div>
+<div class="w-full bg-surface3 rounded-full h-2.5 overflow-hidden">
+<div class="bg-accent h-2.5 rounded-full glow-emerald" style="width: 35%"></div>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex justify-between text-xs">
+<span class="font-label text-textSecondary">C1 Global Investors</span>
+<span class="font-label text-textPrimary">14,069</span>
+</div>
+<div class="w-full bg-surface3 rounded-full h-2.5 overflow-hidden">
+<div class="bg-primary h-2.5 rounded-full glow-blue" style="width: 28%"></div>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex justify-between text-xs">
+<span class="font-label text-textSecondary">C3 Corporate Buyers</span>
+<span class="font-label text-textPrimary">9,547</span>
+</div>
+<div class="w-full bg-surface3 rounded-full h-2.5 overflow-hidden">
+<div class="bg-warning h-2.5 rounded-full glow-amber" style="width: 19%"></div>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex justify-between text-xs">
+<span class="font-label text-textSecondary">C4 Luxury Investors</span>
+<span class="font-label text-textPrimary">9,045</span>
+</div>
+<div class="w-full bg-surface3 rounded-full h-2.5 overflow-hidden">
+<div class="bg-secondary h-2.5 rounded-full glow-violet" style="width: 18%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Cluster Profiles Row -->
+<div>
+<h3 class="font-headline text-sm text-textSecondary uppercase tracking-wider mb-4 px-1">Detailed Cluster Profiles</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+<!-- Profile C1 -->
+<div class="glass-card rounded-xl p-6 border-t-[3px] border-t-primary">
+<div class="flex items-center justify-between mb-4">
+<span class="px-2.5 py-1 rounded-md bg-primary/20 text-primary border border-primary/30 font-label text-xs font-bold glow-blue">C1</span>
+<span class="material-symbols-outlined text-textMuted hover:text-textPrimary cursor-pointer transition-colors text-sm">more_horiz</span>
+</div>
+<h4 class="font-headline text-lg font-bold text-textPrimary mb-1">Global Investors</h4>
+<p class="font-micro text-xs text-textMuted mb-4">High net-worth international buyers</p>
+<div class="flex flex-wrap gap-2 mb-6">
+<span class="px-2 py-1 bg-surface3 rounded text-[10px] font-label text-textSecondary">High-Yield</span>
+<span class="px-2 py-1 bg-surface3 rounded text-[10px] font-label text-textSecondary">Urban Centers</span>
+<span class="px-2 py-1 bg-surface3 rounded text-[10px] font-label text-textSecondary">Cash Buyers</span>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-center border-b border-white/5 pb-2">
+<span class="font-micro text-sm text-textSecondary">Avg Age</span>
+<span class="font-label text-sm text-textPrimary">48</span>
+</div>
+<div class="flex justify-between items-center border-b border-white/5 pb-2">
+<span class="font-micro text-sm text-textSecondary">Loan Reliance</span>
+<span class="font-label text-sm text-textPrimary">12%</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-micro text-sm text-textSecondary">Satisfaction</span>
+<span class="font-label text-sm text-accent">8.4</span>
+</div>
+</div>
+</div>
+<!-- Profile C2 -->
+<div class="glass-card rounded-xl p-6 border-t-[3px] border-t-accent">
+<div class="flex items-center justify-between mb-4">
+<span class="px-2.5 py-1 rounded-md bg-accent/20 text-accent border border-accent/30 font-label text-xs font-bold glow-emerald">C2</span>
+<span class="material-symbols-outlined text-textMuted hover:text-textPrimary cursor-pointer transition-colors text-sm">more_horiz</span>
+</div>
+<h4 class="font-headline text-lg font-bold text-textPrimary mb-1">First-Time Buyers</h4>
+<p class="font-micro text-xs text-textMuted mb-4">Domestic entry-level market</p>
+<div class="flex flex-wrap gap-2 mb-6">
+<span class="px-2 py-1 bg-surface3 rounded text-[10px] font-label text-textSecondary">Suburban</span>
+<span class="px-2 py-1 bg-surface3 rounded text-[10px] font-label text-textSecondary">Mortgage-Heavy</span>
+<span class="px-2 py-1 bg-surface3 rounded text-[10px] font-label text-textSecondary">Single Family</span>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-center border-b border-white/5 pb-2">
+<span class="font-micro text-sm text-textSecondary">Avg Age</span>
+<span class="font-label text-sm text-textPrimary">32</span>
+</div>
+<div class="flex justify-between items-center border-b border-white/5 pb-2">
+<span class="font-micro text-sm text-textSecondary">Loan Reliance</span>
+<span class="font-label text-sm text-textPrimary">85%</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-micro text-sm text-textSecondary">Satisfaction</span>
+<span class="font-label text-sm text-accent">7.9</span>
+</div>
+</div>
+</div>
+<!-- Profile C3 -->
+<div class="glass-card rounded-xl p-6 border-t-[3px] border-t-warning">
+<div class="flex items-center justify-between mb-4">
+<span class="px-2.5 py-1 rounded-md bg-warning/20 text-warning border border-warning/30 font-label text-xs font-bold glow-amber">C3</span>
+<span class="material-symbols-outlined text-textMuted hover:text-textPrimary cursor-pointer transition-colors text-sm">more_horiz</span>
+</div>
+<h4 class="font-headline text-lg font-bold text-textPrimary mb-1">Corporate Buyers</h4>
+<p class="font-micro text-xs text-textMuted mb-4">Institutional &amp; LLC acquisitions</p>
+<div class="flex flex-wrap gap-2 mb-6">
+<span class="px-2 py-1 bg-surface3 rounded text-[10px] font-label text-textSecondary">Multi-Family</span>
+<span class="px-2 py-1 bg-surface3 rounded text-[10px] font-label text-textSecondary">ROI Focused</span>
+<span class="px-2 py-1 bg-surface3 rounded text-[10px] font-label text-textSecondary">Bulk Purchase</span>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-center border-b border-white/5 pb-2">
+<span class="font-micro text-sm text-textSecondary">Avg Age</span>
+<span class="font-label text-sm text-textMuted">N/A</span>
+</div>
+<div class="flex justify-between items-center border-b border-white/5 pb-2">
+<span class="font-micro text-sm text-textSecondary">Loan Reliance</span>
+<span class="font-label text-sm text-textPrimary">45%</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-micro text-sm text-textSecondary">Satisfaction</span>
+<span class="font-label text-sm text-accent">8.6</span>
+</div>
+</div>
+</div>
+<!-- Profile C4 -->
+<div class="glass-card rounded-xl p-6 border-t-[3px] border-t-secondary">
+<div class="flex items-center justify-between mb-4">
+<span class="px-2.5 py-1 rounded-md bg-secondary/20 text-secondary border border-secondary/30 font-label text-xs font-bold glow-violet">C4</span>
+<span class="material-symbols-outlined text-textMuted hover:text-textPrimary cursor-pointer transition-colors text-sm">more_horiz</span>
+</div>
+<h4 class="font-headline text-lg font-bold text-textPrimary mb-1">Luxury Investors</h4>
+<p class="font-micro text-xs text-textMuted mb-4">Premium market tier focus</p>
+<div class="flex flex-wrap gap-2 mb-6">
+<span class="px-2 py-1 bg-surface3 rounded text-[10px] font-label text-textSecondary">Top 5% Tier</span>
+<span class="px-2 py-1 bg-surface3 rounded text-[10px] font-label text-textSecondary">Coastal</span>
+<span class="px-2 py-1 bg-surface3 rounded text-[10px] font-label text-textSecondary">Low Velocity</span>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-center border-b border-white/5 pb-2">
+<span class="font-micro text-sm text-textSecondary">Avg Age</span>
+<span class="font-label text-sm text-textPrimary">54</span>
+</div>
+<div class="flex justify-between items-center border-b border-white/5 pb-2">
+<span class="font-micro text-sm text-textSecondary">Loan Reliance</span>
+<span class="font-label text-sm text-textPrimary">28%</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-micro text-sm text-textSecondary">Satisfaction</span>
+<span class="font-label text-sm text-accent">7.8</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="pb-8"></div> <!-- Bottom padding -->
+</div>
+</main>
+</body></html>

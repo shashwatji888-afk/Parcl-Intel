@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Parcl Intel - Geographic Buyer Analysis</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        background: "#0A0F1E",
+                        surface1: "#0F172A",
+                        surface2: "#1E293B",
+                        surface3: "#243044",
+                        primary: "#2563EB",
+                        secondary: "#8B5CF6",
+                        accent: "#10B981",
+                        warning: "#F59E0B",
+                        danger: "#EF4444",
+                        textPrimary: "#F8FAFC",
+                        textSecondary: "#94A3B8",
+                        textMuted: "#475569"
+                    },
+                    fontFamily: {
+                        headline: ["Sora", "sans-serif"],
+                        display: ["Sora", "sans-serif"],
+                        body: ["IBM Plex Sans", "sans-serif"],
+                        label: ["Space Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.textPrimary');
+            font-family: theme('fontFamily.body');
+        }
+        .glass-panel {
+            background-color: theme('colors.surface2');
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(12px);
+            transition: transform 200ms ease, box-shadow 200ms ease;
+        }
+        .glass-panel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.15);
+        }
+        .glow-text {
+            text-shadow: 0 0 10px rgba(37, 99, 235, 0.5);
+        }
+        .map-dot {
+            position: absolute;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px currentColor;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .map-dot:hover {
+            transform: translate(-50%, -50%) scale(1.5);
+            box-shadow: 0 0 20px currentColor;
+            z-index: 10;
+        }
+        .map-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-10px);
+            background-color: theme('colors.surface3');
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s, transform 0.2s;
+            z-index: 20;
+            backdrop-filter: blur(8px);
+        }
+        .map-dot:hover .map-tooltip {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-5px);
+        }
+        /* Custom scrollbar for tables */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: theme('colors.surface1');
+        }
+        ::-webkit-scrollbar-thumb {
+            background: theme('colors.surface3');
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: theme('colors.primary');
+        }
+        
+        .chart-bar-hover:hover {
+            filter: brightness(1.2);
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex overflow-x-hidden">
+<!-- SideNavBar (Shared Component) -->
+<nav class="fixed left-0 top-0 h-screen w-[240px] bg-[#0F172A] border-r border-white/10 backdrop-blur-xl shadow-2xl flex flex-col py-6 px-4 z-50 transition-all duration-150 ease-in-out font-body text-slate-300">
+<div class="mb-8 px-4 flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center border border-primary/50 text-primary">
+<span class="material-symbols-outlined text-sm">auto_awesome</span>
+</div>
+<div>
+<h1 class="font-headline text-xl font-bold tracking-tight text-white glow-text">Parcl Intel</h1>
+<p class="text-xs text-slate-500 font-label tracking-widest uppercase">ML Intelligence</p>
+</div>
+</div>
+<div class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-medium text-sm">Overview</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined">segment</span>
+<span class="font-medium text-sm">Segments</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-medium text-sm">Investors</span>
+</a>
+<!-- ACTIVE TAB -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#10B981] bg-[#10B981]/10 border-r-2 border-[#10B981] shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">public</span>
+<span class="font-medium text-sm">Geography</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined">psychology</span>
+<span class="font-medium text-sm">Profiler</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined">assessment</span>
+<span class="font-medium text-sm">Reports</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-medium text-sm">Settings</span>
+</a>
+</div>
+<div class="mt-auto">
+<button class="w-full py-2.5 px-4 mb-4 rounded-lg bg-primary/20 text-primary border border-primary/50 hover:bg-primary/30 transition-colors flex items-center justify-center gap-2 font-label text-xs tracking-wider uppercase font-bold">
+<span class="material-symbols-outlined text-sm">rocket_launch</span>
+                Run Pipeline
+            </button>
+<div class="flex flex-col space-y-1">
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-white transition-colors text-sm" href="#">
+<span class="material-symbols-outlined text-[18px]">help</span>
+                    Support
+                </a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-white transition-colors text-sm" href="#">
+<span class="material-symbols-outlined text-[18px]">description</span>
+                    Docs
+                </a>
+</div>
+</div>
+</nav>
+<!-- TopAppBar (Shared Component Contextualized) -->
+<header class="fixed top-0 right-0 left-[240px] h-16 bg-[#0A0F1E]/80 border-b border-white/5 backdrop-blur-md flex justify-between items-center px-8 z-40 transition-all duration-200">
+<div class="flex-1 flex items-center">
+<!-- Search left empty for precision dashboard focus, relying on page context -->
+<div class="relative w-64 group hidden md:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full bg-surface1 border border-white/10 rounded-md py-1.5 pl-10 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all font-body" placeholder="Query geographic data..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-slate-400 hover:text-[#8B5CF6] transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 rounded-full bg-accent"></span>
+</button>
+<button class="text-slate-400 hover:text-[#8B5CF6] transition-colors">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+</button>
+<div class="h-8 w-px bg-white/10 mx-2"></div>
+<button class="flex items-center gap-2 text-sm text-primary hover:text-[#8B5CF6] transition-colors font-label font-bold uppercase tracking-wider">
+                 Connect Wallet
+            </button>
+<img class="w-8 h-8 rounded-full border border-white/20 object-cover" data-alt="A small, high-tech abstract avatar showing a glowing geometrical shape against a dark background, suitable for a professional analytics user profile, futuristic aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1IQDJuIjNRli2oZRoiO88vZRysyqEWLSctsVIauqc3z0ONnwkCZQlavKqAXFqUGGFzQk-pzaUIliUOFA4_0rkVwsxG9kABUCgO5Z3Qvc7V_vWbPpNV6bwK80JOGTUrlEkrzJu_0RYGmMaDQftdRfeAM6MTrlvq9GpXYVhCTLQQM_JxnTCdEEJEH8H7oaizot0t3byD-cJykXl4hOG3n14Uv-WmnUvhRFeYmBo2aic_Sjw2UZ68YggFIE6XhI6lFVlGdVKySynQ_o8"/>
+</div>
+</header>
+<!-- Main Content -->
+<main class="ml-[240px] mt-16 p-6 w-full flex-1">
+<!-- Header -->
+<div class="mb-8">
+<h2 class="font-headline text-3xl font-bold text-white tracking-tight mb-2">Geographic Buyer Analysis</h2>
+<p class="text-slate-400 text-sm">Regional investment distribution and buyer cluster mapping</p>
+</div>
+<!-- KPI Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+<div class="glass-panel p-5 rounded-xl relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-primary/20 transition-all"></div>
+<div class="flex justify-between items-start mb-2 relative z-10">
+<span class="text-slate-400 text-xs font-label uppercase tracking-widest">Countries Analyzed</span>
+<span class="material-symbols-outlined text-primary">public</span>
+</div>
+<div class="text-3xl font-headline font-bold text-white mb-1 relative z-10">47</div>
+<div class="text-xs text-accent flex items-center gap-1 relative z-10">
+<span class="material-symbols-outlined text-[14px]">trending_up</span> +3 this quarter
+                </div>
+</div>
+<div class="glass-panel p-5 rounded-xl relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-accent/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-accent/20 transition-all"></div>
+<div class="flex justify-between items-start mb-2 relative z-10">
+<span class="text-slate-400 text-xs font-label uppercase tracking-widest">Top Country</span>
+<span class="material-symbols-outlined text-accent">flag</span>
+</div>
+<div class="text-3xl font-headline font-bold text-white mb-1 relative z-10">UAE</div>
+<div class="text-xs text-slate-400 flex items-center gap-1 relative z-10">
+<span class="text-white font-label">24%</span> of total volume
+                </div>
+</div>
+<div class="glass-panel p-5 rounded-xl relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-secondary/20 transition-all"></div>
+<div class="flex justify-between items-start mb-2 relative z-10">
+<span class="text-slate-400 text-xs font-label uppercase tracking-widest">Top Region</span>
+<span class="material-symbols-outlined text-secondary">map</span>
+</div>
+<div class="text-3xl font-headline font-bold text-white mb-1 relative z-10">APAC</div>
+<div class="text-xs text-slate-400 flex items-center gap-1 relative z-10">
+                    Led by Singapore &amp; HK
+                </div>
+</div>
+<div class="glass-panel p-5 rounded-xl relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-warning/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-warning/20 transition-all"></div>
+<div class="flex justify-between items-start mb-2 relative z-10">
+<span class="text-slate-400 text-xs font-label uppercase tracking-widest">Intl. Buyers</span>
+<span class="material-symbols-outlined text-warning">flight_takeoff</span>
+</div>
+<div class="text-3xl font-headline font-bold text-white mb-1 relative z-10">68%</div>
+<div class="text-xs text-accent flex items-center gap-1 relative z-10">
+<span class="material-symbols-outlined text-[14px]">trending_up</span> +5.2% YoY
+                </div>
+</div>
+</div>
+<!-- Large Interactive Map -->
+<div class="glass-panel rounded-xl mb-8 p-1 relative min-h-[500px] flex flex-col">
+<div class="px-6 py-4 border-b border-white/5 flex justify-between items-center">
+<h3 class="font-headline text-lg font-bold text-white">Global Distribution Network</h3>
+<div class="flex gap-4">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_theme('colors.primary')]"></div>
+<span class="text-xs text-slate-400 font-label">C1 Global</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-accent shadow-[0_0_8px_theme('colors.accent')]"></div>
+<span class="text-xs text-slate-400 font-label">C2 First-Time</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-warning shadow-[0_0_8px_theme('colors.warning')]"></div>
+<span class="text-xs text-slate-400 font-label">C3 Corp</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-secondary shadow-[0_0_8px_theme('colors.secondary')]"></div>
+<span class="text-xs text-slate-400 font-label">C4 Luxury</span>
+</div>
+</div>
+</div>
+<div class="relative flex-1 w-full bg-[#050812] rounded-b-lg overflow-hidden flex items-center justify-center">
+<!-- Abstract Map Background representation -->
+<div class="absolute inset-0 opacity-30" data-alt="A highly stylized, dark-mode abstract vector map of the world. The oceans are deep black and continents are outlined with fine, glowing blue lines in a high-precision, futuristic aesthetic. No text or labels." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDYGGKpAGz71Wu--tWQnXRWdeFpWj3M9BAZvUEfHzygSf0LOEtYqhdbTpjmppzu16J5kR6afQkOqHOtmbWM5FM58R0v8b613--Y8PxJy1kOKJEh2QettNwdfnlfSMmFsU52E20eACUxhlAGDqwZCFvDkt7xNdxX0s9bhMJJG7c1PcGZazBPXouxXiR6yIXHJcx5ZEmcySTpycVSwGI9maamYbHLzB8pwGt8kpDbz2KFdWGKrOflxZX9RbNE9ocEqv4aiyX3hK7yid6V'); background-size: cover; background-position: center;"></div>
+<!-- Map Dots (Approximate positions over the map) -->
+<!-- North America -->
+<div class="map-dot bg-warning text-warning w-4 h-4" style="left: 25%; top: 35%;">
+<div class="map-tooltip">
+<div class="font-bold text-white mb-1">New York</div>
+<div class="text-warning">C3 Dominant</div>
+<div>Volume: 12.4k</div>
+</div>
+</div>
+<div class="map-dot bg-secondary text-secondary w-3 h-3" style="left: 20%; top: 40%;">
+<div class="map-tooltip">
+<div class="font-bold text-white mb-1">Miami</div>
+<div class="text-secondary">C4 Dominant</div>
+<div>Volume: 8.2k</div>
+</div>
+</div>
+<div class="map-dot bg-accent text-accent w-2 h-2" style="left: 15%; top: 38%;">
+<div class="map-tooltip">
+<div class="font-bold text-white mb-1">Austin</div>
+<div class="text-accent">C2 Dominant</div>
+<div>Volume: 5.1k</div>
+</div>
+</div>
+<!-- Europe -->
+<div class="map-dot bg-primary text-primary w-5 h-5" style="left: 48%; top: 30%;">
+<div class="map-tooltip">
+<div class="font-bold text-white mb-1">London</div>
+<div class="text-primary">C1 Dominant</div>
+<div>Volume: 18.5k</div>
+</div>
+</div>
+<div class="map-dot bg-secondary text-secondary w-3 h-3" style="left: 52%; top: 32%;">
+<div class="map-tooltip">
+<div class="font-bold text-white mb-1">Paris</div>
+<div class="text-secondary">C4 Dominant</div>
+<div>Volume: 9.1k</div>
+</div>
+</div>
+<!-- Middle East -->
+<div class="map-dot bg-warning text-warning w-6 h-6" style="left: 60%; top: 42%;">
+<div class="map-tooltip">
+<div class="font-bold text-white mb-1">Dubai</div>
+<div class="text-warning">C3 Dominant</div>
+<div>Volume: 24.2k</div>
+</div>
+</div>
+<!-- Asia Pacific -->
+<div class="map-dot bg-primary text-primary w-5 h-5" style="left: 78%; top: 45%;">
+<div class="map-tooltip">
+<div class="font-bold text-white mb-1">Singapore</div>
+<div class="text-primary">C1 Dominant</div>
+<div>Volume: 19.8k</div>
+</div>
+</div>
+<div class="map-dot bg-accent text-accent w-3 h-3" style="left: 82%; top: 38%;">
+<div class="map-tooltip">
+<div class="font-bold text-white mb-1">Tokyo</div>
+<div class="text-accent">C2 Dominant</div>
+<div>Volume: 11.3k</div>
+</div>
+</div>
+<div class="map-dot bg-primary text-primary w-4 h-4" style="left: 85%; top: 75%;">
+<div class="map-tooltip">
+<div class="font-bold text-white mb-1">Sydney</div>
+<div class="text-primary">C1 Dominant</div>
+<div>Volume: 14.5k</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Charts Row -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+<!-- Buyers by Region -->
+<div class="glass-panel rounded-xl p-6">
+<h3 class="font-headline text-lg font-bold text-white mb-6">Buyers by Region &amp; Cluster</h3>
+<div class="space-y-6">
+<!-- APAC -->
+<div>
+<div class="flex justify-between text-sm mb-2">
+<span class="text-white">Asia-Pacific</span>
+<span class="font-label text-slate-400">45,600</span>
+</div>
+<div class="w-full h-3 bg-surface1 rounded-full overflow-hidden flex">
+<div class="h-full bg-primary chart-bar-hover" style="width: 40%" title="C1: 40%"></div>
+<div class="h-full bg-accent chart-bar-hover" style="width: 20%" title="C2: 20%"></div>
+<div class="h-full bg-warning chart-bar-hover" style="width: 25%" title="C3: 25%"></div>
+<div class="h-full bg-secondary chart-bar-hover" style="width: 15%" title="C4: 15%"></div>
+</div>
+</div>
+<!-- Middle East -->
+<div>
+<div class="flex justify-between text-sm mb-2">
+<span class="text-white">Middle East</span>
+<span class="font-label text-slate-400">32,100</span>
+</div>
+<div class="w-3/4 h-3 bg-surface1 rounded-full overflow-hidden flex">
+<div class="h-full bg-primary chart-bar-hover" style="width: 15%" title="C1: 15%"></div>
+<div class="h-full bg-accent chart-bar-hover" style="width: 10%" title="C2: 10%"></div>
+<div class="h-full bg-warning chart-bar-hover" style="width: 60%" title="C3: 60%"></div>
+<div class="h-full bg-secondary chart-bar-hover" style="width: 15%" title="C4: 15%"></div>
+</div>
+</div>
+<!-- North America -->
+<div>
+<div class="flex justify-between text-sm mb-2">
+<span class="text-white">North America</span>
+<span class="font-label text-slate-400">28,400</span>
+</div>
+<div class="w-2/3 h-3 bg-surface1 rounded-full overflow-hidden flex">
+<div class="h-full bg-primary chart-bar-hover" style="width: 25%" title="C1: 25%"></div>
+<div class="h-full bg-accent chart-bar-hover" style="width: 35%" title="C2: 35%"></div>
+<div class="h-full bg-warning chart-bar-hover" style="width: 15%" title="C3: 15%"></div>
+<div class="h-full bg-secondary chart-bar-hover" style="width: 25%" title="C4: 25%"></div>
+</div>
+</div>
+<!-- Europe -->
+<div>
+<div class="flex justify-between text-sm mb-2">
+<span class="text-white">Europe</span>
+<span class="font-label text-slate-400">24,500</span>
+</div>
+<div class="w-3/5 h-3 bg-surface1 rounded-full overflow-hidden flex">
+<div class="h-full bg-primary chart-bar-hover" style="width: 45%" title="C1: 45%"></div>
+<div class="h-full bg-accent chart-bar-hover" style="width: 15%" title="C2: 15%"></div>
+<div class="h-full bg-warning chart-bar-hover" style="width: 10%" title="C3: 10%"></div>
+<div class="h-full bg-secondary chart-bar-hover" style="width: 30%" title="C4: 30%"></div>
+</div>
+</div>
+</div>
+<div class="mt-6 pt-4 border-t border-white/5 flex gap-4 text-xs font-label text-slate-400 justify-center">
+<span class="flex items-center gap-1"><span class="w-2 h-2 bg-primary rounded-sm"></span> C1</span>
+<span class="flex items-center gap-1"><span class="w-2 h-2 bg-accent rounded-sm"></span> C2</span>
+<span class="flex items-center gap-1"><span class="w-2 h-2 bg-warning rounded-sm"></span> C3</span>
+<span class="flex items-center gap-1"><span class="w-2 h-2 bg-secondary rounded-sm"></span> C4</span>
+</div>
+</div>
+<!-- Cluster Dominance Donut (Simulated via SVG) -->
+<div class="glass-panel rounded-xl p-6 flex flex-col items-center">
+<div class="w-full flex justify-between items-center mb-6">
+<h3 class="font-headline text-lg font-bold text-white">Global Cluster Distribution</h3>
+<button class="text-slate-400 hover:text-white"><span class="material-symbols-outlined text-sm">more_horiz</span></button>
+</div>
+<div class="relative w-48 h-48 my-auto">
+<!-- SVG Donut Chart -->
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 100 100">
+<!-- C1 Primary -->
+<circle class="hover:stroke-opacity-80 transition-all cursor-pointer" cx="50" cy="50" fill="transparent" r="40" stroke="theme('colors.primary')" stroke-dasharray="251.2" stroke-dashoffset="0" stroke-width="12"></circle>
+<!-- C3 Warning -->
+<circle class="hover:stroke-opacity-80 transition-all cursor-pointer" cx="50" cy="50" fill="transparent" r="40" stroke="theme('colors.warning')" stroke-dasharray="251.2" stroke-dashoffset="87.92" stroke-width="12"></circle> <!-- 35% -->
+<!-- C2 Accent -->
+<circle class="hover:stroke-opacity-80 transition-all cursor-pointer" cx="50" cy="50" fill="transparent" r="40" stroke="theme('colors.accent')" stroke-dasharray="251.2" stroke-dashoffset="163.28" stroke-width="12"></circle> <!-- 30% -->
+<!-- C4 Secondary -->
+<circle class="hover:stroke-opacity-80 transition-all cursor-pointer" cx="50" cy="50" fill="transparent" r="40" stroke="theme('colors.secondary')" stroke-dasharray="251.2" stroke-dashoffset="213.52" stroke-width="12"></circle> <!-- 20% -->
+</svg>
+<!-- Center Text -->
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-3xl font-headline font-bold text-white">130k</span>
+<span class="text-xs text-slate-400 font-label uppercase">Total Profiles</span>
+</div>
+</div>
+<div class="w-full grid grid-cols-2 gap-4 mt-8">
+<div class="bg-surface1 p-3 rounded-lg border border-white/5">
+<div class="text-xs text-slate-400 mb-1 font-label">C1 Global</div>
+<div class="text-lg text-primary font-bold">35%</div>
+</div>
+<div class="bg-surface1 p-3 rounded-lg border border-white/5">
+<div class="text-xs text-slate-400 mb-1 font-label">C3 Corporate</div>
+<div class="text-lg text-warning font-bold">30%</div>
+</div>
+<div class="bg-surface1 p-3 rounded-lg border border-white/5">
+<div class="text-xs text-slate-400 mb-1 font-label">C2 First-Time</div>
+<div class="text-lg text-accent font-bold">20%</div>
+</div>
+<div class="bg-surface1 p-3 rounded-lg border border-white/5">
+<div class="text-xs text-slate-400 mb-1 font-label">C4 Luxury</div>
+<div class="text-lg text-secondary font-bold">15%</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Data Table -->
+<div class="glass-panel rounded-xl overflow-hidden mb-8">
+<div class="px-6 py-4 border-b border-white/5 flex justify-between items-center bg-surface2">
+<h3 class="font-headline text-lg font-bold text-white">Top Target Markets</h3>
+<button class="flex items-center gap-2 text-xs font-label text-primary hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[16px]">download</span> Export CSV
+                </button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left text-sm">
+<thead class="text-xs text-slate-400 font-label uppercase bg-surface1">
+<tr>
+<th class="px-6 py-4 font-normal">Rank</th>
+<th class="px-6 py-4 font-normal">Market</th>
+<th class="px-6 py-4 font-normal">Region</th>
+<th class="px-6 py-4 font-normal text-right">Total Buyers</th>
+<th class="px-6 py-4 font-normal">Dominant Cluster</th>
+<th class="px-6 py-4 font-normal text-right">Inv. Ratio</th>
+<th class="px-6 py-4 font-normal text-right">Satisfaction</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/5">
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4 text-slate-500 font-label">01</td>
+<td class="px-6 py-4 font-medium text-white">Dubai, UAE</td>
+<td class="px-6 py-4 text-slate-400">Middle East</td>
+<td class="px-6 py-4 text-right font-label text-slate-300">24,200</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 rounded text-[10px] font-label uppercase border border-warning text-warning bg-warning/10">C3 Corp</span>
+</td>
+<td class="px-6 py-4 text-right text-accent">82%</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<span class="text-slate-300">9.2</span>
+<div class="w-12 h-1.5 bg-surface1 rounded-full overflow-hidden"><div class="h-full bg-accent" style="width: 92%"></div></div>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4 text-slate-500 font-label">02</td>
+<td class="px-6 py-4 font-medium text-white">Singapore</td>
+<td class="px-6 py-4 text-slate-400">Asia-Pacific</td>
+<td class="px-6 py-4 text-right font-label text-slate-300">19,850</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 rounded text-[10px] font-label uppercase border border-primary text-primary bg-primary/10">C1 Global</span>
+</td>
+<td class="px-6 py-4 text-right text-accent">78%</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<span class="text-slate-300">8.9</span>
+<div class="w-12 h-1.5 bg-surface1 rounded-full overflow-hidden"><div class="h-full bg-accent" style="width: 89%"></div></div>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4 text-slate-500 font-label">03</td>
+<td class="px-6 py-4 font-medium text-white">London, UK</td>
+<td class="px-6 py-4 text-slate-400">Europe</td>
+<td class="px-6 py-4 text-right font-label text-slate-300">18,500</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 rounded text-[10px] font-label uppercase border border-primary text-primary bg-primary/10">C1 Global</span>
+</td>
+<td class="px-6 py-4 text-right text-slate-400">65%</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<span class="text-slate-300">7.8</span>
+<div class="w-12 h-1.5 bg-surface1 rounded-full overflow-hidden"><div class="h-full bg-primary" style="width: 78%"></div></div>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4 text-slate-500 font-label">04</td>
+<td class="px-6 py-4 font-medium text-white">Sydney, AU</td>
+<td class="px-6 py-4 text-slate-400">Asia-Pacific</td>
+<td class="px-6 py-4 text-right font-label text-slate-300">14,500</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 rounded text-[10px] font-label uppercase border border-primary text-primary bg-primary/10">C1 Global</span>
+</td>
+<td class="px-6 py-4 text-right text-slate-400">71%</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<span class="text-slate-300">8.1</span>
+<div class="w-12 h-1.5 bg-surface1 rounded-full overflow-hidden"><div class="h-full bg-accent" style="width: 81%"></div></div>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4 text-slate-500 font-label">05</td>
+<td class="px-6 py-4 font-medium text-white">New York, US</td>
+<td class="px-6 py-4 text-slate-400">North America</td>
+<td class="px-6 py-4 text-right font-label text-slate-300">12,400</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 rounded text-[10px] font-label uppercase border border-warning text-warning bg-warning/10">C3 Corp</span>
+</td>
+<td class="px-6 py-4 text-right text-slate-400">55%</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<span class="text-slate-300">7.2</span>
+<div class="w-12 h-1.5 bg-surface1 rounded-full overflow-hidden"><div class="h-full bg-warning" style="width: 72%"></div></div>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4 text-slate-500 font-label">06</td>
+<td class="px-6 py-4 font-medium text-white">Tokyo, JP</td>
+<td class="px-6 py-4 text-slate-400">Asia-Pacific</td>
+<td class="px-6 py-4 text-right font-label text-slate-300">11,300</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 rounded text-[10px] font-label uppercase border border-accent text-accent bg-accent/10">C2 First</span>
+</td>
+<td class="px-6 py-4 text-right text-slate-400">42%</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<span class="text-slate-300">8.5</span>
+<div class="w-12 h-1.5 bg-surface1 rounded-full overflow-hidden"><div class="h-full bg-accent" style="width: 85%"></div></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</main>
+<!-- Footer (Shared Component Contextualized) -->
+<footer class="absolute bottom-0 right-0 left-[240px] h-14 bg-[#0A0F1E] border-t border-white/5 flex justify-between items-center px-8 py-4 font-body text-xs text-slate-500 z-30">
+<div>© 2024 Parcl Intel ML. All rights reserved.</div>
+<div class="flex gap-6">
+<a class="hover:text-[#10B981] transition-colors" href="#">Documentation</a>
+<a class="hover:text-[#10B981] transition-colors" href="#">Legal</a>
+<a class="hover:text-[#10B981] transition-colors" href="#">API</a>
+<a class="hover:text-[#10B981] transition-colors" href="#">Status</a>
+</div>
+</footer>
+</body></html>

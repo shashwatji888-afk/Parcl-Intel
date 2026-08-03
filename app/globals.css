@@ -1,0 +1,816 @@
+/* =============================================
+   PARCL INTEL — Global Design System
+   Consistent across ALL pages
+   ============================================= */
+
+/* --- Google Fonts --- */
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+
+/* --- CSS Variables (Single Source of Truth) --- */
+:root {
+  --bg:           #0A0F1E;
+  --surface1:     #0F172A;
+  --surface2:     #1E293B;
+  --surface3:     #243044;
+  --primary:      #2563EB;
+  --secondary:    #8B5CF6;
+  --accent:       #10B981;
+  --warning:      #F59E0B;
+  --danger:       #EF4444;
+  --text-primary: #F8FAFC;
+  --text-secondary:#94A3B8;
+  --text-muted:   #475569;
+  --c1:           #2563EB;
+  --c2:           #10B981;
+  --c3:           #F59E0B;
+  --c4:           #8B5CF6;
+  --sidebar-w:    240px;
+  --topbar-h:     64px;
+  --radius:       8px;
+  --transition:   200ms cubic-bezier(0.4,0,0.2,1);
+}
+
+/* --- Reset & Base --- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--text-primary);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* --- Custom Scrollbar --- */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* --- Typography --- */
+.font-headline, h1, h2, h3 { font-family: 'Sora', sans-serif; }
+.font-label, .font-mono { font-family: 'Space Mono', monospace; }
+
+/* --- Material Icons consistent --- */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-size: inherit;
+  line-height: 1;
+  vertical-align: middle;
+  user-select: none;
+}
+
+/* =============================================
+   SHARED COMPONENTS
+   ============================================= */
+
+/* --- Sidebar --- */
+.parcl-sidebar {
+  position: fixed;
+  left: 0; top: 0;
+  width: var(--sidebar-w);
+  height: 100vh;
+  background: var(--surface1);
+  border-right: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 0;
+  z-index: 50;
+  box-shadow: 4px 0 24px rgba(0,0,0,0.4);
+  transition: transform var(--transition);
+}
+
+.parcl-sidebar__brand {
+  padding: 0 24px 28px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  margin-bottom: 12px;
+}
+
+.parcl-sidebar__logo {
+  font-family: 'Sora', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: -0.5px;
+  text-shadow: 0 0 20px rgba(37,99,235,0.5);
+}
+
+.parcl-sidebar__tagline {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.parcl-sidebar__nav {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.parcl-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 16px;
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.parcl-nav-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: linear-gradient(90deg, rgba(37,99,235,0.08), transparent);
+  transition: opacity var(--transition);
+}
+
+.parcl-nav-item:hover {
+  color: var(--text-primary);
+  background: rgba(255,255,255,0.04);
+}
+
+.parcl-nav-item:hover::before { opacity: 1; }
+
+.parcl-nav-item:hover .parcl-nav-icon {
+  transform: scale(1.1);
+}
+
+.parcl-nav-item.active {
+  color: var(--text-primary);
+  background: rgba(37,99,235,0.1);
+  border-right: 2px solid var(--primary);
+  box-shadow: inset 0 0 20px rgba(37,99,235,0.08);
+}
+
+.parcl-nav-item.active .parcl-nav-icon {
+  color: var(--primary);
+  filter: drop-shadow(0 0 6px rgba(37,99,235,0.6));
+}
+
+.parcl-nav-icon {
+  font-size: 20px;
+  transition: transform var(--transition), color var(--transition);
+  flex-shrink: 0;
+}
+
+.parcl-nav-label {
+  font-size: 13px;
+  letter-spacing: 0.2px;
+}
+
+.parcl-sidebar__footer {
+  padding: 16px 12px 0;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  margin-top: auto;
+}
+
+.parcl-user-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background var(--transition);
+}
+.parcl-user-card:hover { background: rgba(255,255,255,0.04); }
+
+.parcl-user-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  border: 2px solid rgba(37,99,235,0.4);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.parcl-user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.parcl-user-role {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+}
+
+/* --- Topbar --- */
+.parcl-topbar {
+  position: fixed;
+  top: 0; right: 0;
+  left: var(--sidebar-w);
+  height: var(--topbar-h);
+  background: rgba(10,15,30,0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+}
+
+.parcl-topbar__title {
+  font-family: 'Sora', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.3px;
+}
+
+.parcl-topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.parcl-topbar__status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+}
+
+.parcl-status-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px rgba(16,185,129,0.8);
+  animation: pulse-dot 2s infinite;
+}
+
+.parcl-icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  width: 36px; height: 36px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+  font-size: 20px;
+}
+.parcl-icon-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255,255,255,0.06);
+}
+
+.parcl-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition);
+  box-shadow: 0 0 16px rgba(37,99,235,0.3);
+  text-decoration: none;
+}
+.parcl-btn-primary:hover {
+  background: #1d4ed8;
+  box-shadow: 0 0 24px rgba(37,99,235,0.5);
+  transform: translateY(-1px);
+}
+
+/* --- Main Layout --- */
+.parcl-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.parcl-main {
+  flex: 1;
+  margin-left: var(--sidebar-w);
+  padding-top: var(--topbar-h);
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.parcl-content {
+  padding: 32px 28px 40px;
+  width: 100%;
+}
+
+/* --- Profiler Grid Layout --- */
+.parcl-profiler-grid {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 24px;
+  align-items: start;
+  width: 100%;
+}
+
+@media (max-width: 1024px) {
+  .parcl-profiler-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- Page Header --- */
+.parcl-page-header {
+  margin-bottom: 28px;
+}
+
+.parcl-page-title {
+  font-family: 'Sora', sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+  margin-bottom: 6px;
+}
+
+.parcl-page-subtitle {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* --- Cards --- */
+.parcl-card {
+  background: var(--surface2);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+  overflow: hidden;
+}
+
+.parcl-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 20px rgba(37,99,235,0.08);
+  border-color: rgba(37,99,235,0.2);
+}
+
+.parcl-card__body { padding: 20px; }
+.parcl-card__header {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.parcl-card__title {
+  font-family: 'Sora', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.2px;
+}
+
+/* --- KPI Cards --- */
+.parcl-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.parcl-kpi-card {
+  background: var(--surface2);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 20px;
+  transition: all var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.parcl-kpi-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--accent-color, var(--primary));
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.parcl-kpi-card:hover::after { opacity: 1; }
+.parcl-kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+
+.parcl-kpi-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.parcl-kpi-value {
+  font-family: 'Sora', sans-serif;
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -1px;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.parcl-kpi-trend {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.parcl-kpi-trend.up { color: var(--accent); }
+.parcl-kpi-trend.down { color: var(--danger); }
+.parcl-kpi-trend.stable { color: var(--text-muted); }
+
+/* --- Tables --- */
+.parcl-table-wrap { overflow-x: auto; }
+
+.parcl-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.parcl-table thead tr {
+  background: rgba(0,0,0,0.2);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.parcl-table th {
+  padding: 12px 20px;
+  text-align: left;
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.parcl-table tbody tr {
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  transition: background var(--transition);
+}
+
+.parcl-table tbody tr:hover {
+  background: rgba(255,255,255,0.02);
+}
+
+.parcl-table td {
+  padding: 14px 20px;
+  color: var(--text-secondary);
+  vertical-align: middle;
+}
+
+/* --- Badges --- */
+.parcl-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+}
+
+.parcl-badge--success {
+  background: rgba(16,185,129,0.1);
+  border: 1px solid rgba(16,185,129,0.2);
+  color: var(--accent);
+}
+.parcl-badge--warning {
+  background: rgba(245,158,11,0.1);
+  border: 1px solid rgba(245,158,11,0.2);
+  color: var(--warning);
+}
+.parcl-badge--primary {
+  background: rgba(37,99,235,0.1);
+  border: 1px solid rgba(37,99,235,0.2);
+  color: var(--primary);
+}
+.parcl-badge--secondary {
+  background: rgba(139,92,246,0.1);
+  border: 1px solid rgba(139,92,246,0.2);
+  color: var(--secondary);
+}
+.parcl-badge--danger {
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.2);
+  color: var(--danger);
+}
+
+/* --- Cluster Chips --- */
+.cluster-c1 { --cluster-color: var(--c1); }
+.cluster-c2 { --cluster-color: var(--c2); }
+.cluster-c3 { --cluster-color: var(--c3); }
+.cluster-c4 { --cluster-color: var(--c4); }
+
+.parcl-cluster-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--cluster-color, var(--primary));
+  color: var(--cluster-color, var(--primary));
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+/* --- Charts (shared container style) --- */
+.parcl-chart-container {
+  background: rgba(0,0,0,0.2);
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.04);
+  padding: 16px;
+  position: relative;
+}
+
+.parcl-chart-grid {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* --- Footer --- */
+.parcl-footer {
+  position: fixed;
+  bottom: 0; right: 0;
+  left: var(--sidebar-w);
+  height: 32px;
+  background: var(--bg);
+  border-top: 1px solid rgba(255,255,255,0.04);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  z-index: 30;
+}
+
+.parcl-footer__copy {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+}
+
+.parcl-footer__links {
+  display: flex;
+  gap: 20px;
+}
+
+.parcl-footer__link {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+.parcl-footer__link:hover { color: var(--text-secondary); }
+
+.parcl-footer__api {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--accent);
+}
+
+/* =============================================
+   PAGE TRANSITION & ANIMATION SYSTEM
+   ============================================= */
+
+/* Page fade-in */
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.parcl-content {
+  animation: page-enter 0.35s cubic-bezier(0.4,0,0.2,1) both;
+}
+
+/* Staggered card entrance */
+@keyframes card-enter {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.parcl-animate-card {
+  animation: card-enter 0.4s cubic-bezier(0.4,0,0.2,1) both;
+}
+
+.parcl-animate-card:nth-child(1) { animation-delay: 0.05s; }
+.parcl-animate-card:nth-child(2) { animation-delay: 0.10s; }
+.parcl-animate-card:nth-child(3) { animation-delay: 0.15s; }
+.parcl-animate-card:nth-child(4) { animation-delay: 0.20s; }
+.parcl-animate-card:nth-child(5) { animation-delay: 0.25s; }
+
+/* Counter animation */
+@keyframes counter-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.parcl-kpi-value {
+  animation: counter-up 0.5s cubic-bezier(0.4,0,0.2,1) both;
+}
+
+/* Glowing pulse for status dots */
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 4px rgba(16,185,129,0.6); }
+  50%       { box-shadow: 0 0 10px rgba(16,185,129,1), 0 0 20px rgba(16,185,129,0.4); }
+}
+
+/* Sidebar nav active glow pulse */
+@keyframes nav-glow {
+  0%, 100% { box-shadow: inset 0 0 12px rgba(37,99,235,0.06); }
+  50%       { box-shadow: inset 0 0 20px rgba(37,99,235,0.12); }
+}
+.parcl-nav-item.active {
+  animation: nav-glow 3s ease infinite;
+}
+
+/* Shimmer for loading states */
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position: 200% 0; }
+}
+
+.parcl-shimmer {
+  background: linear-gradient(90deg,
+    var(--surface2) 25%,
+    var(--surface3) 50%,
+    var(--surface2) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Chart bar animation */
+@keyframes bar-grow {
+  from { transform: scaleY(0); transform-origin: bottom; }
+  to   { transform: scaleY(1); transform-origin: bottom; }
+}
+
+.parcl-bar { animation: bar-grow 0.6s cubic-bezier(0.4,0,0.2,1) both; }
+
+/* Orbit / rotate for loading spinners */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.parcl-spinner {
+  width: 18px; height: 18px;
+  border: 2px solid rgba(37,99,235,0.2);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Floating glow orbs (ambient background) */
+@keyframes float-orb {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.04; }
+  50%       { transform: translateY(-20px) scale(1.05); opacity: 0.07; }
+}
+.parcl-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+  animation: float-orb 8s ease-in-out infinite;
+}
+.parcl-orb--blue  { background: var(--primary); }
+.parcl-orb--violet{ background: var(--secondary); }
+.parcl-orb--green { background: var(--accent); }
+
+/* Table row slide-in */
+@keyframes row-enter {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.parcl-table tbody tr {
+  animation: row-enter 0.3s cubic-bezier(0.4,0,0.2,1) both;
+}
+.parcl-table tbody tr:nth-child(1) { animation-delay: 0.05s; }
+.parcl-table tbody tr:nth-child(2) { animation-delay: 0.10s; }
+.parcl-table tbody tr:nth-child(3) { animation-delay: 0.15s; }
+.parcl-table tbody tr:nth-child(4) { animation-delay: 0.20s; }
+.parcl-table tbody tr:nth-child(5) { animation-delay: 0.25s; }
+
+/* Progress bar animation */
+@keyframes progress-grow {
+  from { width: 0; }
+}
+.parcl-progress-bar { animation: progress-grow 0.8s cubic-bezier(0.4,0,0.2,1) both; }
+
+/* Keyframe for modal fade in */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.animate-fadeIn {
+  animation: fadeIn 0.25s cubic-bezier(0.4,0,0.2,1) forwards;
+}
+
+/* =============================================
+   UTILITY CLASSES
+   ============================================= */
+
+.flex { display: flex; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-2 { gap: 8px; }
+.gap-4 { gap: 16px; }
+.gap-6 { gap: 24px; }
+.grid { display: grid; }
+.col-2 { grid-template-columns: 1fr 1fr; }
+.col-3 { grid-template-columns: repeat(3, 1fr); }
+.col-4 { grid-template-columns: repeat(4, 1fr); }
+.mb-2 { margin-bottom: 8px; }
+.mb-4 { margin-bottom: 16px; }
+.mb-6 { margin-bottom: 24px; }
+.mb-8 { margin-bottom: 32px; }
+.text-sm { font-size: 12px; }
+.text-xs { font-size: 11px; }
+.text-muted { color: var(--text-muted); }
+.text-secondary { color: var(--text-secondary); }
+.text-primary-color { color: var(--primary); }
+.text-accent { color: var(--accent); }
+.text-warning { color: var(--warning); }
+.text-danger { color: var(--danger); }
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 1024px) {
+  .parcl-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .parcl-sidebar {
+    transform: translateX(-100%);
+  }
+  .parcl-sidebar.open {
+    transform: translateX(0);
+  }
+  .parcl-main {
+    margin-left: 0;
+  }
+  .parcl-topbar {
+    left: 0;
+  }
+  .parcl-footer {
+    left: 0;
+  }
+  .parcl-kpi-grid { grid-template-columns: 1fr 1fr; }
+}
