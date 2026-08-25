@@ -7,7 +7,6 @@ const NAV_ITEMS = [
   { href: '/overview',  label: 'Motivated Sellers', icon: 'bar_chart' },
   { href: '/segments',  label: 'Market Rankings',  icon: 'leaderboard' },
   { href: '/investors', label: 'Watchlists',       icon: 'bookmark' },
-  { href: '/geography', label: 'Geographic Map',   icon: 'map' },
   { href: '/profiler',  label: 'Buyer Profiler',   icon: 'psychology' },
   { href: '/pipeline',  label: 'Data Pipeline',    icon: 'database' },
   { href: '/reports',   label: 'Reports & Export', icon: 'assessment' },
