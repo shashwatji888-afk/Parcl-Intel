@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import DashboardLayout from '../components/DashboardLayout';
 import { fetchLiveBuyerMetrics, subscribeToLiveBuyerUpdates } from '../../lib/dataService';
@@ -29,7 +29,6 @@ export default function OverviewPage() {
   
   // Interactive Hover State for Popover Dialog
   const [hoveredRegion, setHoveredRegion] = useState(null);
-  const [tooltipPos, setTooltipPos] = useState({ x: 40, y: 120 });
 
   // Map Zoom & Pan State
   const [zoomLevel, setZoomLevel] = useState(1);
@@ -109,7 +108,8 @@ export default function OverviewPage() {
     'New York': { state: 'NY', name: 'New York Metro', msi: 4.35, sqftPrice: '$890', sqftTrend: '+3.2% 1Y', underwater: '1.8%', skew: '-28.0%', activeListings: '24,100', priceCuts: '34.2%', unrealizedLoss: '3.9%', investorListings: '25.4%', deltaUt: '-0.3', deltaUs: '-0.5', rank: '#360 by MSI', buyerMix: '85% Condo · 10% Co-op · 5% Townhouse', hottest: 'Condo $1.2M-$2.5M · 25.4% · MSI 4.90' },
     'Illinois': { state: 'IL', name: 'Chicago Metro', msi: 4.12, sqftPrice: '$285', sqftTrend: '+5.5% 1Y', underwater: '2.1%', skew: '-15.4%', activeListings: '18,400', priceCuts: '31.0%', unrealizedLoss: '4.2%', investorListings: '16.5%', deltaUt: '-0.6', deltaUs: '-0.8', rank: '#410 by MSI', buyerMix: '52% Multi · 48% SF · 0% Inst', hottest: 'Multi $450k-$700k · 16.5% · MSI 4.80' },
     'Tennessee': { state: 'TN', name: 'Kingsport / Nashville', msi: 7.39, sqftPrice: '$182', sqftTrend: '+1.8% 1Y', underwater: '1.8%', skew: '-8.5%', activeListings: '1,746', priceCuts: '50.8%', unrealizedLoss: '5.9%', investorListings: '15.2%', deltaUt: '+1.4', deltaUs: '+1.9', rank: '#19 by MSI', buyerMix: '88% SF · 12% NC · 0% Inst', hottest: 'SFR $150k-$280k · 15.2% · MSI 8.10' },
-    'Louisiana': { state: 'LA', name: 'Lafayette / New Orleans', msi: 2.41, sqftPrice: '$165', sqftTrend: '+5.1% 1Y', underwater: '1.2%', skew: '+14.2%', activeListings: '1,699', priceCuts: '18.8%', unrealizedLoss: '4.9%', investorListings: '8.4%', deltaUt: '-1.8', deltaUs: '-2.1', rank: '#892 by MSI', buyerMix: '76% SF · 24% NC · 0% Inst', hottest: 'SFR $220k-$380k · 8.4% · MSI 2.90' }
+    'Louisiana': { state: 'LA', name: 'Lafayette / New Orleans', msi: 2.41, sqftPrice: '$165', sqftTrend: '+5.1% 1Y', underwater: '1.2%', skew: '+14.2%', activeListings: '1,699', priceCuts: '18.8%', unrealizedLoss: '4.9%', investorListings: '8.4%', deltaUt: '-1.8', deltaUs: '-2.1', rank: '#892 by MSI', buyerMix: '76% SF · 24% NC · 0% Inst', hottest: 'SFR $220k-$380k · 8.4% · MSI 2.90' },
+    'Oregon': { state: 'OR', name: 'Portland / Salem', msi: 5.15, sqftPrice: '$360', sqftTrend: '-3.1% 1Y', underwater: '2.8%', skew: '-21.0%', activeListings: '5,200', priceCuts: '40.2%', unrealizedLoss: '6.1%', investorListings: '14.0%', deltaUt: '-0.3', deltaUs: '-0.2', rank: '#290 by MSI', buyerMix: '70% SF · 25% NC · 5% Inst', hottest: 'SFR $450k-$700k · 14.0% · MSI 5.30' }
   };
 
   // Color generator based on live Motivated Seller Index (MSI)
@@ -126,10 +126,10 @@ export default function OverviewPage() {
 
   const getRegionDetails = (stateName) => {
     const dbRegion = metrics.regions?.[stateName] || {
-      count: 65,
-      c1: 28, c2: 24, c3: 2, c4: 11,
-      loans: 26, cash: 39,
-      totalSat: 270
+      count: 50,
+      c1: 24, c2: 18, c3: 2, c4: 6,
+      loans: 20, cash: 30,
+      totalSat: 210
     };
 
     const meta = stateMeta[stateName] || {
@@ -151,8 +151,8 @@ export default function OverviewPage() {
       hottest: 'SFR $300k-$500k · 15% · MSI 5.80'
     };
 
-    const totalCount = dbRegion.count || 100;
-    const c1Pct = Math.round(((dbRegion.c1 || 28) / totalCount) * 100);
+    const totalCount = dbRegion.count || 50;
+    const c1Pct = Math.round(((dbRegion.c1 || 24) / totalCount) * 100);
 
     return {
       ...meta,
@@ -163,14 +163,8 @@ export default function OverviewPage() {
 
   const activeRegion = hoveredRegion ? getRegionDetails(hoveredRegion) : null;
 
-  const handleRegionHover = (stateName, e) => {
+  const handleRegionHover = (stateName) => {
     setHoveredRegion(stateName);
-    const parentRect = mapContainerRef.current?.getBoundingClientRect() || { left: 0, top: 0 };
-    const rect = e.currentTarget.getBoundingClientRect();
-    setTooltipPos({
-      x: Math.max(20, Math.min(rect.left - parentRect.left - 130, 520)),
-      y: Math.max(20, Math.min(rect.top - parentRect.top - 80, 230))
-    });
   };
 
   // Metro pins with exact Albers coordinates matching us-atlas
@@ -410,7 +404,7 @@ export default function OverviewPage() {
                       fillOpacity={isHovered ? 1 : 0.82}
                       stroke={isHovered ? '#60A5FA' : 'rgba(0, 0, 0, 0.4)'}
                       strokeWidth={isHovered ? 2.2 : 0.8}
-                      onMouseEnter={(e) => handleRegionHover(st.name, e)}
+                      onMouseEnter={() => handleRegionHover(st.name)}
                       onMouseLeave={() => setHoveredRegion(null)}
                       style={{
                         cursor: 'pointer',
@@ -460,7 +454,7 @@ export default function OverviewPage() {
               {metroPins.map((pin) => (
                 <g
                   key={pin.name}
-                  onMouseEnter={(e) => handleRegionHover(pin.state, e)}
+                  onMouseEnter={() => handleRegionHover(pin.state)}
                   onMouseLeave={() => setHoveredRegion(null)}
                   style={{ cursor: 'pointer' }}
                 >
@@ -483,22 +477,23 @@ export default function OverviewPage() {
             </svg>
           </div>
 
-          {/* DYNAMIC HOVER POPOVER DIALOG (SUPABASE POWERED) */}
-          {hoveredRegion && activeRegion && (
+          {/* DYNAMIC SIDE-PANEL INSPECTION DOSSIER (DOCKED IN BOTTOM-LEFT, NEVER OBSTRUCTS MAP) */}
+          {hoveredRegion && activeRegion ? (
             <div
               style={{
                 position: 'absolute',
-                top: `${tooltipPos.y}px`,
-                left: `${tooltipPos.x}px`,
+                bottom: '16px',
+                left: '16px',
                 zIndex: 50,
-                width: '360px',
+                width: '350px',
                 backgroundColor: 'rgba(5, 7, 13, 0.96)',
                 backdropFilter: 'blur(16px)',
                 border: '1px solid rgba(59, 130, 246, 0.55)',
                 borderRadius: '10px',
                 padding: '16px',
                 boxShadow: '0 12px 40px rgba(0,0,0,0.85), 0 0 25px rgba(59, 130, 246, 0.3)',
-                pointerEvents: 'none'
+                pointerEvents: 'none',
+                animation: 'fadeIn 0.2s ease-out'
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '8px' }}>
@@ -559,31 +554,31 @@ export default function OverviewPage() {
                 <div><strong>Hottest:</strong> {activeRegion.hottest}</div>
               </div>
             </div>
+          ) : (
+            /* DEFAULT BOTTOM-LEFT LEGEND CARD (WHEN NO REGION IS HOVERED) */
+            <div style={{ position: 'absolute', bottom: '16px', left: '16px', zIndex: 20, backgroundColor: 'rgba(5,7,14,0.92)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '12px 16px', maxWidth: '380px' }}>
+              <div style={{ fontSize: '11px', color: '#CBD5E1', marginBottom: '8px', lineHeight: '1.3' }}>
+                Showing <strong>Motivated Seller Index</strong> for <strong>all home types</strong> across <strong>metro areas</strong> with <strong>20+ active listings</strong>, at its current level.
+              </div>
+              
+              <div style={{ fontSize: '10px', fontFamily: "'Space Mono', monospace", color: '#64748B', textTransform: 'uppercase', marginBottom: '4px' }}>
+                MOTIVATED SELLER INDEX ⓘ
+              </div>
+
+              <div style={{ height: '6px', borderRadius: '3px', background: 'linear-gradient(to right, #2563EB 0%, #8B5CF6 35%, #EC4899 70%, #EF4444 100%)', marginBottom: '6px' }} />
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#94A3B8', fontFamily: "'Space Mono', monospace" }}>
+                <span>Neutral 0-2.5</span>
+                <span>Stubborn 2.5-5</span>
+                <span>Motivated 5-7.5</span>
+                <span>Fire Selling 7.5-10</span>
+              </div>
+
+              <div style={{ fontSize: '10px', color: '#64748B', marginTop: '6px', fontFamily: "'Space Mono', monospace" }}>
+                ● Updated Aug 26 · Min 20 listings · Methodology
+              </div>
+            </div>
           )}
-
-          {/* BOTTOM-LEFT LEGEND CARD */}
-          <div style={{ position: 'absolute', bottom: '16px', left: '16px', zIndex: 20, backgroundColor: 'rgba(5,7,14,0.92)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '12px 16px', maxWidth: '380px' }}>
-            <div style={{ fontSize: '11px', color: '#CBD5E1', marginBottom: '8px', lineHeight: '1.3' }}>
-              Showing <strong>Motivated Seller Index</strong> for <strong>all home types</strong> across <strong>metro areas</strong> with <strong>20+ active listings</strong>, at its current level.
-            </div>
-            
-            <div style={{ fontSize: '10px', fontFamily: "'Space Mono', monospace", color: '#64748B', textTransform: 'uppercase', marginBottom: '4px' }}>
-              MOTIVATED SELLER INDEX ⓘ
-            </div>
-
-            <div style={{ height: '6px', borderRadius: '3px', background: 'linear-gradient(to right, #2563EB 0%, #8B5CF6 35%, #EC4899 70%, #EF4444 100%)', marginBottom: '6px' }} />
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#94A3B8', fontFamily: "'Space Mono', monospace" }}>
-              <span>Neutral 0-2.5</span>
-              <span>Stubborn 2.5-5</span>
-              <span>Motivated 5-7.5</span>
-              <span>Fire Selling 7.5-10</span>
-            </div>
-
-            <div style={{ fontSize: '10px', color: '#64748B', marginTop: '6px', fontFamily: "'Space Mono', monospace" }}>
-              ● Updated Aug 26 · Min 20 listings · Methodology
-            </div>
-          </div>
 
           {/* BOTTOM-RIGHT WATERMARK & CSV DOWNLOAD */}
           <div style={{ position: 'absolute', bottom: '16px', right: '16px', zIndex: 20, textAlign: 'right' }}>
