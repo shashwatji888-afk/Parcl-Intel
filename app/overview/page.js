@@ -24,7 +24,10 @@ export default function OverviewPage() {
   const [selectedMetric, setSelectedMetric] = useState('MSI');
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState('markets');
-  const [selectedRegion, setSelectedRegion] = useState('Provo');
+  
+  // Interactive Hover State for Popover Dialog
+  const [hoveredRegion, setHoveredRegion] = useState(null);
+  const [tooltipPos, setTooltipPos] = useState({ x: 40, y: 120 });
 
   useEffect(() => {
     async function loadData() {
@@ -106,17 +109,64 @@ export default function OverviewPage() {
       dominantCluster: 'C2 First-Time Buyers (48%)',
       buyerMix: '80% SF · 15% NC · 5% Inst',
       hottest: 'SFR $200k-$350k · 22.0% · MSI 7.85'
+    },
+    'Chicago': {
+      state: 'IL',
+      msi: '4.12',
+      deltaUt: '-0.6',
+      deltaUs: '-0.8',
+      rank: '#410 by MSI',
+      sqftPrice: '$285',
+      sqftTrend: '+5.5% 1Y',
+      underwater: '2.1%',
+      skew: '-15.4%',
+      activeListings: '18,400',
+      priceCuts: '31.0%',
+      unrealizedLoss: '4.2%',
+      investorListings: '16.5%',
+      dominantCluster: 'C1 Global Investors (35%)',
+      buyerMix: '52% Multi · 48% SF · 0% Inst',
+      hottest: '2-4 Unit Multi $450k-$700k · 16.5% · MSI 4.80'
+    },
+    'New York': {
+      state: 'NY',
+      msi: '4.35',
+      deltaUt: '-0.3',
+      deltaUs: '-0.5',
+      rank: '#360 by MSI',
+      sqftPrice: '$890',
+      sqftTrend: '+3.2% 1Y',
+      underwater: '1.8%',
+      skew: '-28.0%',
+      activeListings: '24,100',
+      priceCuts: '34.2%',
+      unrealizedLoss: '3.9%',
+      investorListings: '25.4%',
+      dominantCluster: 'C4 Luxury Investors (52%)',
+      buyerMix: '85% Condo · 10% Co-op · 5% Townhouse',
+      hottest: 'Condo $1.2M-$2.5M · 25.4% · MSI 4.90'
     }
   };
 
-  const activeRegion = regionsData[selectedRegion] || regionsData['Provo'];
+  const activeRegion = hoveredRegion ? regionsData[hoveredRegion] : null;
+
+  const handleRegionHover = (regionKey, e) => {
+    setHoveredRegion(regionKey);
+    // Position tooltip near the cursor/container
+    const rect = e.currentTarget.getBoundingClientRect();
+    const parentRect = e.currentTarget.closest('.map-canvas-container')?.getBoundingClientRect() || { left: 0, top: 0 };
+    setTooltipPos({
+      x: Math.max(20, Math.min(rect.left - parentRect.left - 120, 520)),
+      y: Math.max(20, Math.min(rect.top - parentRect.top - 80, 200))
+    });
+  };
 
   return (
     <DashboardLayout title="Parcl HQ" subtitle="Live Real Estate Market Intelligence">
       <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
         {/* 1. HERO TITLE & SEARCH BAR */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '10px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '6px' }}>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
             <div>
@@ -274,104 +324,214 @@ export default function OverviewPage() {
 
         </div>
 
-        {/* 4. INTERACTIVE GEOGRAPHIC HEATMAP & PROVO UT MODAL CANVAS */}
-        <div style={{ position: 'relative', backgroundColor: '#030509', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', minHeight: '520px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '30px' }}>
+        {/* 4. INTERACTIVE GEOGRAPHIC HEATMAP CANVAS (HOVER ONLY DIALOG) */}
+        <div
+          className="map-canvas-container"
+          style={{ position: 'relative', backgroundColor: '#020408', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', minHeight: '520px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
+        >
           
-          {/* Background Map Graphic Grid */}
-          <div style={{ position: 'absolute', inset: 0, opacity: 0.15, backgroundImage: 'radial-gradient(rgba(59, 130, 246, 0.4) 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+          {/* Subtle Dot Grid Background */}
+          <div style={{ position: 'absolute', inset: 0, opacity: 0.15, backgroundImage: 'radial-gradient(rgba(59, 130, 246, 0.4) 1px, transparent 1px)', backgroundSize: '24px 24px', pointerEvents: 'none' }} />
 
-          {/* Real Estate Heatmap SVG Representation */}
-          <svg width="850" height="420" viewBox="0 0 900 450" style={{ position: 'relative', zIndex: 1, maxWidth: '100%', filter: 'drop-shadow(0 0 20px rgba(59, 130, 246, 0.2))' }}>
-            {/* Western Region */}
-            <path d="M 80,120 L 220,100 L 260,180 L 190,320 L 60,260 Z" fill="#EF4444" fillOpacity="0.75" stroke="#FFFFFF" strokeWidth="1" onClick={() => setSelectedRegion('San Antonio')} style={{ cursor: 'pointer' }} />
+          {/* Interactive Vector Map Shapes with Hover Handlers */}
+          <svg width="860" height="420" viewBox="0 0 900 450" style={{ position: 'relative', zIndex: 1, maxWidth: '100%' }}>
+            
+            {/* West Coast / Washington / California */}
+            <path
+              d="M 60,110 L 210,90 L 250,170 L 180,320 L 50,260 Z"
+              fill="#EC4899"
+              fillOpacity="0.8"
+              stroke="#FFFFFF"
+              strokeWidth="1.2"
+              onMouseEnter={(e) => handleRegionHover('Seattle', e)}
+              onMouseLeave={() => setHoveredRegion(null)}
+              style={{ cursor: 'pointer', transition: 'fill-opacity 0.2s, filter 0.2s' }}
+            />
+
             {/* Mountain West (Utah / Provo) */}
-            <path d="M 220,100 L 380,80 L 400,220 L 260,180 Z" fill="#EC4899" fillOpacity="0.85" stroke="#3B82F6" strokeWidth="2" onClick={() => setSelectedRegion('Provo')} style={{ cursor: 'pointer' }} />
-            {/* Central Region (Denver / Texas) */}
-            <path d="M 380,80 L 580,90 L 590,280 L 400,220 Z" fill="#8B5CF6" fillOpacity="0.75" stroke="#FFFFFF" strokeWidth="1" onClick={() => setSelectedRegion('Denver')} style={{ cursor: 'pointer' }} />
-            {/* Midwest Region */}
-            <path d="M 580,90 L 740,110 L 710,290 L 590,280 Z" fill="#3B82F6" fillOpacity="0.7" stroke="#FFFFFF" strokeWidth="1" />
-            {/* East Coast / Washington */}
-            <path d="M 740,110 L 840,140 L 790,340 L 710,290 Z" fill="#EC4899" fillOpacity="0.8" stroke="#FFFFFF" strokeWidth="1" onClick={() => setSelectedRegion('Seattle')} style={{ cursor: 'pointer' }} />
+            <path
+              d="M 210,90 L 370,70 L 390,210 L 250,170 Z"
+              fill="#8B5CF6"
+              fillOpacity="0.85"
+              stroke="#60A5FA"
+              strokeWidth="1.8"
+              onMouseEnter={(e) => handleRegionHover('Provo', e)}
+              onMouseLeave={() => setHoveredRegion(null)}
+              style={{ cursor: 'pointer', transition: 'fill-opacity 0.2s, filter 0.2s' }}
+            />
 
-            {/* Glowing Region Pin */}
-            <circle cx="330" cy="150" r="7" fill="#3B82F6" stroke="#FFFFFF" strokeWidth="2" />
-            <circle cx="330" cy="150" r="16" fill="rgba(59, 130, 246, 0.4)" />
+            {/* Central / Mountain (Denver / Colorado) */}
+            <path
+              d="M 370,70 L 560,80 L 570,270 L 390,210 Z"
+              fill="#2563EB"
+              fillOpacity="0.8"
+              stroke="#FFFFFF"
+              strokeWidth="1.2"
+              onMouseEnter={(e) => handleRegionHover('Denver', e)}
+              onMouseLeave={() => setHoveredRegion(null)}
+              style={{ cursor: 'pointer', transition: 'fill-opacity 0.2s, filter 0.2s' }}
+            />
+
+            {/* Texas / South (San Antonio) */}
+            <path
+              d="M 390,210 L 570,270 L 540,380 L 360,330 Z"
+              fill="#EC4899"
+              fillOpacity="0.8"
+              stroke="#FFFFFF"
+              strokeWidth="1.2"
+              onMouseEnter={(e) => handleRegionHover('San Antonio', e)}
+              onMouseLeave={() => setHoveredRegion(null)}
+              style={{ cursor: 'pointer', transition: 'fill-opacity 0.2s, filter 0.2s' }}
+            />
+
+            {/* Midwest (Chicago) */}
+            <path
+              d="M 560,80 L 720,100 L 690,270 L 570,270 Z"
+              fill="#3B82F6"
+              fillOpacity="0.75"
+              stroke="#FFFFFF"
+              strokeWidth="1.2"
+              onMouseEnter={(e) => handleRegionHover('Chicago', e)}
+              onMouseLeave={() => setHoveredRegion(null)}
+              style={{ cursor: 'pointer', transition: 'fill-opacity 0.2s, filter 0.2s' }}
+            />
+
+            {/* East Coast / New York */}
+            <path
+              d="M 720,100 L 840,120 L 800,340 L 690,270 Z"
+              fill="#EC4899"
+              fillOpacity="0.85"
+              stroke="#FFFFFF"
+              strokeWidth="1.2"
+              onMouseEnter={(e) => handleRegionHover('New York', e)}
+              onMouseLeave={() => setHoveredRegion(null)}
+              style={{ cursor: 'pointer', transition: 'fill-opacity 0.2s, filter 0.2s' }}
+            />
+
+            {/* Interactive Location Hover Hotspots / Glowing Pins */}
+            <g onMouseEnter={(e) => handleRegionHover('Provo', e)} onMouseLeave={() => setHoveredRegion(null)} style={{ cursor: 'pointer' }}>
+              <circle cx="310" cy="140" r="5" fill="#3B82F6" stroke="#FFFFFF" strokeWidth="2" />
+              <circle cx="310" cy="140" r="14" fill="rgba(59, 130, 246, 0.4)" />
+              <text x="328" y="144" fill="#FFFFFF" fontSize="11" fontFamily="'Space Mono', monospace" fontWeight="bold">Provo</text>
+            </g>
+
+            <g onMouseEnter={(e) => handleRegionHover('Seattle', e)} onMouseLeave={() => setHoveredRegion(null)} style={{ cursor: 'pointer' }}>
+              <circle cx="130" cy="140" r="5" fill="#EC4899" stroke="#FFFFFF" strokeWidth="2" />
+              <text x="148" y="144" fill="#FFFFFF" fontSize="11" fontFamily="'Space Mono', monospace">Seattle</text>
+            </g>
+
+            <g onMouseEnter={(e) => handleRegionHover('Denver', e)} onMouseLeave={() => setHoveredRegion(null)} style={{ cursor: 'pointer' }}>
+              <circle cx="470" cy="160" r="5" fill="#2563EB" stroke="#FFFFFF" strokeWidth="2" />
+              <text x="488" y="164" fill="#FFFFFF" fontSize="11" fontFamily="'Space Mono', monospace">Denver</text>
+            </g>
+
+            <g onMouseEnter={(e) => handleRegionHover('San Antonio', e)} onMouseLeave={() => setHoveredRegion(null)} style={{ cursor: 'pointer' }}>
+              <circle cx="470" cy="310" r="5" fill="#EC4899" stroke="#FFFFFF" strokeWidth="2" />
+              <text x="488" y="314" fill="#FFFFFF" fontSize="11" fontFamily="'Space Mono', monospace">San Antonio</text>
+            </g>
+
+            <g onMouseEnter={(e) => handleRegionHover('Chicago', e)} onMouseLeave={() => setHoveredRegion(null)} style={{ cursor: 'pointer' }}>
+              <circle cx="630" cy="160" r="5" fill="#3B82F6" stroke="#FFFFFF" strokeWidth="2" />
+              <text x="648" y="164" fill="#FFFFFF" fontSize="11" fontFamily="'Space Mono', monospace">Chicago</text>
+            </g>
+
+            <g onMouseEnter={(e) => handleRegionHover('New York', e)} onMouseLeave={() => setHoveredRegion(null)} style={{ cursor: 'pointer' }}>
+              <circle cx="760" cy="170" r="5" fill="#EC4899" stroke="#FFFFFF" strokeWidth="2" />
+              <text x="778" y="174" fill="#FFFFFF" fontSize="11" fontFamily="'Space Mono', monospace">New York</text>
+            </g>
+
           </svg>
 
-          {/* INTERACTIVE POPOVER CARD (EXACTLY AS IN SCREENSHOT 2) */}
-          <div style={{ position: 'absolute', bottom: '30px', left: '30px', zIndex: 10, width: '380px', backgroundColor: 'rgba(5, 7, 13, 0.95)', backdropFilter: 'blur(16px)', border: '1px solid rgba(59, 130, 246, 0.5)', borderRadius: '10px', padding: '18px', boxShadow: '0 10px 40px rgba(0,0,0,0.8), 0 0 25px rgba(59, 130, 246, 0.25)' }}>
-            
-            {/* Modal Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '10px' }}>
-              <div>
-                <h3 style={{ fontSize: '18px', fontWeight: '800', color: '#FFFFFF', margin: 0 }}>
-                  {selectedRegion}
-                </h3>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginTop: '2px' }}>
-                  <span style={{ fontSize: '20px', fontWeight: '800', color: '#F59E0B' }}>{activeRegion.msi}</span>
-                  <span style={{ fontSize: '12px', color: '#94A3B8' }}>Motivated Seller Index</span>
+          {/* DYNAMIC HOVER POPOVER DIALOG (ONLY RENDERS WHEN HOVERED) */}
+          {hoveredRegion && activeRegion && (
+            <div
+              style={{
+                position: 'absolute',
+                top: `${tooltipPos.y}px`,
+                left: `${tooltipPos.x}px`,
+                zIndex: 50,
+                width: '360px',
+                backgroundColor: 'rgba(5, 7, 13, 0.96)',
+                backdropFilter: 'blur(16px)',
+                border: '1px solid rgba(59, 130, 246, 0.55)',
+                borderRadius: '10px',
+                padding: '16px',
+                boxShadow: '0 12px 40px rgba(0,0,0,0.85), 0 0 25px rgba(59, 130, 246, 0.3)',
+                pointerEvents: 'none',
+                transition: 'top 0.1s ease, left 0.1s ease'
+              }}
+            >
+              {/* Modal Header */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '8px' }}>
+                <div>
+                  <h3 style={{ fontSize: '17px', fontWeight: '800', color: '#FFFFFF', margin: 0 }}>
+                    {hoveredRegion}
+                  </h3>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginTop: '2px' }}>
+                    <span style={{ fontSize: '19px', fontWeight: '800', color: '#F59E0B' }}>{activeRegion.msi}</span>
+                    <span style={{ fontSize: '11.5px', color: '#94A3B8' }}>Motivated Seller Index</span>
+                  </div>
+                </div>
+                <span style={{ fontSize: '11.5px', fontFamily: "'Space Mono', monospace", color: '#64748B', fontWeight: 'bold' }}>{activeRegion.state}</span>
+              </div>
+
+              {/* Deltas & Ranking */}
+              <div style={{ display: 'flex', gap: '12px', fontSize: '10.5px', fontFamily: "'Space Mono', monospace", margin: '8px 0' }}>
+                <span style={{ color: '#10B981' }}>▼ {activeRegion.deltaUt} {activeRegion.state}</span>
+                <span style={{ color: '#10B981' }}>▼ {activeRegion.deltaUs} US</span>
+                <span style={{ color: '#60A5FA' }}>{activeRegion.rank}</span>
+              </div>
+
+              {/* 3 Metric Badges */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', padding: '6px', backgroundColor: '#090D16', borderRadius: '6px', textAlign: 'center', marginBottom: '10px' }}>
+                <div>
+                  <div style={{ fontSize: '9px', color: '#64748B', textTransform: 'uppercase' }}>$/SQFT</div>
+                  <div style={{ fontSize: '11.5px', fontWeight: '700', color: '#FFFFFF' }}>{activeRegion.sqftPrice} <span style={{ color: '#EF4444', fontSize: '9.5px' }}>{activeRegion.sqftTrend}</span></div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '9px', color: '#64748B', textTransform: 'uppercase' }}>UNDERWATER</div>
+                  <div style={{ fontSize: '11.5px', fontWeight: '700', color: '#FFFFFF' }}>{activeRegion.underwater}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '9px', color: '#64748B', textTransform: 'uppercase' }}>SKEW</div>
+                  <div style={{ fontSize: '11.5px', fontWeight: '700', color: '#FFFFFF' }}>{activeRegion.skew}</div>
                 </div>
               </div>
-              <span style={{ fontSize: '12px', fontFamily: "'Space Mono', monospace", color: '#64748B', fontWeight: 'bold' }}>{activeRegion.state}</span>
+
+              {/* Table Breakdown */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', fontSize: '11px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '8px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#CBD5E1' }}>
+                  <span>Active listings</span>
+                  <span style={{ fontWeight: '700' }}>{activeRegion.activeListings}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#CBD5E1' }}>
+                  <span>Price Cuts %</span>
+                  <span style={{ fontWeight: '700' }}>{activeRegion.priceCuts}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#CBD5E1' }}>
+                  <span>Unrealized Loss %</span>
+                  <span style={{ fontWeight: '700' }}>{activeRegion.unrealizedLoss}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#CBD5E1' }}>
+                  <span>Dominant Buyer Cluster</span>
+                  <span style={{ fontWeight: '700', color: '#60A5FA' }}>{activeRegion.dominantCluster}</span>
+                </div>
+              </div>
+
+              {/* Footer Summary */}
+              <div style={{ marginTop: '8px', fontSize: '10.5px', color: '#94A3B8', lineHeight: '1.4' }}>
+                <div><strong>Mix:</strong> {activeRegion.buyerMix}</div>
+                <div><strong>Hottest:</strong> {activeRegion.hottest}</div>
+              </div>
+
+              <div
+                style={{ display: 'block', textAlign: 'center', marginTop: '10px', padding: '6px', borderRadius: '4px', backgroundColor: '#2563EB', color: '#FFFFFF', fontSize: '10.5px', fontWeight: '700', letterSpacing: '0.5px' }}
+              >
+                CLICK TO OPEN THE TERMINAL →
+              </div>
+
             </div>
-
-            {/* Deltas & Ranking */}
-            <div style={{ display: 'flex', gap: '14px', fontSize: '11px', fontFamily: "'Space Mono', monospace", margin: '10px 0' }}>
-              <span style={{ color: '#10B981' }}>▼ {activeRegion.deltaUt} {activeRegion.state}</span>
-              <span style={{ color: '#10B981' }}>▼ {activeRegion.deltaUs} US</span>
-              <span style={{ color: '#60A5FA' }}>{activeRegion.rank}</span>
-            </div>
-
-            {/* 3 Metric Badges */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', padding: '8px', backgroundColor: '#090D16', borderRadius: '6px', textAlign: 'center', marginBottom: '12px' }}>
-              <div>
-                <div style={{ fontSize: '9.5px', color: '#64748B', textTransform: 'uppercase' }}>$/SQFT</div>
-                <div style={{ fontSize: '12px', fontWeight: '700', color: '#FFFFFF' }}>{activeRegion.sqftPrice} <span style={{ color: '#EF4444', fontSize: '10px' }}>{activeRegion.sqftTrend}</span></div>
-              </div>
-              <div>
-                <div style={{ fontSize: '9.5px', color: '#64748B', textTransform: 'uppercase' }}>UNDERWATER</div>
-                <div style={{ fontSize: '12px', fontWeight: '700', color: '#FFFFFF' }}>{activeRegion.underwater}</div>
-              </div>
-              <div>
-                <div style={{ fontSize: '9.5px', color: '#64748B', textTransform: 'uppercase' }}>SKEW</div>
-                <div style={{ fontSize: '12px', fontWeight: '700', color: '#FFFFFF' }}>{activeRegion.skew}</div>
-              </div>
-            </div>
-
-            {/* Table Breakdown */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '11.5px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '10px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#CBD5E1' }}>
-                <span>Active listings</span>
-                <span style={{ fontWeight: '700' }}>{activeRegion.activeListings}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#CBD5E1' }}>
-                <span>Price Cuts %</span>
-                <span style={{ fontWeight: '700' }}>{activeRegion.priceCuts}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#CBD5E1' }}>
-                <span>Unrealized Loss %</span>
-                <span style={{ fontWeight: '700' }}>{activeRegion.unrealizedLoss}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#CBD5E1' }}>
-                <span>Dominant Buyer Cluster</span>
-                <span style={{ fontWeight: '700', color: '#60A5FA' }}>{activeRegion.dominantCluster}</span>
-              </div>
-            </div>
-
-            {/* Footer Summary */}
-            <div style={{ marginTop: '10px', fontSize: '11px', color: '#94A3B8', lineHeight: '1.4' }}>
-              <div><strong>Mix:</strong> {activeRegion.buyerMix}</div>
-              <div><strong>Hottest:</strong> {activeRegion.hottest}</div>
-            </div>
-
-            <Link
-              href="/profiler"
-              style={{ display: 'block', textAlign: 'center', marginTop: '12px', padding: '8px', borderRadius: '6px', backgroundColor: '#2563EB', color: '#FFFFFF', fontSize: '11.5px', fontWeight: '700', textDecoration: 'none', letterSpacing: '0.5px' }}
-            >
-              CLICK TO OPEN THE TERMINAL →
-            </Link>
-
-          </div>
+          )}
 
         </div>
 
