@@ -201,18 +201,7 @@ export default function OverviewPage() {
     setHoveredRegion(null);
   };
 
-  // Metro pins with exact Albers coordinates matching us-atlas
-  const metroPins = [
-    { name: 'Provo', state: 'Utah', x: 235, y: 185, color: '#3B82F6' },
-    { name: 'Seattle', state: 'Washington', x: 120, y: 55, color: '#EC4899' },
-    { name: 'Denver', state: 'Colorado', x: 380, y: 195, color: '#2563EB' },
-    { name: 'Austin', state: 'Texas', x: 480, y: 345, color: '#EC4899' },
-    { name: 'San Antonio', state: 'Texas', x: 465, y: 365, color: '#EF4444' },
-    { name: 'Phoenix', state: 'Arizona', x: 205, y: 275, color: '#F43F5E' },
-    { name: 'Chicago', state: 'Illinois', x: 605, y: 165, color: '#3B82F6' },
-    { name: 'New York', state: 'New York', x: 825, y: 140, color: '#3B82F6' },
-    { name: 'Miami', state: 'Florida', x: 795, y: 405, color: '#EC4899' },
-  ];
+
 
   return (
     <DashboardLayout title="Parcl HQ" subtitle="Live Real Estate Market Intelligence">
@@ -379,7 +368,7 @@ export default function OverviewPage() {
           onMouseUp={handleMouseUp}
           style={{
             position: 'relative',
-            backgroundColor: '#020408',
+            backgroundColor: '#000000',
             border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '12px',
             minHeight: '560px',
@@ -391,9 +380,6 @@ export default function OverviewPage() {
             userSelect: 'none'
           }}
         >
-          
-          {/* Subtle Dot Grid Background */}
-          <div style={{ position: 'absolute', inset: 0, opacity: 0.15, backgroundImage: 'radial-gradient(rgba(59, 130, 246, 0.4) 1px, transparent 1px)', backgroundSize: '24px 24px', pointerEvents: 'none' }} />
 
           {/* Top-Right Zoom Controls */}
           <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 20, display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -484,31 +470,6 @@ export default function OverviewPage() {
                   pointerEvents="none"
                 />
               )}
-
-              {/* 5. Interactive Metro Pins with Pulsing Indicators */}
-              {metroPins.map((pin) => (
-                <g
-                  key={pin.name}
-                  onMouseMove={(e) => handleRegionMouseMove(pin.state, e)}
-                  onMouseEnter={(e) => handleRegionMouseMove(pin.state, e)}
-                  onMouseLeave={handleRegionMouseLeave}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <circle cx={pin.x} cy={pin.y} r="12" fill={pin.color} fillOpacity="0.3" />
-                  <circle cx={pin.x} cy={pin.y} r="4.5" fill={pin.color} stroke="#FFFFFF" strokeWidth="1.8" />
-                  <text
-                    x={pin.x + 10}
-                    y={pin.y + 3.5}
-                    fill="#FFFFFF"
-                    fontSize="10"
-                    fontFamily="'Space Mono', monospace"
-                    fontWeight="700"
-                    style={{ textShadow: '0 1px 4px rgba(0,0,0,0.95)' }}
-                  >
-                    {pin.name}
-                  </text>
-                </g>
-              ))}
 
             </svg>
           </div>
