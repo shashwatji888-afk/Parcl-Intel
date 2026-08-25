@@ -148,8 +148,8 @@ export default function MarketRankingsPage() {
     });
   };
 
-  // Dynamically compute chart curve geometry based on selected market & active timeframe
-  const dynamicCurve = useMemo(() => {
+  // Generate 120 discrete high-resolution points for the chart curve
+  const chartSeries = useMemo(() => {
     let changeVal = -2.1;
     let changeStr = '-2.1%';
     if (timeframe === '3M') {
@@ -169,13 +169,82 @@ export default function MarketRankingsPage() {
       changeStr = selectedMarket.changeCovid || '+44.3%';
     }
 
-    // Zero Reference Line is at y = 80
-    const endY = Math.max(20, Math.min(220, 80 - changeVal * 4.2));
-    const midY1 = Math.max(20, Math.min(220, 80 - (changeVal * 0.3) * 4.2));
-    const midY2 = Math.max(15, Math.min(230, 80 - (changeVal * 0.8) * 4.2 - (changeVal >= 0 ? 35 : -35)));
+    const count = 120;
+    const points = [];
+    const basePrice = selectedMarket.rawPpsqf || 209.61;
+    const now = new Date(2026, 7, 26);
+    let daysBack = 365;
+    if (timeframe === '3M') daysBack = 90;
+    else if (timeframe === '6M') daysBack = 180;
+    else if (timeframe === '1Y') daysBack = 365;
+    else if (timeframe === '5Y') daysBack = 365 * 5;
+    else if (timeframe === 'COVID') daysBack = 365 * 6.4;
 
-    const path = `M 0 80 Q 220 ${midY1}, 450 ${midY2} T 750 ${endY - (changeVal >= 0 ? 10 : -10)} T 900 ${endY}`;
-    const area = `M 0 80 Q 220 ${midY1}, 450 ${midY2} T 750 ${endY - (changeVal >= 0 ? 10 : -10)} T 900 ${endY} L 900 240 L 0 240 Z`;
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    for (let i = 0; i < count; i++) {
+      const normX = i / (count - 1);
+      const svgX = normX * 900;
+      
+      let localPct = 0;
+      if (timeframe === '1Y') {
+        // High fidelity waveform matching real Parcl Labs 1Y chart:
+        if (normX < 0.15) {
+          const t = normX / 0.15;
+          localPct = -1.2 * t + 0.2 * Math.sin(t * Math.PI * 4);
+        } else if (normX < 0.35) {
+          const t = (normX - 0.15) / 0.2;
+          localPct = -1.2 - 1.2 * t + 0.3 * Math.sin(t * Math.PI * 2);
+        } else if (normX < 0.55) {
+          const t = (normX - 0.35) / 0.2;
+          localPct = -2.4 + 4.2 * t; // Rally from -2.4% to +1.8% in Spring
+        } else if (normX < 0.70) {
+          const t = (normX - 0.55) / 0.15;
+          localPct = 1.8 - 1.8 * Math.sin(t * Math.PI); // Dip down towards 0%
+        } else if (normX < 0.82) {
+          const t = (normX - 0.70) / 0.12;
+          localPct = 0.0 + 1.2 * Math.sin(t * Math.PI); // Rebound to +1.2%
+        } else {
+          const t = (normX - 0.82) / 0.18;
+          localPct = 0.0 + (changeVal - 0.0) * t; // Late summer drop to final changeVal
+        }
+      } else if (timeframe === '3M') {
+        localPct = (changeVal * normX) + 0.8 * Math.sin(normX * Math.PI * 3);
+      } else if (timeframe === '6M') {
+        localPct = (changeVal * normX) + 1.4 * Math.sin(normX * Math.PI * 2.5);
+      } else if (timeframe === '5Y') {
+        localPct = (changeVal * normX) - 3.0 * Math.sin(normX * Math.PI * 1.5);
+      } else {
+        localPct = (changeVal * Math.pow(normX, 0.75)) + 4.0 * Math.sin(normX * Math.PI * 2);
+      }
+
+      // Zero reference line is at y = 80.
+      const svgY = Math.max(15, Math.min(225, 80 - localPct * 25));
+
+      const targetTime = new Date(now.getTime() - (1 - normX) * daysBack * 24 * 60 * 60 * 1000);
+      const dateStr = `${months[targetTime.getMonth()]} ${targetTime.getDate()}, ${targetTime.getFullYear()}`;
+      const localPrice = (basePrice * (1 + localPct / 100)).toFixed(2);
+
+      points.push({
+        idx: i,
+        x: svgX,
+        y: svgY,
+        normX,
+        pct: localPct,
+        change: (localPct >= 0 ? '+' : '') + localPct.toFixed(1) + '%',
+        isPositive: localPct >= 0,
+        ppsqf: `$${localPrice}`,
+        date: dateStr
+      });
+    }
+
+    // Build smooth SVG path from the exact points
+    const pathD = points.reduce((acc, p, i) => {
+      if (i === 0) return `M ${p.x.toFixed(1)} ${p.y.toFixed(1)}`;
+      return `${acc} L ${p.x.toFixed(1)} ${p.y.toFixed(1)}`;
+    }, '');
+
+    const areaD = `${pathD} L 900 240 L 0 240 Z`;
 
     const labels = timeframe === '3M' ? ['Jun', 'Jul', 'Aug']
       : timeframe === '6M' ? ['Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug']
@@ -184,66 +253,35 @@ export default function MarketRankingsPage() {
       : ['Mar 2020', '2021', '2022', '2024', '2026'];
 
     return {
-      path,
-      area,
-      endY,
-      midY1,
-      midY2,
-      rawChange: changeVal,
+      points,
+      path: pathD,
+      area: areaD,
+      endY: points[points.length - 1].y,
       change: changeStr,
       labels
     };
   }, [selectedMarket, timeframe]);
 
-  // Interactive Hover Calculation along the exact curve
+  // Interactive Hover Calculation locked to exact curve point
   const handleChartMouseMove = (e) => {
-    if (!chartRef.current) return;
+    if (!chartRef.current || !chartSeries.points.length) return;
     const rect = chartRef.current.getBoundingClientRect();
     const normX = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    const svgX = normX * 900;
-
-    // Approximate dynamic curve height at svgX
-    const { endY, midY1, midY2 } = dynamicCurve;
-    let curveY;
-    if (normX < 0.5) {
-      const t = normX / 0.5;
-      curveY = (1 - t) * (1 - t) * 80 + 2 * (1 - t) * t * midY1 + t * t * midY2;
-    } else {
-      const t = (normX - 0.5) / 0.5;
-      curveY = (1 - t) * (1 - t) * midY2 + 2 * (1 - t) * t * (endY - 10) + t * t * endY;
-    }
-
-    // Determine sample date based on normX and active timeframe
-    let dateStr = 'Apr 29, 2026';
-    const now = new Date(2026, 7, 26); // Aug 26, 2026
-    let daysBack = 365;
-    if (timeframe === '3M') daysBack = 90;
-    else if (timeframe === '6M') daysBack = 180;
-    else if (timeframe === '1Y') daysBack = 365;
-    else if (timeframe === '5Y') daysBack = 365 * 5;
-    else if (timeframe === 'COVID') daysBack = 365 * 6.4;
-
-    const targetTime = new Date(now.getTime() - (1 - normX) * daysBack * 24 * 60 * 60 * 1000);
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    dateStr = `${months[targetTime.getMonth()]} ${targetTime.getDate()}, ${targetTime.getFullYear()}`;
-
-    // Price calculation at hovered point
-    const basePrice = selectedMarket.rawPpsqf || 209.61;
-    const localPct = (80 - curveY) / 4.2;
-    const localPrice = (basePrice * (1 + localPct / 100)).toFixed(2);
+    const pointIndex = Math.round(normX * (chartSeries.points.length - 1));
+    const point = chartSeries.points[pointIndex];
 
     const screenX = e.clientX - rect.left;
-    const screenY = (curveY / 240) * rect.height;
+    const screenY = (point.y / 240) * rect.height;
 
     setHoverPoint({
-      svgX,
-      svgY: curveY,
+      svgX: point.x,
+      svgY: point.y,
       screenX,
       screenY,
-      date: dateStr,
-      ppsqf: `$${localPrice}`,
-      change: (localPct >= 0 ? '+' : '') + localPct.toFixed(1) + '%',
-      isPositive: localPct >= 0
+      date: point.date,
+      ppsqf: point.ppsqf,
+      change: point.change,
+      isPositive: point.isPositive
     });
   };
 
@@ -602,13 +640,13 @@ export default function MarketRankingsPage() {
               <text x="16" y="160" fill="#64748B" fontSize="10" fontFamily="'Space Mono', monospace">-2%</text>
 
               {/* Area Gradient Fill */}
-              <path d={dynamicCurve.area} fill="url(#chartGradient)" />
+              <path d={chartSeries.area} fill="url(#chartGradient)" />
 
               {/* Main Line Stroke */}
-              <path d={dynamicCurve.path} fill="none" stroke="#3B82F6" strokeWidth="2.5" strokeLinecap="round" />
+              <path d={chartSeries.path} fill="none" stroke="#3B82F6" strokeWidth="2.5" strokeLinecap="round" />
 
               {/* STATIC END POINT MARKER */}
-              <circle cx="900" cy={dynamicCurve.endY} r="4" fill="#3B82F6" stroke="#FFFFFF" strokeWidth="1.5" />
+              <circle cx="900" cy={chartSeries.endY} r="4" fill="#3B82F6" stroke="#FFFFFF" strokeWidth="1.5" />
 
               {/* DYNAMIC HOVER CROSSHAIR DASHED LINE & GLOWING HIGHLIGHT CIRCLE */}
               {hoverPoint && (
@@ -683,7 +721,7 @@ export default function MarketRankingsPage() {
               <div
                 style={{
                   position: 'absolute',
-                  top: `${Math.min(dynamicCurve.endY - 14, 200)}px`,
+                  top: `${Math.min(chartSeries.endY - 14, 200)}px`,
                   right: '16px',
                   backgroundColor: '#090D16',
                   border: '1px solid #3B82F6',
@@ -696,13 +734,13 @@ export default function MarketRankingsPage() {
                   boxShadow: '0 0 12px rgba(59, 130, 246, 0.5)'
                 }}
               >
-                ● {selectedMarket.name} {dynamicCurve.change}
+                ● {selectedMarket.name} {chartSeries.change}
               </div>
             )}
 
             {/* X-Axis Date Labels */}
             <div style={{ position: 'absolute', bottom: '10px', left: '40px', right: '40px', display: 'flex', justifyContent: 'space-between', fontSize: '10.5px', color: '#64748B', fontFamily: "'Space Mono', monospace", pointerEvents: 'none' }}>
-              {dynamicCurve.labels.map((l, i) => (
+              {chartSeries.labels.map((l, i) => (
                 <span key={i}>{l}</span>
               ))}
             </div>
@@ -711,7 +749,7 @@ export default function MarketRankingsPage() {
           {/* Bottom Chart Footer Links */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', color: '#64748B', fontFamily: "'Space Mono', monospace" }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '3px 10px', borderRadius: '4px', backgroundColor: 'rgba(37, 99, 235, 0.15)', color: '#60A5FA' }}>
-              ● {selectedMarket.name} {dynamicCurve.change}
+              ● {selectedMarket.name} {chartSeries.change}
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
