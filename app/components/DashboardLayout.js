@@ -6,7 +6,6 @@ import { useAuth } from '../../context/AuthContext';
 
 const Sidebar = dynamic(() => import('./Sidebar'), { ssr: false });
 const Topbar = dynamic(() => import('./Topbar'), { ssr: false });
-const Footer = dynamic(() => import('./Footer'), { ssr: false });
 const UpgradeModal = dynamic(() => import('./UpgradeModal'), { ssr: false });
 const UserProfileModal = dynamic(() => import('./UserProfileModal'), { ssr: false });
 
@@ -58,11 +57,9 @@ export default function DashboardLayout({ title, subtitle, children, actions }) 
         />
 
         {/* INNER SCROLLABLE PAGE CONTENT (PADDING FOR 86px TOPBAR) */}
-        <main style={{ flex: 1, paddingTop: '92px', paddingBottom: '60px', paddingLeft: '32px', paddingRight: '32px', backgroundColor: '#030712' }}>
+        <main style={{ flex: 1, paddingTop: '92px', paddingBottom: '40px', paddingLeft: '32px', paddingRight: '32px', backgroundColor: '#030712' }}>
           {children}
         </main>
-
-        <Footer />
       </div>
 
       {/* GLOBAL MODALS */}
