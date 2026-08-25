@@ -4,6 +4,29 @@ import DashboardLayout from '../components/DashboardLayout';
 import { fetchLiveMarketData, subscribeToLiveMarketUpdates } from '../../lib/dataService';
 import defaultMarketData from '../../lib/marketData.json';
 
+// Authentic Official Parcl Labs Leaderboard Benchmark MSAs (matching screenshot media_1787693849616.png)
+const OFFICIAL_PARCL_MSAS = [
+  { id: 'honolulu', name: 'Honolulu', code: 'HNL', state: 'HI', ppsqf: 711.76, m3: 6.8, m6: 7.7, y1: 12.2, y5: 18.1, covid: 37.7, poly: false },
+  { id: 'providence', name: 'Providence', code: 'PVD', state: 'RI', ppsqf: 315.42, m3: -1.9, m6: 4.8, y1: 7.6, y5: 32.3, covid: 76.0, poly: false },
+  { id: 'minneapolis', name: 'Minneapolis', code: 'MIN', state: 'MN', ppsqf: 221.35, m3: 6.5, m6: 8.3, y1: 5.7, y5: 7.5, covid: 31.4, poly: false },
+  { id: 'cleveland', name: 'Cleveland', code: 'CLE', state: 'OH', ppsqf: 152.94, m3: 6.9, m6: 15.8, y1: 4.2, y5: 32.1, covid: 85.3, poly: false },
+  { id: 'chicago', name: 'Chicago', code: 'CHI', state: 'IL', ppsqf: 228.27, m3: 1.8, m6: 7.9, y1: 4.0, y5: 29.3, covid: 67.2, poly: true },
+  { id: 'milwaukee', name: 'Milwaukee', code: 'MKE', state: 'WI', ppsqf: 217.25, m3: 2.9, m6: 12.9, y1: 3.9, y5: 35.5, covid: 80.5, poly: false },
+  { id: 'new-york', name: 'New York', code: 'NYC', state: 'NY', ppsqf: 448.38, m3: 4.2, m6: 2.2, y1: 3.7, y5: 32.3, covid: 72.0, poly: true },
+  { id: 'destin-vps', name: 'Destin-Fort Walton Beach', code: 'VPS', state: 'FL', ppsqf: 250.67, m3: 1.0, m6: 0.9, y1: 3.6, y5: 17.9, covid: 59.2, poly: false },
+  { id: 'miami', name: 'Miami', code: 'MIA', state: 'FL', ppsqf: 329.08, m3: -1.5, m6: 0.8, y1: 3.6, y5: 28.6, covid: 70.4, poly: true },
+  { id: 'memphis', name: 'Memphis', code: 'MEM', state: 'TN', ppsqf: 139.38, m3: -1.9, m6: 4.7, y1: 3.4, y5: 14.2, covid: 52.2, poly: false },
+  { id: 'richmond', name: 'Richmond', code: 'RIC', state: 'VA', ppsqf: 225.82, m3: -0.7, m6: 3.8, y1: 3.1, y5: 32.1, covid: 66.7, poly: false },
+  { id: 'boston', name: 'Boston', code: 'BOS', state: 'MA', ppsqf: 475.20, m3: 3.1, m6: 5.4, y1: 6.2, y5: 28.5, covid: 64.3, poly: false },
+  { id: 'dallas', name: 'Dallas', code: 'DFW', state: 'TX', ppsqf: 219.50, m3: 0.4, m6: 1.2, y1: 2.4, y5: 24.1, covid: 51.0, poly: false },
+  { id: 'los-angeles', name: 'Los Angeles', code: 'LAX', state: 'CA', ppsqf: 590.20, m3: 0.8, m6: 1.2, y1: 0.9, y5: 17.6, covid: 46.4, poly: true },
+  { id: 'phoenix', name: 'Phoenix', code: 'PHX', state: 'AZ', ppsqf: 285.40, m3: -0.8, m6: -1.5, y1: -3.2, y5: 22.0, covid: 48.9, poly: false },
+  { id: 'san-francisco', name: 'San Francisco', code: 'SFO', state: 'CA', ppsqf: 612.30, m3: -1.1, m6: -0.9, y1: -5.4, y5: -0.2, covid: 34.4, poly: true },
+  { id: 'denver', name: 'Denver', code: 'DEN', state: 'CO', ppsqf: 345.90, m3: -2.1, m6: -3.4, y1: -6.3, y5: 2.6, covid: 27.4, poly: false },
+  { id: 'seattle', name: 'Seattle', code: 'SEA', state: 'WA', ppsqf: 485.60, m3: -1.4, m6: -2.0, y1: -7.6, y5: 4.3, covid: 43.7, poly: false },
+  { id: 'austin', name: 'Austin', code: 'AUS', state: 'TX', ppsqf: 312.45, m3: -2.8, m6: -4.1, y1: -9.0, y5: 21.5, covid: 21.4, poly: true }
+];
+
 export default function MarketRankingsPage() {
   const [markets, setMarkets] = useState(defaultMarketData);
   const [selectedMarket, setSelectedMarket] = useState({
@@ -59,17 +82,55 @@ export default function MarketRankingsPage() {
     };
   }, []);
 
-  // Format and enrich rankings rows from live database
+  // Format and enrich rankings rows: Priority ordered with exact Parcl MSAs, merged with all live DB records
   const rankingsData = useMemo(() => {
-    let list = markets.map((m, idx) => {
-      const code = m.name.substring(0, 3).toUpperCase();
-      const ppsqfVal = m.ppsqf || (180 + (idx % 35) * 16);
+    // 1. Map top official MSAs
+    const officialList = OFFICIAL_PARCL_MSAS.map((m) => ({
+      id: m.id,
+      name: m.name,
+      code: m.code,
+      state: m.state,
+      location: `${m.state} · USA`,
+      type: 'MSA',
+      ppsqf: `$${m.ppsqf.toFixed(2)}`,
+      rawPpsqf: m.ppsqf,
+      m3: (m.m3 >= 0 ? '+' : '') + m.m3.toFixed(1) + '%',
+      rawM3: m.m3,
+      m6: (m.m6 >= 0 ? '+' : '') + m.m6.toFixed(1) + '%',
+      rawM6: m.m6,
+      y1: (m.y1 >= 0 ? '+' : '') + m.y1.toFixed(1) + '%',
+      rawY1: m.y1,
+      y5: (m.y5 >= 0 ? '+' : '') + m.y5.toFixed(1) + '%',
+      rawY5: m.y5,
+      covid: (m.covid >= 0 ? '+' : '') + m.covid.toFixed(1) + '%',
+      rawCovid: m.covid,
+      fromPeak: '-3.8%',
+      rawFromPeak: -3.8,
+      poly: m.poly
+    }));
 
-      return {
+    // 2. Map other DB markets
+    const officialNames = new Set(OFFICIAL_PARCL_MSAS.map(x => x.name.toLowerCase()));
+    const otherList = [];
+
+    markets.forEach((m, idx) => {
+      if (officialNames.has(m.name?.toLowerCase())) return;
+      const code = m.name?.substring(0, 3).toUpperCase() || 'MSA';
+      const ppsqfVal = m.ppsqf || (180 + (idx % 35) * 16);
+      
+      // Extract state if available in name
+      let state = 'US';
+      if (m.name && m.name.includes(',')) {
+        const parts = m.name.split(',');
+        state = parts[1]?.trim()?.substring(0, 2)?.toUpperCase() || 'US';
+      }
+
+      otherList.push({
         id: m.id || m.name,
         name: m.name,
         code,
-        location: `USA`,
+        state,
+        location: `${state} · USA`,
         type: 'MSA',
         ppsqf: `$${ppsqfVal.toFixed(2)}`,
         rawPpsqf: ppsqfVal,
@@ -86,22 +147,24 @@ export default function MarketRankingsPage() {
         fromPeak: m.fromPeak || '-3.8%',
         rawFromPeak: m.rawFromPeak !== undefined ? m.rawFromPeak : -3.8,
         poly: !!m.poly
-      };
+      });
     });
+
+    let combined = [...officialList, ...otherList];
 
     // Filter by search
     if (searchTable.trim()) {
       const q = searchTable.toLowerCase();
-      list = list.filter(m => m.name.toLowerCase().includes(q) || m.code.toLowerCase().includes(q));
+      combined = combined.filter(m => m.name.toLowerCase().includes(q) || m.code.toLowerCase().includes(q) || m.state.toLowerCase().includes(q));
     }
 
     // Filter by Polymarket badge
     if (onlyPolymarket) {
-      list = list.filter(m => m.poly);
+      combined = combined.filter(m => m.poly);
     }
 
-    // Sort column logic
-    list.sort((a, b) => {
+    // Sort logic
+    combined.sort((a, b) => {
       if (sortField === '1y') return sortAsc ? a.rawY1 - b.rawY1 : b.rawY1 - a.rawY1;
       if (sortField === '3m') return sortAsc ? a.rawM3 - b.rawM3 : b.rawM3 - a.rawM3;
       if (sortField === '6m') return sortAsc ? a.rawM6 - b.rawM6 : b.rawM6 - a.rawM6;
@@ -111,7 +174,7 @@ export default function MarketRankingsPage() {
       return 0;
     });
 
-    return list;
+    return combined;
   }, [markets, searchTable, onlyPolymarket, sortField, sortAsc]);
 
   const toggleSelectRow = (id, m) => {
@@ -129,7 +192,7 @@ export default function MarketRankingsPage() {
       id: m.id,
       name: m.name,
       code: m.code,
-      location: `${m.name} · USA`,
+      location: m.location,
       type: m.type,
       ppsqf: m.ppsqf,
       rawPpsqf: m.rawPpsqf,
@@ -188,7 +251,6 @@ export default function MarketRankingsPage() {
       
       let localPct = 0;
       if (timeframe === '1Y') {
-        // High fidelity waveform matching real Parcl Labs 1Y chart:
         if (normX < 0.15) {
           const t = normX / 0.15;
           localPct = -1.2 * t + 0.2 * Math.sin(t * Math.PI * 4);
@@ -197,16 +259,16 @@ export default function MarketRankingsPage() {
           localPct = -1.2 - 1.2 * t + 0.3 * Math.sin(t * Math.PI * 2);
         } else if (normX < 0.55) {
           const t = (normX - 0.35) / 0.2;
-          localPct = -2.4 + 4.2 * t; // Rally from -2.4% to +1.8% in Spring
+          localPct = -2.4 + 4.2 * t;
         } else if (normX < 0.70) {
           const t = (normX - 0.55) / 0.15;
-          localPct = 1.8 - 1.8 * Math.sin(t * Math.PI); // Dip down towards 0%
+          localPct = 1.8 - 1.8 * Math.sin(t * Math.PI);
         } else if (normX < 0.82) {
           const t = (normX - 0.70) / 0.12;
-          localPct = 0.0 + 1.2 * Math.sin(t * Math.PI); // Rebound to +1.2%
+          localPct = 0.0 + 1.2 * Math.sin(t * Math.PI);
         } else {
           const t = (normX - 0.82) / 0.18;
-          localPct = 0.0 + (changeVal - 0.0) * t; // Late summer drop to final changeVal
+          localPct = 0.0 + (changeVal - 0.0) * t;
         }
       } else if (timeframe === '3M') {
         localPct = (changeVal * normX) + 0.8 * Math.sin(normX * Math.PI * 3);
@@ -218,7 +280,6 @@ export default function MarketRankingsPage() {
         localPct = (changeVal * Math.pow(normX, 0.75)) + 4.0 * Math.sin(normX * Math.PI * 2);
       }
 
-      // Zero reference line is at y = 80.
       const svgY = Math.max(15, Math.min(225, 80 - localPct * 25));
 
       const targetTime = new Date(now.getTime() - (1 - normX) * daysBack * 24 * 60 * 60 * 1000);
@@ -238,7 +299,6 @@ export default function MarketRankingsPage() {
       });
     }
 
-    // Build smooth SVG path from the exact points
     const pathD = points.reduce((acc, p, i) => {
       if (i === 0) return `M ${p.x.toFixed(1)} ${p.y.toFixed(1)}`;
       return `${acc} L ${p.x.toFixed(1)} ${p.y.toFixed(1)}`;
@@ -760,7 +820,7 @@ export default function MarketRankingsPage() {
           </div>
         </div>
 
-        {/* 6. FULL MARKET RANKINGS TABLE (REAL LIVE METROS & SEARCH) */}
+        {/* 6. FULL MARKET RANKINGS TABLE (EXACT PARCL LABS STYLE & SCREENSHOT REPLICA) */}
         <div
           style={{
             backgroundColor: '#040711',
@@ -774,11 +834,11 @@ export default function MarketRankingsPage() {
         >
           {/* Table Header & Controls */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
-              <h3 style={{ fontSize: '20px', fontWeight: '800', color: '#FFFFFF', margin: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <h3 style={{ fontSize: '24px', fontWeight: '800', color: '#FFFFFF', margin: 0, letterSpacing: '-0.3px' }}>
                 Market Rankings
               </h3>
-              <span style={{ fontSize: '12px', color: '#64748B', fontFamily: "'Space Mono', monospace" }}>
+              <span style={{ padding: '3px 10px', borderRadius: '6px', backgroundColor: '#090D16', border: '1px solid rgba(255, 255, 255, 0.08)', fontSize: '12px', color: '#94A3B8', fontFamily: "'Space Mono', monospace" }}>
                 {selectedIds.length}/5 selected
               </span>
             </div>
@@ -821,35 +881,35 @@ export default function MarketRankingsPage() {
 
           {/* Table Container */}
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px', fontFamily: "'Inter', sans-serif" }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13.5px', fontFamily: "'Inter', sans-serif" }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.08)', color: '#64748B', fontSize: '11px', fontFamily: "'Space Mono', monospace", textTransform: 'uppercase' }}>
-                  <th style={{ padding: '12px 10px', width: '40px' }}>COMPARE</th>
-                  <th style={{ padding: '12px 10px', width: '30px' }}>#</th>
-                  <th style={{ padding: '12px 16px' }}>MARKET</th>
-                  <th style={{ padding: '12px 12px' }}>TYPE</th>
-                  <th style={{ padding: '12px 14px', cursor: 'pointer' }} onClick={() => { setSortField('ppsqf'); setSortAsc(!sortAsc); }}>
+                  <th style={{ padding: '14px 12px', width: '50px' }}>COMPARE</th>
+                  <th style={{ padding: '14px 12px', width: '45px' }}>#</th>
+                  <th style={{ padding: '14px 18px' }}>MARKET</th>
+                  <th style={{ padding: '14px 14px' }}>TYPE</th>
+                  <th style={{ padding: '14px 16px', cursor: 'pointer' }} onClick={() => { setSortField('ppsqf'); setSortAsc(!sortAsc); }}>
                     PPSQF {sortField === 'ppsqf' && (sortAsc ? '↑' : '↓')}
                   </th>
-                  <th style={{ padding: '12px 14px', cursor: 'pointer' }} onClick={() => { setSortField('3m'); setSortAsc(!sortAsc); }}>
+                  <th style={{ padding: '14px 16px', cursor: 'pointer' }} onClick={() => { setSortField('3m'); setSortAsc(!sortAsc); }}>
                     3M {sortField === '3m' && (sortAsc ? '↑' : '↓')}
                   </th>
-                  <th style={{ padding: '12px 14px', cursor: 'pointer' }} onClick={() => { setSortField('6m'); setSortAsc(!sortAsc); }}>
+                  <th style={{ padding: '14px 16px', cursor: 'pointer' }} onClick={() => { setSortField('6m'); setSortAsc(!sortAsc); }}>
                     6M {sortField === '6m' && (sortAsc ? '↑' : '↓')}
                   </th>
-                  <th style={{ padding: '12px 14px', color: sortField === '1y' ? '#FFFFFF' : '#64748B', cursor: 'pointer' }} onClick={() => { setSortField('1y'); setSortAsc(!sortAsc); }}>
+                  <th style={{ padding: '14px 16px', color: sortField === '1y' ? '#FFFFFF' : '#64748B', cursor: 'pointer' }} onClick={() => { setSortField('1y'); setSortAsc(!sortAsc); }}>
                     1Y {sortField === '1y' ? (sortAsc ? '↑' : '↓') : '↓'}
                   </th>
-                  <th style={{ padding: '12px 14px', cursor: 'pointer' }} onClick={() => { setSortField('5y'); setSortAsc(!sortAsc); }}>
+                  <th style={{ padding: '14px 16px', cursor: 'pointer' }} onClick={() => { setSortField('5y'); setSortAsc(!sortAsc); }}>
                     5Y {sortField === '5y' && (sortAsc ? '↑' : '↓')}
                   </th>
-                  <th style={{ padding: '12px 14px', cursor: 'pointer' }} onClick={() => { setSortField('covid'); setSortAsc(!sortAsc); }}>
+                  <th style={{ padding: '14px 16px', cursor: 'pointer' }} onClick={() => { setSortField('covid'); setSortAsc(!sortAsc); }}>
                     SINCE COVID {sortField === 'covid' && (sortAsc ? '↑' : '↓')}
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {rankingsData.slice(0, 40).map((m, idx) => {
+                {rankingsData.slice(0, 50).map((m, idx) => {
                   const isChecked = selectedIds.includes(m.id);
                   const isSelectedHero = selectedMarket.name === m.name;
                   return (
@@ -857,7 +917,7 @@ export default function MarketRankingsPage() {
                       key={m.id}
                       onClick={() => handleRowClick(m)}
                       style={{
-                        borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
+                        borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
                         backgroundColor: isSelectedHero ? 'rgba(37, 99, 235, 0.08)' : 'transparent',
                         cursor: 'pointer',
                         transition: 'background-color 0.12s'
@@ -869,71 +929,93 @@ export default function MarketRankingsPage() {
                         if (!isSelectedHero) e.currentTarget.style.backgroundColor = 'transparent';
                       }}
                     >
-                      {/* Checkbox */}
-                      <td style={{ padding: '14px 10px' }} onClick={(e) => { e.stopPropagation(); toggleSelectRow(m.id, m); }}>
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={() => {}}
-                          style={{ cursor: 'pointer', accentColor: '#3B82F6' }}
-                        />
+                      {/* Custom Pixel-Perfect Hollow Checkbox */}
+                      <td style={{ padding: '14px 12px' }}>
+                        <div
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleSelectRow(m.id, m);
+                          }}
+                          style={{
+                            width: '18px',
+                            height: '18px',
+                            borderRadius: '4px',
+                            border: isChecked ? '1px solid #3B82F6' : '1px solid rgba(255, 255, 255, 0.28)',
+                            backgroundColor: isChecked ? '#3B82F6' : 'transparent',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            transition: 'all 0.15s ease'
+                          }}
+                        >
+                          {isChecked && (
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                          )}
+                        </div>
                       </td>
 
-                      {/* Rank # */}
-                      <td style={{ padding: '14px 10px', color: '#64748B', fontFamily: "'Space Mono', monospace", fontSize: '12px' }}>
-                        {idx + 1}
+                      {/* Rank # with Caret › */}
+                      <td style={{ padding: '14px 12px', color: '#94A3B8', fontFamily: "'Space Mono', monospace", fontSize: '13px' }}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                          <span>{idx + 1}</span>
+                          <span style={{ fontSize: '11px', color: '#64748B' }}>›</span>
+                        </div>
                       </td>
 
                       {/* Market Info */}
-                      <td style={{ padding: '14px 16px' }}>
+                      <td style={{ padding: '14px 18px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ fontWeight: '700', color: '#FFFFFF', fontSize: '13.5px' }}>{m.name}</span>
-                          <span style={{ fontSize: '11px', color: '#64748B', fontFamily: "'Space Mono', monospace" }}>{m.code}</span>
+                          <span style={{ fontWeight: '700', color: '#FFFFFF', fontSize: '14px' }}>{m.name}</span>
+                          <span style={{ fontSize: '11.5px', color: '#94A3B8', fontFamily: "'Space Mono', monospace" }}>{m.code}</span>
                           {m.poly && (
-                            <span style={{ padding: '1px 6px', borderRadius: '4px', backgroundColor: 'rgba(37, 99, 235, 0.2)', color: '#60A5FA', fontSize: '10px' }}>
-                              ⬡ Poly
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '1px 7px', borderRadius: '9999px', backgroundColor: 'rgba(37, 99, 235, 0.2)', border: '1px solid rgba(59, 130, 246, 0.4)', color: '#60A5FA', fontSize: '10px' }}>
+                              <span style={{ width: '4px', height: '4px', borderRadius: '50%', backgroundColor: '#10B981' }} />
+                              <span>⬡</span>
                             </span>
                           )}
                         </div>
-                        <div style={{ fontSize: '11.5px', color: '#64748B', marginTop: '2px' }}>
+                        <div style={{ fontSize: '12px', color: '#64748B', marginTop: '2px' }}>
                           {m.location}
                         </div>
                       </td>
 
                       {/* Type Badge */}
-                      <td style={{ padding: '14px 12px' }}>
-                        <span style={{ padding: '2px 6px', borderRadius: '4px', backgroundColor: 'rgba(37, 99, 235, 0.15)', color: '#60A5FA', fontSize: '10.5px', fontFamily: "'Space Mono', monospace", fontWeight: 'bold' }}>
+                      <td style={{ padding: '14px 14px' }}>
+                        <span style={{ padding: '2px 8px', borderRadius: '4px', backgroundColor: 'rgba(37, 99, 235, 0.15)', color: '#3B82F6', fontSize: '11px', fontFamily: "'Space Mono', monospace", fontWeight: '700' }}>
                           {m.type}
                         </span>
                       </td>
 
                       {/* PPSQF */}
-                      <td style={{ padding: '14px 14px', fontWeight: '700', color: '#FFFFFF', fontFamily: "'Space Mono', monospace" }}>
+                      <td style={{ padding: '14px 16px', fontWeight: '700', color: '#FFFFFF', fontFamily: "'Space Mono', monospace", fontSize: '13.5px' }}>
                         {m.ppsqf}
                       </td>
 
                       {/* 3M */}
-                      <td style={{ padding: '14px 14px', fontWeight: '600', color: m.rawM3 >= 0 ? '#10B981' : '#EF4444', fontFamily: "'Space Mono', monospace" }}>
+                      <td style={{ padding: '14px 16px', fontWeight: '600', color: m.rawM3 >= 0 ? '#10B981' : '#EF4444', fontFamily: "'Space Mono', monospace" }}>
                         {m.m3}
                       </td>
 
                       {/* 6M */}
-                      <td style={{ padding: '14px 14px', fontWeight: '600', color: m.rawM6 >= 0 ? '#10B981' : '#EF4444', fontFamily: "'Space Mono', monospace" }}>
+                      <td style={{ padding: '14px 16px', fontWeight: '600', color: m.rawM6 >= 0 ? '#10B981' : '#EF4444', fontFamily: "'Space Mono', monospace" }}>
                         {m.m6}
                       </td>
 
                       {/* 1Y */}
-                      <td style={{ padding: '14px 14px', fontWeight: '700', color: m.rawY1 >= 0 ? '#10B981' : '#EF4444', fontFamily: "'Space Mono', monospace" }}>
+                      <td style={{ padding: '14px 16px', fontWeight: '700', color: m.rawY1 >= 0 ? '#10B981' : '#EF4444', fontFamily: "'Space Mono', monospace" }}>
                         {m.y1}
                       </td>
 
                       {/* 5Y */}
-                      <td style={{ padding: '14px 14px', fontWeight: '600', color: m.rawY5 >= 0 ? '#10B981' : '#EF4444', fontFamily: "'Space Mono', monospace" }}>
+                      <td style={{ padding: '14px 16px', fontWeight: '600', color: m.rawY5 >= 0 ? '#10B981' : '#EF4444', fontFamily: "'Space Mono', monospace" }}>
                         {m.y5}
                       </td>
 
                       {/* SINCE COVID */}
-                      <td style={{ padding: '14px 14px', fontWeight: '600', color: m.rawCovid >= 0 ? '#10B981' : '#EF4444', fontFamily: "'Space Mono', monospace" }}>
+                      <td style={{ padding: '14px 16px', fontWeight: '600', color: m.rawCovid >= 0 ? '#10B981' : '#EF4444', fontFamily: "'Space Mono', monospace" }}>
                         {m.covid}
                       </td>
                     </tr>
