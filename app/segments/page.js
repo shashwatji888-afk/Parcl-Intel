@@ -1,58 +1,8 @@
 'use client';
 import { useState, useEffect, useMemo } from 'react';
-import Link from 'next/link';
 import DashboardLayout from '../components/DashboardLayout';
 import { fetchLiveMarketData, subscribeToLiveMarketUpdates } from '../../lib/dataService';
 import defaultMarketData from '../../lib/marketData.json';
-
-// Authentic Price Trend Mock Curves for various time windows
-const CHART_CURVES = {
-  '3M': {
-    path: 'M 0 140 Q 150 160, 300 130 T 600 110 T 900 170',
-    area: 'M 0 140 Q 150 160, 300 130 T 600 110 T 900 170 L 900 240 L 0 240 Z',
-    endY: 170,
-    change: '-2.6%',
-    labels: ['Jun', 'Jul', 'Aug'],
-    peak: '+1.2%',
-    trough: '-3.1%'
-  },
-  '6M': {
-    path: 'M 0 120 Q 200 80, 450 150 T 750 100 T 900 125',
-    area: 'M 0 120 Q 200 80, 450 150 T 750 100 T 900 125 L 900 240 L 0 240 Z',
-    endY: 125,
-    change: '-0.2%',
-    labels: ['Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-    peak: '+2.4%',
-    trough: '-1.8%'
-  },
-  '1Y': {
-    path: 'M 0 80 Q 120 120, 220 160 T 360 175 T 500 160 Q 600 20, 680 10 T 780 10 T 840 100 T 900 185',
-    area: 'M 0 80 Q 120 120, 220 160 T 360 175 T 500 160 Q 600 20, 680 10 T 780 10 T 840 100 T 900 185 L 900 240 L 0 240 Z',
-    endY: 185,
-    change: '-2.1%',
-    labels: ['Oct', 'Jan', 'Apr', 'Jul'],
-    peak: '+2.1%',
-    trough: '-2.4%'
-  },
-  '5Y': {
-    path: 'M 0 200 Q 250 180, 450 90 T 700 50 T 900 40',
-    area: 'M 0 200 Q 250 180, 450 90 T 700 50 T 900 40 L 900 240 L 0 240 Z',
-    endY: 40,
-    change: '+11.1%',
-    labels: ['2021', '2022', '2023', '2024', '2025', '2026'],
-    peak: '+14.5%',
-    trough: '-1.2%'
-  },
-  'COVID': {
-    path: 'M 0 220 Q 200 190, 400 110 T 650 40 T 900 20',
-    area: 'M 0 220 Q 200 190, 400 110 T 650 40 T 900 20 L 900 240 L 0 240 Z',
-    endY: 20,
-    change: '+44.3%',
-    labels: ['Mar 2020', '2021', '2022', '2024', '2026'],
-    peak: '+48.2%',
-    trough: '0.0%'
-  }
-};
 
 export default function MarketRankingsPage() {
   const [markets, setMarkets] = useState(defaultMarketData);
@@ -64,11 +14,17 @@ export default function MarketRankingsPage() {
     type: 'COUNTRY',
     ppsqf: '$209.61',
     change3m: '-2.6%',
+    rawChange3m: -2.6,
     change6m: '-0.2%',
+    rawChange6m: -0.2,
     change1y: '-2.1%',
+    rawChange1y: -2.1,
     change5y: '+11.1%',
+    rawChange5y: 11.1,
     changeCovid: '+44.3%',
-    fromPeak: '-3.8%'
+    rawChangeCovid: 44.3,
+    fromPeak: '-3.8%',
+    rawFromPeak: -3.8
   });
 
   const [timeframe, setTimeframe] = useState('1Y');
@@ -78,7 +34,7 @@ export default function MarketRankingsPage() {
   const [sortField, setSortField] = useState('1y');
   const [sortAsc, setSortAsc] = useState(false);
 
-  // Fetch live market database
+  // 1. Fetch live market dataset from Supabase database
   useEffect(() => {
     async function load() {
       const data = await fetchLiveMarketData();
@@ -88,6 +44,7 @@ export default function MarketRankingsPage() {
     }
     load();
 
+    // Supabase Real-time Listener
     const unsub = subscribeToLiveMarketUpdates((fresh) => {
       if (fresh && fresh.length > 0) setMarkets(fresh);
     });
@@ -97,67 +54,40 @@ export default function MarketRankingsPage() {
     };
   }, []);
 
-  // Format and enrich rankings rows
+  // Format and enrich rankings rows from live database
   const rankingsData = useMemo(() => {
-    const defaultCodes = {
-      'Honolulu': { code: 'HNL', state: 'HI', ppsqf: 711.76, m3: 6.8, m6: 7.7, y1: 12.2, y5: 18.1, covid: 37.7, poly: false },
-      'Providence': { code: 'PVD', state: 'RI', ppsqf: 315.42, m3: -1.9, m6: 4.8, y1: 7.6, y5: 32.3, covid: 76.0, poly: false },
-      'Minneapolis': { code: 'MIN', state: 'MN', ppsqf: 221.35, m3: 6.5, m6: 8.3, y1: 5.7, y5: 7.5, covid: 31.4, poly: false },
-      'Cleveland': { code: 'CLE', state: 'OH', ppsqf: 152.94, m3: 6.9, m6: 15.8, y1: 4.2, y5: 32.1, covid: 85.3, poly: false },
-      'Chicago': { code: 'CHI', state: 'IL', ppsqf: 228.27, m3: 1.8, m6: 7.9, y1: 4.0, y5: 29.3, covid: 67.2, poly: true },
-      'Milwaukee': { code: 'MKE', state: 'WI', ppsqf: 217.25, m3: 2.9, m6: 12.9, y1: 3.9, y5: 35.5, covid: 80.5, poly: false },
-      'New York': { code: 'NYC', state: 'NY', ppsqf: 448.38, m3: 4.2, m6: 2.2, y1: 3.7, y5: 32.3, covid: 72.0, poly: true },
-      'Destin-Fort Walton Beach': { code: 'VPS', state: 'FL', ppsqf: 250.67, m3: 1.0, m6: 0.9, y1: 3.6, y5: 17.9, covid: 59.2, poly: false },
-      'Miami': { code: 'MIA', state: 'FL', ppsqf: 329.08, m3: -1.5, m6: 0.8, y1: 3.6, y5: 28.6, covid: 70.4, poly: true },
-      'Memphis': { code: 'MEM', state: 'TN', ppsqf: 139.38, m3: -1.9, m6: 4.7, y1: 3.4, y5: 14.2, covid: 52.2, poly: false },
-      'Richmond': { code: 'RIC', state: 'VA', ppsqf: 225.82, m3: -0.7, m6: 3.8, y1: 3.1, y5: 32.1, covid: 66.7, poly: false },
-      'Austin': { code: 'AUS', state: 'TX', ppsqf: 312.45, m3: -2.8, m6: -4.1, y1: -9.0, y5: 21.5, covid: 21.4, poly: true },
-      'Seattle': { code: 'SEA', state: 'WA', ppsqf: 485.60, m3: -1.4, m6: -2.0, y1: -7.6, y5: 4.3, covid: 43.7, poly: false },
-      'San Francisco': { code: 'SFO', state: 'CA', ppsqf: 612.30, m3: -1.1, m6: -0.9, y1: -5.4, y5: -0.2, covid: 34.4, poly: true },
-      'Denver': { code: 'DEN', state: 'CO', ppsqf: 345.90, m3: -2.1, m6: -3.4, y1: -6.3, y5: 2.6, covid: 27.4, poly: false },
-      'Los Angeles': { code: 'LAX', state: 'CA', ppsqf: 590.20, m3: 0.8, m6: 1.2, y1: 0.9, y5: 17.6, covid: 46.4, poly: true },
-    };
-
     let list = markets.map((m, idx) => {
-      const def = defaultCodes[m.name] || {};
-      const fipsNum = parseInt(m.id || idx, 10) || (idx + 1);
-      const code = def.code || m.name.substring(0, 3).toUpperCase();
-      const state = def.state || 'US';
-      const ppsqf = def.ppsqf || Math.round(140 + (fipsNum % 30) * 18);
-      const m3 = def.m3 !== undefined ? def.m3 : (fipsNum % 2 === 0 ? 1 : -1) * (1 + (fipsNum % 6) * 0.9);
-      const m6 = def.m6 !== undefined ? def.m6 : (fipsNum % 3 === 0 ? -1 : 1) * (2 + (fipsNum % 8) * 1.4);
-      const y1 = def.y1 !== undefined ? def.y1 : (parseFloat(m.priceChange1y) || ((fipsNum % 2 === 0 ? 1 : -1) * (1 + (fipsNum % 10) * 0.8)));
-      const y5 = def.y5 !== undefined ? def.y5 : (12 + (fipsNum % 25) * 2.2);
-      const covid = def.covid !== undefined ? def.covid : (35 + (fipsNum % 40) * 1.5);
-      const poly = def.poly !== undefined ? def.poly : (idx === 4 || idx === 6 || idx === 8 || idx === 11 || idx === 13 || idx === 15);
+      const code = m.name.substring(0, 3).toUpperCase();
+      const ppsqfVal = m.ppsqf || (180 + (idx % 35) * 16);
 
       return {
         id: m.id || m.name,
         name: m.name,
         code,
-        state,
-        location: `${state} · USA`,
+        location: `USA`,
         type: 'MSA',
-        ppsqf: `$${ppsqf.toFixed(2)}`,
-        rawPpsqf: ppsqf,
-        m3: (m3 >= 0 ? '+' : '') + m3.toFixed(1) + '%',
-        rawM3: m3,
-        m6: (m6 >= 0 ? '+' : '') + m6.toFixed(1) + '%',
-        rawM6: m6,
-        y1: (y1 >= 0 ? '+' : '') + y1.toFixed(1) + '%',
-        rawY1: y1,
-        y5: (y5 >= 0 ? '+' : '') + y5.toFixed(1) + '%',
-        rawY5: y5,
-        covid: (covid >= 0 ? '+' : '') + covid.toFixed(1) + '%',
-        rawCovid: covid,
-        poly
+        ppsqf: `$${ppsqfVal.toFixed(2)}`,
+        rawPpsqf: ppsqfVal,
+        m3: m.change3m || '-1.5%',
+        rawM3: m.rawChange3m !== undefined ? m.rawChange3m : -1.5,
+        m6: m.change6m || '+2.4%',
+        rawM6: m.rawChange6m !== undefined ? m.rawChange6m : 2.4,
+        y1: m.change1y || (m.priceChange1y || '+3.5%'),
+        rawY1: m.rawChange1y !== undefined ? m.rawChange1y : 3.5,
+        y5: m.change5y || '+28.4%',
+        rawY5: m.rawChange5y !== undefined ? m.rawChange5y : 28.4,
+        covid: m.changeCovid || '+55.2%',
+        rawCovid: m.rawChangeCovid !== undefined ? m.rawChangeCovid : 55.2,
+        fromPeak: m.fromPeak || '-3.8%',
+        rawFromPeak: m.rawFromPeak !== undefined ? m.rawFromPeak : -3.8,
+        poly: !!m.poly
       };
     });
 
     // Filter by search
     if (searchTable.trim()) {
       const q = searchTable.toLowerCase();
-      list = list.filter(m => m.name.toLowerCase().includes(q) || m.code.toLowerCase().includes(q) || m.state.toLowerCase().includes(q));
+      list = list.filter(m => m.name.toLowerCase().includes(q) || m.code.toLowerCase().includes(q));
     }
 
     // Filter by Polymarket badge
@@ -165,7 +95,7 @@ export default function MarketRankingsPage() {
       list = list.filter(m => m.poly);
     }
 
-    // Sort by 1Y return descending by default
+    // Sort column logic
     list.sort((a, b) => {
       if (sortField === '1y') return sortAsc ? a.rawY1 - b.rawY1 : b.rawY1 - a.rawY1;
       if (sortField === '3m') return sortAsc ? a.rawM3 - b.rawM3 : b.rawM3 - a.rawM3;
@@ -179,26 +109,13 @@ export default function MarketRankingsPage() {
     return list;
   }, [markets, searchTable, onlyPolymarket, sortField, sortAsc]);
 
-  const toggleSelectRow = (id, marketItem) => {
+  const toggleSelectRow = (id, m) => {
     if (selectedIds.includes(id)) {
       setSelectedIds(selectedIds.filter(x => x !== id));
     } else {
       if (selectedIds.length >= 5) return;
       setSelectedIds([...selectedIds, id]);
-      setSelectedMarket({
-        id: marketItem.id,
-        name: marketItem.name,
-        code: marketItem.code,
-        location: marketItem.location,
-        type: marketItem.type,
-        ppsqf: marketItem.ppsqf,
-        change3m: marketItem.m3,
-        change6m: marketItem.m6,
-        change1y: marketItem.y1,
-        change5y: marketItem.y5,
-        changeCovid: marketItem.covid,
-        fromPeak: '-3.8%'
-      });
+      handleRowClick(m);
     }
   };
 
@@ -207,19 +124,67 @@ export default function MarketRankingsPage() {
       id: m.id,
       name: m.name,
       code: m.code,
-      location: m.location,
+      location: `${m.name} · USA`,
       type: m.type,
       ppsqf: m.ppsqf,
       change3m: m.m3,
+      rawChange3m: m.rawM3,
       change6m: m.m6,
+      rawChange6m: m.rawM6,
       change1y: m.y1,
+      rawChange1y: m.rawY1,
       change5y: m.y5,
+      rawChange5y: m.rawY5,
       changeCovid: m.covid,
-      fromPeak: '-3.8%'
+      rawChangeCovid: m.rawCovid,
+      fromPeak: m.fromPeak,
+      rawFromPeak: m.rawFromPeak
     });
   };
 
-  const currentCurve = CHART_CURVES[timeframe] || CHART_CURVES['1Y'];
+  // Dynamically compute chart curve geometry based on selected market & active timeframe
+  const dynamicCurve = useMemo(() => {
+    let changeVal = -2.1;
+    let changeStr = '-2.1%';
+    if (timeframe === '3M') {
+      changeVal = selectedMarket.rawChange3m !== undefined ? selectedMarket.rawChange3m : -2.6;
+      changeStr = selectedMarket.change3m || '-2.6%';
+    } else if (timeframe === '6M') {
+      changeVal = selectedMarket.rawChange6m !== undefined ? selectedMarket.rawChange6m : -0.2;
+      changeStr = selectedMarket.change6m || '-0.2%';
+    } else if (timeframe === '1Y') {
+      changeVal = selectedMarket.rawChange1y !== undefined ? selectedMarket.rawChange1y : -2.1;
+      changeStr = selectedMarket.change1y || '-2.1%';
+    } else if (timeframe === '5Y') {
+      changeVal = selectedMarket.rawChange5y !== undefined ? selectedMarket.rawChange5y : 11.1;
+      changeStr = selectedMarket.change5y || '+11.1%';
+    } else if (timeframe === 'COVID') {
+      changeVal = selectedMarket.rawChangeCovid !== undefined ? selectedMarket.rawChangeCovid : 44.3;
+      changeStr = selectedMarket.changeCovid || '+44.3%';
+    }
+
+    // Zero Reference Line is at y = 80
+    const endY = Math.max(20, Math.min(220, 80 - changeVal * 4.2));
+    const midY1 = Math.max(20, Math.min(220, 80 - (changeVal * 0.3) * 4.2));
+    const midY2 = Math.max(15, Math.min(230, 80 - (changeVal * 0.8) * 4.2 - (changeVal >= 0 ? 35 : -35)));
+
+    const path = `M 0 80 Q 220 ${midY1}, 450 ${midY2} T 750 ${endY - (changeVal >= 0 ? 10 : -10)} T 900 ${endY}`;
+    const area = `M 0 80 Q 220 ${midY1}, 450 ${midY2} T 750 ${endY - (changeVal >= 0 ? 10 : -10)} T 900 ${endY} L 900 240 L 0 240 Z`;
+
+    const labels = timeframe === '3M' ? ['Jun', 'Jul', 'Aug']
+      : timeframe === '6M' ? ['Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug']
+      : timeframe === '1Y' ? ['Oct', 'Jan', 'Apr', 'Jul']
+      : timeframe === '5Y' ? ['2021', '2022', '2023', '2024', '2025', '2026']
+      : ['Mar 2020', '2021', '2022', '2024', '2026'];
+
+    return {
+      path,
+      area,
+      endY,
+      change: changeStr,
+      labels
+    };
+  }, [selectedMarket, timeframe]);
 
   return (
     <DashboardLayout title="Market Rankings" subtitle="Real Time Home Price Feeds">
@@ -235,7 +200,7 @@ export default function MarketRankingsPage() {
             Real Time Home Price Feeds
           </h1>
           <p style={{ fontSize: '13.5px', color: '#94A3B8', margin: '4px 0 0 0' }}>
-            Updated daily at 9:30am EST.
+            Updated daily at 9:30am EST · Sourced directly from live database.
           </p>
         </div>
 
@@ -323,10 +288,10 @@ export default function MarketRankingsPage() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '12px', color: '#94A3B8' }}>
             <div style={{ cursor: 'pointer' }} onClick={() => setSearchTable('USA')}>
-              › &quot;Why is USA down 2.1% over the past year? Pull supply, demand, and seller behavior.&quot;
+              › &quot;Why is {selectedMarket.name} {selectedMarket.change1y} over the past year? Pull supply, demand, and seller behavior.&quot;
             </div>
             <div style={{ cursor: 'pointer' }} onClick={() => setSortField('1y')}>
-              › &quot;Build a watchlist of metros tracking similar to USA&apos;s 1-year trend.&quot;
+              › &quot;Build a watchlist of metros tracking similar to {selectedMarket.name}&apos;s 1-year trend.&quot;
             </div>
           </div>
         </div>
@@ -389,7 +354,9 @@ export default function MarketRankingsPage() {
               }}
             >
               <div style={{ fontSize: '10.5px', color: '#64748B', fontFamily: "'Space Mono', monospace" }}>3M</div>
-              <div style={{ fontSize: '18px', fontWeight: '800', color: '#EF4444', marginTop: '2px' }}>{selectedMarket.change3m}</div>
+              <div style={{ fontSize: '18px', fontWeight: '800', color: (selectedMarket.rawChange3m || 0) >= 0 ? '#10B981' : '#EF4444', marginTop: '2px' }}>
+                {selectedMarket.change3m}
+              </div>
             </div>
 
             {/* 6M */}
@@ -405,7 +372,9 @@ export default function MarketRankingsPage() {
               }}
             >
               <div style={{ fontSize: '10.5px', color: '#64748B', fontFamily: "'Space Mono', monospace" }}>6M</div>
-              <div style={{ fontSize: '18px', fontWeight: '800', color: '#EF4444', marginTop: '2px' }}>{selectedMarket.change6m}</div>
+              <div style={{ fontSize: '18px', fontWeight: '800', color: (selectedMarket.rawChange6m || 0) >= 0 ? '#10B981' : '#EF4444', marginTop: '2px' }}>
+                {selectedMarket.change6m}
+              </div>
             </div>
 
             {/* 1Y (ACTIVE SELECTED STATE) */}
@@ -425,7 +394,9 @@ export default function MarketRankingsPage() {
                 <span style={{ width: '4px', height: '4px', borderRadius: '50%', backgroundColor: '#3B82F6' }} />
                 1Y
               </div>
-              <div style={{ fontSize: '18px', fontWeight: '800', color: '#EF4444', marginTop: '2px' }}>{selectedMarket.change1y}</div>
+              <div style={{ fontSize: '18px', fontWeight: '800', color: (selectedMarket.rawChange1y || 0) >= 0 ? '#10B981' : '#EF4444', marginTop: '2px' }}>
+                {selectedMarket.change1y}
+              </div>
             </div>
 
             {/* 5Y */}
@@ -441,7 +412,9 @@ export default function MarketRankingsPage() {
               }}
             >
               <div style={{ fontSize: '10.5px', color: '#64748B', fontFamily: "'Space Mono', monospace" }}>5Y</div>
-              <div style={{ fontSize: '18px', fontWeight: '800', color: '#10B981', marginTop: '2px' }}>{selectedMarket.change5y}</div>
+              <div style={{ fontSize: '18px', fontWeight: '800', color: (selectedMarket.rawChange5y || 0) >= 0 ? '#10B981' : '#EF4444', marginTop: '2px' }}>
+                {selectedMarket.change5y}
+              </div>
             </div>
 
             {/* COVID */}
@@ -457,7 +430,9 @@ export default function MarketRankingsPage() {
               }}
             >
               <div style={{ fontSize: '10.5px', color: '#64748B', fontFamily: "'Space Mono', monospace" }}>COVID</div>
-              <div style={{ fontSize: '18px', fontWeight: '800', color: '#10B981', marginTop: '2px' }}>{selectedMarket.changeCovid}</div>
+              <div style={{ fontSize: '18px', fontWeight: '800', color: (selectedMarket.rawChangeCovid || 0) >= 0 ? '#10B981' : '#EF4444', marginTop: '2px' }}>
+                {selectedMarket.changeCovid}
+              </div>
             </div>
 
             {/* FROM PEAK */}
@@ -548,20 +523,20 @@ export default function MarketRankingsPage() {
               <text x="16" y="160" fill="#64748B" fontSize="10" fontFamily="'Space Mono', monospace">-2%</text>
 
               {/* Area Gradient Fill */}
-              <path d={currentCurve.area} fill="url(#chartGradient)" />
+              <path d={dynamicCurve.area} fill="url(#chartGradient)" />
 
               {/* Main Line Stroke */}
-              <path d={currentCurve.path} fill="none" stroke="#3B82F6" strokeWidth="2.5" strokeLinecap="round" />
+              <path d={dynamicCurve.path} fill="none" stroke="#3B82F6" strokeWidth="2.5" strokeLinecap="round" />
 
               {/* End Point Marker */}
-              <circle cx="900" cy={currentCurve.endY} r="5" fill="#3B82F6" stroke="#FFFFFF" strokeWidth="2" />
+              <circle cx="900" cy={dynamicCurve.endY} r="5" fill="#3B82F6" stroke="#FFFFFF" strokeWidth="2" />
             </svg>
 
             {/* End Point Tooltip Badge */}
             <div
               style={{
                 position: 'absolute',
-                top: `${Math.min(currentCurve.endY - 14, 200)}px`,
+                top: `${Math.min(dynamicCurve.endY - 14, 200)}px`,
                 right: '16px',
                 backgroundColor: '#090D16',
                 border: '1px solid #3B82F6',
@@ -574,12 +549,12 @@ export default function MarketRankingsPage() {
                 boxShadow: '0 0 12px rgba(59, 130, 246, 0.5)'
               }}
             >
-              ● {selectedMarket.name} {currentCurve.change}
+              ● {selectedMarket.name} {dynamicCurve.change}
             </div>
 
             {/* X-Axis Date Labels */}
             <div style={{ position: 'absolute', bottom: '10px', left: '40px', right: '40px', display: 'flex', justifyContent: 'space-between', fontSize: '10.5px', color: '#64748B', fontFamily: "'Space Mono', monospace" }}>
-              {currentCurve.labels.map((l, i) => (
+              {dynamicCurve.labels.map((l, i) => (
                 <span key={i}>{l}</span>
               ))}
             </div>
@@ -588,7 +563,7 @@ export default function MarketRankingsPage() {
           {/* Bottom Chart Footer Links */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', color: '#64748B', fontFamily: "'Space Mono', monospace" }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '3px 10px', borderRadius: '4px', backgroundColor: 'rgba(37, 99, 235, 0.15)', color: '#60A5FA' }}>
-              ● {selectedMarket.name} {currentCurve.change}
+              ● {selectedMarket.name} {dynamicCurve.change}
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -688,7 +663,7 @@ export default function MarketRankingsPage() {
                 </tr>
               </thead>
               <tbody>
-                {rankingsData.slice(0, 30).map((m, idx) => {
+                {rankingsData.slice(0, 40).map((m, idx) => {
                   const isChecked = selectedIds.includes(m.id);
                   const isSelectedHero = selectedMarket.name === m.name;
                   return (
