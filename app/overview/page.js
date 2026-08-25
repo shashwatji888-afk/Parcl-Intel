@@ -29,6 +29,7 @@ export default function OverviewPage() {
   
   // Interactive Hover State for Popover Dialog
   const [hoveredRegion, setHoveredRegion] = useState(null);
+  const [tooltipPos, setTooltipPos] = useState({ x: 40, y: 120 });
 
   // Map Zoom & Pan State
   const [zoomLevel, setZoomLevel] = useState(1);
@@ -163,8 +164,41 @@ export default function OverviewPage() {
 
   const activeRegion = hoveredRegion ? getRegionDetails(hoveredRegion) : null;
 
-  const handleRegionHover = (stateName) => {
+  // Smart mouse-aware dynamic positioning: opens Left or Right based on available container space
+  const handleRegionMouseMove = (stateName, e) => {
     setHoveredRegion(stateName);
+    if (!mapContainerRef.current) return;
+    
+    const parentRect = mapContainerRef.current.getBoundingClientRect();
+    const cursorX = e.clientX - parentRect.left;
+    const cursorY = e.clientY - parentRect.top;
+
+    const cardWidth = 340;
+    const cardHeight = 270;
+
+    // Check if there is enough space on the right side of the cursor
+    const spaceOnRight = parentRect.width - cursorX;
+    let posX;
+    if (spaceOnRight >= cardWidth + 24) {
+      // Plenty of room on right -> open to the RIGHT of mouse
+      posX = cursorX + 18;
+    } else {
+      // Near right edge -> flip to the LEFT of mouse
+      posX = cursorX - cardWidth - 18;
+    }
+
+    // Clamp horizontally within container bounds
+    posX = Math.max(16, Math.min(posX, parentRect.width - cardWidth - 16));
+
+    // Center vertically around the cursor and clamp within container bounds
+    let posY = cursorY - cardHeight / 2;
+    posY = Math.max(16, Math.min(posY, parentRect.height - cardHeight - 16));
+
+    setTooltipPos({ x: posX, y: posY });
+  };
+
+  const handleRegionMouseLeave = () => {
+    setHoveredRegion(null);
   };
 
   // Metro pins with exact Albers coordinates matching us-atlas
@@ -404,11 +438,12 @@ export default function OverviewPage() {
                       fillOpacity={isHovered ? 1 : 0.82}
                       stroke={isHovered ? '#60A5FA' : 'rgba(0, 0, 0, 0.4)'}
                       strokeWidth={isHovered ? 2.2 : 0.8}
-                      onMouseEnter={() => handleRegionHover(st.name)}
-                      onMouseLeave={() => setHoveredRegion(null)}
+                      onMouseMove={(e) => handleRegionMouseMove(st.name, e)}
+                      onMouseEnter={(e) => handleRegionMouseMove(st.name, e)}
+                      onMouseLeave={handleRegionMouseLeave}
                       style={{
                         cursor: 'pointer',
-                        transition: 'fill-opacity 0.2s, stroke 0.2s, filter 0.2s',
+                        transition: 'fill-opacity 0.15s, stroke 0.15s, filter 0.15s',
                         filter: isHovered ? 'drop-shadow(0 0 12px rgba(59, 130, 246, 0.6))' : 'none'
                       }}
                     />
@@ -454,8 +489,9 @@ export default function OverviewPage() {
               {metroPins.map((pin) => (
                 <g
                   key={pin.name}
-                  onMouseEnter={() => handleRegionHover(pin.state)}
-                  onMouseLeave={() => setHoveredRegion(null)}
+                  onMouseMove={(e) => handleRegionMouseMove(pin.state, e)}
+                  onMouseEnter={(e) => handleRegionMouseMove(pin.state, e)}
+                  onMouseLeave={handleRegionMouseLeave}
                   style={{ cursor: 'pointer' }}
                 >
                   <circle cx={pin.x} cy={pin.y} r="12" fill={pin.color} fillOpacity="0.3" />
@@ -477,15 +513,15 @@ export default function OverviewPage() {
             </svg>
           </div>
 
-          {/* DYNAMIC SIDE-PANEL INSPECTION DOSSIER (DOCKED IN BOTTOM-LEFT, NEVER OBSTRUCTS MAP) */}
-          {hoveredRegion && activeRegion ? (
+          {/* DYNAMIC SMART MOUSE-AWARE FLOATING POPOVER (OPENS LEFT OR RIGHT OF CURSOR BASED ON DISPLAY SPACE) */}
+          {hoveredRegion && activeRegion && (
             <div
               style={{
                 position: 'absolute',
-                bottom: '16px',
-                left: '16px',
+                top: `${tooltipPos.y}px`,
+                left: `${tooltipPos.x}px`,
                 zIndex: 50,
-                width: '350px',
+                width: '340px',
                 backgroundColor: 'rgba(5, 7, 13, 0.96)',
                 backdropFilter: 'blur(16px)',
                 border: '1px solid rgba(59, 130, 246, 0.55)',
@@ -493,7 +529,7 @@ export default function OverviewPage() {
                 padding: '16px',
                 boxShadow: '0 12px 40px rgba(0,0,0,0.85), 0 0 25px rgba(59, 130, 246, 0.3)',
                 pointerEvents: 'none',
-                animation: 'fadeIn 0.2s ease-out'
+                transition: 'top 0.08s ease-out, left 0.08s ease-out'
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '8px' }}>
@@ -554,31 +590,31 @@ export default function OverviewPage() {
                 <div><strong>Hottest:</strong> {activeRegion.hottest}</div>
               </div>
             </div>
-          ) : (
-            /* DEFAULT BOTTOM-LEFT LEGEND CARD (WHEN NO REGION IS HOVERED) */
-            <div style={{ position: 'absolute', bottom: '16px', left: '16px', zIndex: 20, backgroundColor: 'rgba(5,7,14,0.92)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '12px 16px', maxWidth: '380px' }}>
-              <div style={{ fontSize: '11px', color: '#CBD5E1', marginBottom: '8px', lineHeight: '1.3' }}>
-                Showing <strong>Motivated Seller Index</strong> for <strong>all home types</strong> across <strong>metro areas</strong> with <strong>20+ active listings</strong>, at its current level.
-              </div>
-              
-              <div style={{ fontSize: '10px', fontFamily: "'Space Mono', monospace", color: '#64748B', textTransform: 'uppercase', marginBottom: '4px' }}>
-                MOTIVATED SELLER INDEX ⓘ
-              </div>
-
-              <div style={{ height: '6px', borderRadius: '3px', background: 'linear-gradient(to right, #2563EB 0%, #8B5CF6 35%, #EC4899 70%, #EF4444 100%)', marginBottom: '6px' }} />
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#94A3B8', fontFamily: "'Space Mono', monospace" }}>
-                <span>Neutral 0-2.5</span>
-                <span>Stubborn 2.5-5</span>
-                <span>Motivated 5-7.5</span>
-                <span>Fire Selling 7.5-10</span>
-              </div>
-
-              <div style={{ fontSize: '10px', color: '#64748B', marginTop: '6px', fontFamily: "'Space Mono', monospace" }}>
-                ● Updated Aug 26 · Min 20 listings · Methodology
-              </div>
-            </div>
           )}
+
+          {/* PERSISTENT BOTTOM-LEFT LEGEND CARD (MATCHING PARCL LABS UI) */}
+          <div style={{ position: 'absolute', bottom: '16px', left: '16px', zIndex: 20, backgroundColor: 'rgba(5,7,14,0.92)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '12px 16px', maxWidth: '380px' }}>
+            <div style={{ fontSize: '11px', color: '#CBD5E1', marginBottom: '8px', lineHeight: '1.3' }}>
+              Showing <strong>Motivated Seller Index</strong> for <strong>all home types</strong> across <strong>metro areas</strong> with <strong>20+ active listings</strong>, at its current level.
+            </div>
+            
+            <div style={{ fontSize: '10px', fontFamily: "'Space Mono', monospace", color: '#64748B', textTransform: 'uppercase', marginBottom: '4px' }}>
+              MOTIVATED SELLER INDEX ⓘ
+            </div>
+
+            <div style={{ height: '6px', borderRadius: '3px', background: 'linear-gradient(to right, #2563EB 0%, #8B5CF6 35%, #EC4899 70%, #EF4444 100%)', marginBottom: '6px' }} />
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#94A3B8', fontFamily: "'Space Mono', monospace" }}>
+              <span>Neutral 0-2.5</span>
+              <span>Stubborn 2.5-5</span>
+              <span>Motivated 5-7.5</span>
+              <span>Fire Selling 7.5-10</span>
+            </div>
+
+            <div style={{ fontSize: '10px', color: '#64748B', marginTop: '6px', fontFamily: "'Space Mono', monospace" }}>
+              ● Updated Aug 26 · Min 20 listings · Methodology
+            </div>
+          </div>
 
           {/* BOTTOM-RIGHT WATERMARK & CSV DOWNLOAD */}
           <div style={{ position: 'absolute', bottom: '16px', right: '16px', zIndex: 20, textAlign: 'right' }}>
