@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -110,7 +110,6 @@ export default function LandingPage() {
             <Link href="/overview" style={{ color: '#94A3B8', fontSize: '13.5px', fontWeight: '500', textDecoration: 'none' }}>Overview</Link>
             <Link href="/segments" style={{ color: '#94A3B8', fontSize: '13.5px', fontWeight: '500', textDecoration: 'none' }}>Segments</Link>
             <Link href="/investors" style={{ color: '#94A3B8', fontSize: '13.5px', fontWeight: '500', textDecoration: 'none' }}>Investors</Link>
-            <Link href="/geography" style={{ color: '#94A3B8', fontSize: '13.5px', fontWeight: '500', textDecoration: 'none' }}>Geography</Link>
             <Link href="/profiler" style={{ color: '#94A3B8', fontSize: '13.5px', fontWeight: '500', textDecoration: 'none' }}>Profiler</Link>
             <Link href="/pipeline" style={{ color: '#94A3B8', fontSize: '13.5px', fontWeight: '500', textDecoration: 'none' }}>Pipeline</Link>
             <Link href="/reports" style={{ color: '#94A3B8', fontSize: '13.5px', fontWeight: '500', textDecoration: 'none' }}>Reports</Link>

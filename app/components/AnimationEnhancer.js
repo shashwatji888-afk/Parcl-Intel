@@ -14,7 +14,6 @@ export default function AnimationEnhancer() {
       'Overview':   '/overview',
       'Segments':   '/segments',
       'Investors':  '/investors',
-      'Geography':  '/geography',
       'Insights':   '/insights',
       'Profiler':   '/profiler',
       'Pipeline':   '/pipeline',
