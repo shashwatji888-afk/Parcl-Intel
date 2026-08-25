@@ -29,7 +29,7 @@ export default function OverviewPage() {
   const [hoveredRegion, setHoveredRegion] = useState(null);
   const [tooltipPos, setTooltipPos] = useState({ x: 40, y: 120 });
 
-  // Map Zoom & Pan State (Scroll to Zoom)
+  // Map Zoom & Pan State
   const [zoomLevel, setZoomLevel] = useState(1);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -44,12 +44,23 @@ export default function OverviewPage() {
     loadData();
   }, []);
 
-  // Handle Wheel Scroll-to-Zoom
-  const handleWheel = (e) => {
-    e.preventDefault();
-    const zoomDelta = e.deltaY < 0 ? 0.15 : -0.15;
-    setZoomLevel((prev) => Math.min(Math.max(prev + zoomDelta, 0.75), 3.5));
-  };
+  // Dedicated non-passive wheel listener to prevent webpage scroll when zooming map
+  useEffect(() => {
+    const mapElement = mapContainerRef.current;
+    if (!mapElement) return;
+
+    const onWheelHandler = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const zoomDelta = e.deltaY < 0 ? 0.15 : -0.15;
+      setZoomLevel((prev) => Math.min(Math.max(prev + zoomDelta, 0.75), 3.5));
+    };
+
+    mapElement.addEventListener('wheel', onWheelHandler, { passive: false });
+    return () => {
+      mapElement.removeEventListener('wheel', onWheelHandler);
+    };
+  }, []);
 
   // Drag to pan map
   const handleMouseDown = (e) => {
@@ -368,10 +379,9 @@ export default function OverviewPage() {
 
         </div>
 
-        {/* 4. INTERACTIVE MAP CANVAS WITH SCROLL-TO-ZOOM & HOVER ONLY POPOVER */}
+        {/* 4. INTERACTIVE MAP CANVAS WITH NON-PASSIVE SCROLL-TO-ZOOM */}
         <div
           ref={mapContainerRef}
-          onWheel={handleWheel}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
@@ -528,7 +538,7 @@ export default function OverviewPage() {
             </svg>
           </div>
 
-          {/* DYNAMIC HOVER POPOVER DIALOG (ONLY RENDERS ON HOVER) */}
+          {/* DYNAMIC HOVER POPOVER DIALOG */}
           {hoveredRegion && activeRegion && (
             <div
               style={{
@@ -606,7 +616,7 @@ export default function OverviewPage() {
             </div>
           )}
 
-          {/* BOTTOM-LEFT LEGEND CARD (SCREENSHOT 2) */}
+          {/* BOTTOM-LEFT LEGEND CARD */}
           <div style={{ position: 'absolute', bottom: '16px', left: '16px', zIndex: 20, backgroundColor: 'rgba(5,7,14,0.92)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '12px 16px', maxWidth: '380px' }}>
             <div style={{ fontSize: '11px', color: '#CBD5E1', marginBottom: '8px', lineHeight: '1.3' }}>
               Showing <strong>Motivated Seller Index</strong> for <strong>all home types</strong> across <strong>metro areas</strong> with <strong>20+ active listings</strong>, at its current level.
@@ -616,7 +626,6 @@ export default function OverviewPage() {
               MOTIVATED SELLER INDEX ⓘ
             </div>
 
-            {/* Gradient Bar */}
             <div style={{ height: '6px', borderRadius: '3px', background: 'linear-gradient(to right, #3B82F6 0%, #8B5CF6 35%, #EC4899 70%, #EF4444 100%)', marginBottom: '6px' }} />
 
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#94A3B8', fontFamily: "'Space Mono', monospace" }}>
@@ -643,10 +652,9 @@ export default function OverviewPage() {
 
         </div>
 
-        {/* 5. NATIONAL: MOST VS LEAST MOTIVATED METROS (SCREENSHOTS 3 & 4) */}
+        {/* 5. NATIONAL: MOST VS LEAST MOTIVATED METROS */}
         <section id="national-rankings" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           
-          {/* Section Toolbar */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '12px' }}>
             <div>
               <div style={{ fontSize: '11.5px', color: '#64748B', marginBottom: '4px' }}>Customize the table below</div>

@@ -3,12 +3,14 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 
-// Streamlined essential navigation links for maximum efficiency
 const NAV_ITEMS = [
   { href: '/overview',  label: 'Motivated Sellers', icon: 'bar_chart' },
   { href: '/segments',  label: 'Market Rankings',  icon: 'leaderboard' },
   { href: '/investors', label: 'Watchlists',       icon: 'bookmark' },
-  { href: '/reports',   label: 'Reports & Data',   icon: 'assessment' },
+  { href: '/geography', label: 'Geographic Map',   icon: 'map' },
+  { href: '/profiler',  label: 'Buyer Profiler',   icon: 'psychology' },
+  { href: '/pipeline',  label: 'Data Pipeline',    icon: 'database' },
+  { href: '/reports',   label: 'Reports & Export', icon: 'assessment' },
 ];
 
 export default function Sidebar({ onOpenUpgrade, onOpenProfile }) {
@@ -16,7 +18,6 @@ export default function Sidebar({ onOpenUpgrade, onOpenProfile }) {
   const { user, profile } = useAuth();
 
   const userName = profile?.full_name || user?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Shashwat';
-  const avatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.picture || profile?.avatar_url;
 
   return (
     <aside style={{ width: '240px', backgroundColor: '#070B14', borderRight: '1px solid rgba(255, 255, 255, 0.08)', height: '100vh', display: 'flex', flexDirection: 'column', position: 'fixed', top: 0, left: 0, zIndex: 40, overflowY: 'auto' }}>
