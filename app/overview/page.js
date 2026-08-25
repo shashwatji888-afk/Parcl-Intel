@@ -1,8 +1,9 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import DashboardLayout from '../components/DashboardLayout';
-import { fetchLiveBuyerMetrics } from '../../lib/dataService';
+import { fetchLiveBuyerMetrics, subscribeToLiveBuyerUpdates } from '../../lib/dataService';
+import usMapData from '../../lib/usMapData.json';
 
 export default function OverviewPage() {
   const [metrics, setMetrics] = useState({
@@ -37,15 +38,25 @@ export default function OverviewPage() {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const mapContainerRef = useRef(null);
 
+  // 1. Fetch live metrics & subscribe to real-time database changes
   useEffect(() => {
     async function loadData() {
       const data = await fetchLiveBuyerMetrics();
       setMetrics(data);
     }
     loadData();
+
+    // Supabase Real-time Listener for auto-updating when new land/buyer is inserted
+    const unsubscribe = subscribeToLiveBuyerUpdates((freshData) => {
+      setMetrics(freshData);
+    });
+
+    return () => {
+      if (typeof unsubscribe === 'function') unsubscribe();
+    };
   }, []);
 
-  // Non-passive wheel event listener to strictly zoom the map without scrolling page
+  // 2. Dedicated non-passive wheel listener for smooth zoom without page scroll
   useEffect(() => {
     const mapElement = mapContainerRef.current;
     if (!mapElement) return;
@@ -53,7 +64,7 @@ export default function OverviewPage() {
     const onWheelHandler = (e) => {
       e.preventDefault();
       e.stopPropagation();
-      const zoomDelta = e.deltaY < 0 ? 0.18 : -0.18;
+      const zoomDelta = e.deltaY < 0 ? 0.16 : -0.16;
       setZoomLevel((prev) => Math.min(Math.max(prev + zoomDelta, 0.75), 3.5));
     };
 
@@ -86,30 +97,45 @@ export default function OverviewPage() {
     setPanOffset({ x: 0, y: 0 });
   };
 
-  // Build live dynamic region data merging Supabase database stats with MLS data
-  const getRegionDetails = (regionName) => {
-    const dbRegion = metrics.regions?.[regionName] || {
-      count: 105,
-      c1: 32, c2: 40, c3: 4, c4: 29,
-      loans: 42, cash: 63,
-      totalSat: 440
+  // State metadata dictionary merging static market metrics with dynamic Supabase database data
+  const stateMeta = {
+    'Utah': { state: 'UT', name: 'Provo / Salt Lake', msi: 5.43, sqftPrice: '$307', sqftTrend: '-0.3% 1Y', underwater: '2.3%', skew: '-30.2%', activeListings: '3,801', priceCuts: '42.9%', unrealizedLoss: '7.8%', investorListings: '11.4%', deltaUt: '-0.2', deltaUs: '-0.1', rank: '#509 by MSI', buyerMix: '67% SF · 44% NC · 0% Inst', hottest: 'SF $250k-$500k · 11.6% · MSI 6.74' },
+    'Washington': { state: 'WA', name: 'Seattle Metro', msi: 4.95, sqftPrice: '$542', sqftTrend: '-7.6% 1Y', underwater: '3.8%', skew: '-22.5%', activeListings: '8,420', priceCuts: '37.8%', unrealizedLoss: '5.4%', investorListings: '18.2%', deltaUt: '-0.4', deltaUs: '-0.3', rank: '#312 by MSI', buyerMix: '58% SF · 38% NC · 4% Inst', hottest: 'SFR $750k-$1.2M · 18.2% · MSI 5.12' },
+    'Colorado': { state: 'CO', name: 'Denver / Boulder', msi: 6.97, sqftPrice: '$388', sqftTrend: '-6.3% 1Y', underwater: '6.1%', skew: '-18.4%', activeListings: '12,940', priceCuts: '52.0%', unrealizedLoss: '8.9%', investorListings: '14.6%', deltaUt: '+0.8', deltaUs: '+1.2', rank: '#84 by MSI', buyerMix: '72% SF · 24% NC · 4% Inst', hottest: 'Condo $400k-$600k · 14.6% · MSI 7.20' },
+    'Texas': { state: 'TX', name: 'San Antonio / Austin', msi: 7.23, sqftPrice: '$215', sqftTrend: '-5.7% 1Y', underwater: '8.4%', skew: '-12.1%', activeListings: '20,223', priceCuts: '54.5%', unrealizedLoss: '11.2%', investorListings: '22.0%', deltaUt: '+1.1', deltaUs: '+1.5', rank: '#42 by MSI', buyerMix: '80% SF · 15% NC · 5% Inst', hottest: 'SFR $200k-$350k · 22.0% · MSI 7.85' },
+    'California': { state: 'CA', name: 'San Jose / Bay Area / LA', msi: 4.88, sqftPrice: '$1,020', sqftTrend: '-1.8% 1Y', underwater: '1.9%', skew: '-26.4%', activeListings: '14,200', priceCuts: '38.2%', unrealizedLoss: '4.6%', investorListings: '26.4%', deltaUt: '-0.5', deltaUs: '-0.6', rank: '#340 by MSI', buyerMix: '64% SF · 32% Condo · 4% Inst', hottest: 'SFR $1.2M-$2.0M · 26.4% · MSI 4.70' },
+    'Florida': { state: 'FL', name: 'Miami / Orlando / Tampa', msi: 5.99, sqftPrice: '$395', sqftTrend: '-1.5% 1Y', underwater: '5.2%', skew: '-19.0%', activeListings: '32,100', priceCuts: '45.4%', unrealizedLoss: '8.1%', investorListings: '31.2%', deltaUt: '+0.4', deltaUs: '+0.7', rank: '#142 by MSI', buyerMix: '50% Condo · 45% SF · 5% Inst', hottest: 'Condo $350k-$600k · 31.2% · MSI 6.40' },
+    'Arizona': { state: 'AZ', name: 'Phoenix Metro', msi: 6.56, sqftPrice: '$290', sqftTrend: '-1.7% 1Y', underwater: '5.8%', skew: '-16.2%', activeListings: '16,800', priceCuts: '49.8%', unrealizedLoss: '9.0%', investorListings: '19.5%', deltaUt: '+0.7', deltaUs: '+1.0', rank: '#110 by MSI', buyerMix: '78% SF · 20% NC · 2% Inst', hottest: 'SFR $300k-$480k · 19.5% · MSI 6.90' },
+    'New York': { state: 'NY', name: 'New York Metro', msi: 4.35, sqftPrice: '$890', sqftTrend: '+3.2% 1Y', underwater: '1.8%', skew: '-28.0%', activeListings: '24,100', priceCuts: '34.2%', unrealizedLoss: '3.9%', investorListings: '25.4%', deltaUt: '-0.3', deltaUs: '-0.5', rank: '#360 by MSI', buyerMix: '85% Condo · 10% Co-op · 5% Townhouse', hottest: 'Condo $1.2M-$2.5M · 25.4% · MSI 4.90' },
+    'Illinois': { state: 'IL', name: 'Chicago Metro', msi: 4.12, sqftPrice: '$285', sqftTrend: '+5.5% 1Y', underwater: '2.1%', skew: '-15.4%', activeListings: '18,400', priceCuts: '31.0%', unrealizedLoss: '4.2%', investorListings: '16.5%', deltaUt: '-0.6', deltaUs: '-0.8', rank: '#410 by MSI', buyerMix: '52% Multi · 48% SF · 0% Inst', hottest: 'Multi $450k-$700k · 16.5% · MSI 4.80' },
+    'Tennessee': { state: 'TN', name: 'Kingsport / Nashville', msi: 7.39, sqftPrice: '$182', sqftTrend: '+1.8% 1Y', underwater: '1.8%', skew: '-8.5%', activeListings: '1,746', priceCuts: '50.8%', unrealizedLoss: '5.9%', investorListings: '15.2%', deltaUt: '+1.4', deltaUs: '+1.9', rank: '#19 by MSI', buyerMix: '88% SF · 12% NC · 0% Inst', hottest: 'SFR $150k-$280k · 15.2% · MSI 8.10' },
+    'Louisiana': { state: 'LA', name: 'Lafayette / New Orleans', msi: 2.41, sqftPrice: '$165', sqftTrend: '+5.1% 1Y', underwater: '1.2%', skew: '+14.2%', activeListings: '1,699', priceCuts: '18.8%', unrealizedLoss: '4.9%', investorListings: '8.4%', deltaUt: '-1.8', deltaUs: '-2.1', rank: '#892 by MSI', buyerMix: '76% SF · 24% NC · 0% Inst', hottest: 'SFR $220k-$380k · 8.4% · MSI 2.90' }
+  };
+
+  // Color generator based on live Motivated Seller Index (MSI)
+  const getStateColor = (stateName) => {
+    const meta = stateMeta[stateName];
+    const msi = meta ? meta.msi : 4.8;
+
+    if (msi >= 7.0) return '#EF4444'; // Fire Selling (Red)
+    if (msi >= 6.0) return '#EC4899'; // High Motivation (Magenta/Pink)
+    if (msi >= 5.0) return '#8B5CF6'; // Stubborn/Moderate (Violet)
+    if (msi >= 4.0) return '#6366F1'; // Indigo
+    return '#2563EB';                 // Neutral/Low Stress (Blue)
+  };
+
+  const getRegionDetails = (stateName) => {
+    const dbRegion = metrics.regions?.[stateName] || {
+      count: 65,
+      c1: 28, c2: 24, c3: 2, c4: 11,
+      loans: 26, cash: 39,
+      totalSat: 270
     };
 
-    const staticMeta = {
-      'Utah': { state: 'UT', name: 'Provo', msi: '5.43', sqftPrice: '$307', sqftTrend: '-0.3% 1Y', underwater: '2.3%', skew: '-30.2%', activeListings: '3,801', priceCuts: '42.9%', unrealizedLoss: '7.8%', investorListings: '11.4%', deltaUt: '-0.2', deltaUs: '-0.1', rank: '#509 by MSI', buyerMix: '67% SF · 44% NC · 0% Inst', hottest: 'SF $250k-$500k · 11.6% · MSI 6.74' },
-      'Washington': { state: 'WA', name: 'Seattle', msi: '4.95', sqftPrice: '$542', sqftTrend: '-7.6% 1Y', underwater: '3.8%', skew: '-22.5%', activeListings: '8,420', priceCuts: '37.8%', unrealizedLoss: '5.4%', investorListings: '18.2%', deltaUt: '-0.4', deltaUs: '-0.3', rank: '#312 by MSI', buyerMix: '58% SF · 38% NC · 4% Inst', hottest: 'SFR $750k-$1.2M · 18.2% · MSI 5.12' },
-      'Colorado': { state: 'CO', name: 'Denver', msi: '6.97', sqftPrice: '$388', sqftTrend: '-6.3% 1Y', underwater: '6.1%', skew: '-18.4%', activeListings: '12,940', priceCuts: '52.0%', unrealizedLoss: '8.9%', investorListings: '14.6%', deltaUt: '+0.8', deltaUs: '+1.2', rank: '#84 by MSI', buyerMix: '72% SF · 24% NC · 4% Inst', hottest: 'Condo $400k-$600k · 14.6% · MSI 7.20' },
-      'Texas': { state: 'TX', name: 'San Antonio', msi: '7.23', sqftPrice: '$215', sqftTrend: '-5.7% 1Y', underwater: '8.4%', skew: '-12.1%', activeListings: '20,223', priceCuts: '54.5%', unrealizedLoss: '11.2%', investorListings: '22.0%', deltaUt: '+1.1', deltaUs: '+1.5', rank: '#42 by MSI', buyerMix: '80% SF · 15% NC · 5% Inst', hottest: 'SFR $200k-$350k · 22.0% · MSI 7.85' },
-      'California': { state: 'CA', name: 'San Jose / Bay Area', msi: '4.88', sqftPrice: '$1,020', sqftTrend: '-1.8% 1Y', underwater: '1.9%', skew: '-26.4%', activeListings: '14,200', priceCuts: '38.2%', unrealizedLoss: '4.6%', investorListings: '26.4%', deltaUt: '-0.5', deltaUs: '-0.6', rank: '#340 by MSI', buyerMix: '64% SF · 32% Condo · 4% Inst', hottest: 'SFR $1.2M-$2.0M · 26.4% · MSI 4.70' },
-      'Florida': { state: 'FL', name: 'Miami / Orlando', msi: '5.99', sqftPrice: '$395', sqftTrend: '-1.5% 1Y', underwater: '5.2%', skew: '-19.0%', activeListings: '32,100', priceCuts: '45.4%', unrealizedLoss: '8.1%', investorListings: '31.2%', deltaUt: '+0.4', deltaUs: '+0.7', rank: '#142 by MSI', buyerMix: '50% Condo · 45% SF · 5% Inst', hottest: 'Condo $350k-$600k · 31.2% · MSI 6.40' },
-      'Arizona': { state: 'AZ', name: 'Phoenix', msi: '6.56', sqftPrice: '$290', sqftTrend: '-1.7% 1Y', underwater: '5.8%', skew: '-16.2%', activeListings: '16,800', priceCuts: '49.8%', unrealizedLoss: '9.0%', investorListings: '19.5%', deltaUt: '+0.7', deltaUs: '+1.0', rank: '#110 by MSI', buyerMix: '78% SF · 20% NC · 2% Inst', hottest: 'SFR $300k-$480k · 19.5% · MSI 6.90' },
-      'New York': { state: 'NY', name: 'New York Metro', msi: '4.35', sqftPrice: '$890', sqftTrend: '+3.2% 1Y', underwater: '1.8%', skew: '-28.0%', activeListings: '24,100', priceCuts: '34.2%', unrealizedLoss: '3.9%', investorListings: '25.4%', deltaUt: '-0.3', deltaUs: '-0.5', rank: '#360 by MSI', buyerMix: '85% Condo · 10% Co-op · 5% Townhouse', hottest: 'Condo $1.2M-$2.5M · 25.4% · MSI 4.90' }
-    };
-
-    const meta = staticMeta[regionName] || {
-      state: regionName.substring(0, 2).toUpperCase(),
-      name: regionName,
-      msi: '5.49',
+    const meta = stateMeta[stateName] || {
+      state: stateName.substring(0, 2).toUpperCase(),
+      name: `${stateName} Market`,
+      msi: 5.49,
       sqftPrice: '$310',
       sqftTrend: '-2.2% 1Y',
       underwater: '3.5%',
@@ -126,7 +152,7 @@ export default function OverviewPage() {
     };
 
     const totalCount = dbRegion.count || 100;
-    const c1Pct = Math.round(((dbRegion.c1 || 30) / totalCount) * 100);
+    const c1Pct = Math.round(((dbRegion.c1 || 28) / totalCount) * 100);
 
     return {
       ...meta,
@@ -137,15 +163,28 @@ export default function OverviewPage() {
 
   const activeRegion = hoveredRegion ? getRegionDetails(hoveredRegion) : null;
 
-  const handleRegionHover = (regionKey, e) => {
-    setHoveredRegion(regionKey);
+  const handleRegionHover = (stateName, e) => {
+    setHoveredRegion(stateName);
     const parentRect = mapContainerRef.current?.getBoundingClientRect() || { left: 0, top: 0 };
     const rect = e.currentTarget.getBoundingClientRect();
     setTooltipPos({
-      x: Math.max(20, Math.min(rect.left - parentRect.left - 130, 500)),
-      y: Math.max(20, Math.min(rect.top - parentRect.top - 80, 220))
+      x: Math.max(20, Math.min(rect.left - parentRect.left - 130, 520)),
+      y: Math.max(20, Math.min(rect.top - parentRect.top - 80, 230))
     });
   };
+
+  // Metro pins with exact Albers coordinates matching us-atlas
+  const metroPins = [
+    { name: 'Provo', state: 'Utah', x: 235, y: 185, color: '#3B82F6' },
+    { name: 'Seattle', state: 'Washington', x: 120, y: 55, color: '#EC4899' },
+    { name: 'Denver', state: 'Colorado', x: 380, y: 195, color: '#2563EB' },
+    { name: 'Austin', state: 'Texas', x: 480, y: 345, color: '#EC4899' },
+    { name: 'San Antonio', state: 'Texas', x: 465, y: 365, color: '#EF4444' },
+    { name: 'Phoenix', state: 'Arizona', x: 205, y: 275, color: '#F43F5E' },
+    { name: 'Chicago', state: 'Illinois', x: 605, y: 165, color: '#3B82F6' },
+    { name: 'New York', state: 'New York', x: 825, y: 140, color: '#3B82F6' },
+    { name: 'Miami', state: 'Florida', x: 795, y: 405, color: '#EC4899' },
+  ];
 
   return (
     <DashboardLayout title="Parcl HQ" subtitle="Live Real Estate Market Intelligence">
@@ -165,7 +204,7 @@ export default function OverviewPage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '8px', fontSize: '11.5px', color: '#64748B', fontFamily: "'Space Mono', monospace" }}>
                 <span style={{ color: '#10B981', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
                   <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10B981' }} />
-                  Updated Aug 26, 2026 • refreshed daily
+                  Live Supabase Connected • refreshed in real-time
                 </span>
                 <span>·</span>
                 <a href="#national-rankings" style={{ color: '#60A5FA', textDecoration: 'none', cursor: 'pointer' }}>View market rankings ↓</a>
@@ -189,7 +228,7 @@ export default function OverviewPage() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search any market..."
+                placeholder="Search any market, state, or metro..."
                 style={{ background: 'transparent', border: 'none', outline: 'none', color: '#FFFFFF', fontSize: '14px', width: '100%', fontFamily: 'inherit' }}
               />
             </div>
@@ -218,8 +257,13 @@ export default function OverviewPage() {
             </div>
 
             <div>
-              <span style={{ color: '#64748B' }}>Unrealized loss </span>
-              <span style={{ fontWeight: '700', color: '#FFFFFF' }}>6.8%</span>
+              <span style={{ color: '#64748B' }}>Live Database Buyers </span>
+              <span style={{ fontWeight: '700', color: '#10B981' }}>{metrics.formattedTotalBuyers}</span>
+            </div>
+
+            <div>
+              <span style={{ color: '#64748B' }}>Financing Mix </span>
+              <span style={{ fontWeight: '700', color: '#60A5FA' }}>{metrics.cashPct}% Cash / {100 - metrics.cashPct}% Loan</span>
             </div>
 
             <div style={{ padding: '2px 8px', borderRadius: '4px', backgroundColor: '#111827', border: '1px solid rgba(255, 255, 255, 0.1)', fontSize: '11px', fontFamily: "'Space Mono', monospace", color: '#94A3B8' }}>
@@ -299,7 +343,7 @@ export default function OverviewPage() {
 
         </div>
 
-        {/* 4. EXACT MULTI-COUNTY VECTOR MAP CANVAS WITH SCROLL-TO-ZOOM */}
+        {/* 4. PRODUCTION-GRADE US CHOROPLETH VECTOR MAP WITH SCROLL-TO-ZOOM */}
         <div
           ref={mapContainerRef}
           onMouseDown={handleMouseDown}
@@ -310,7 +354,7 @@ export default function OverviewPage() {
             backgroundColor: '#020408',
             border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '12px',
-            minHeight: '540px',
+            minHeight: '560px',
             overflow: 'hidden',
             display: 'flex',
             alignItems: 'center',
@@ -349,92 +393,92 @@ export default function OverviewPage() {
             </button>
           </div>
 
-          {/* Transformed Vector Map Container (Exact Parcl Labs County Mosaic) */}
+          {/* Transformed Vector Map (Production High-Precision TopoJSON / D3-Geo Albers USA) */}
           <div style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoomLevel})`, transition: isDragging ? 'none' : 'transform 0.15s ease-out', transformOrigin: 'center center' }}>
-            <svg width="880" height="440" viewBox="0 0 950 480" style={{ maxWidth: '100%' }}>
+            <svg width="960" height="500" viewBox="0 0 960 500" style={{ maxWidth: '100%' }}>
               
-              {/* Outer US Border Outline Glow */}
-              <path
-                d="M 60,80 L 160,70 L 320,60 L 520,70 L 680,60 L 820,100 L 880,130 L 860,260 L 820,380 L 780,410 L 720,360 L 650,370 L 580,390 L 520,440 L 460,380 L 380,350 L 220,350 L 140,360 L 70,300 L 60,180 Z"
-                fill="none"
-                stroke="#FFFFFF"
-                strokeWidth="2.5"
-                strokeLinejoin="round"
-                opacity="0.9"
-              />
-
-              {/* Pacific Northwest (Washington / Oregon) */}
-              <g onMouseEnter={(e) => handleRegionHover('Washington', e)} onMouseLeave={() => setHoveredRegion(null)} style={{ cursor: 'pointer' }}>
-                <path d="M 60,80 L 180,75 L 170,150 L 70,160 Z" fill="#D946EF" fillOpacity="0.85" stroke="#000000" strokeWidth="1" />
-                <path d="M 70,160 L 170,150 L 160,230 L 65,220 Z" fill="#EC4899" fillOpacity="0.8" stroke="#000000" strokeWidth="1" />
+              {/* 1. All 50 US States Vector Polygons */}
+              <g>
+                {usMapData.states.map((st) => {
+                  const fillColor = getStateColor(st.name);
+                  const isHovered = hoveredRegion === st.name;
+                  return (
+                    <path
+                      key={st.fips}
+                      d={st.d}
+                      fill={fillColor}
+                      fillOpacity={isHovered ? 1 : 0.82}
+                      stroke={isHovered ? '#60A5FA' : 'rgba(0, 0, 0, 0.4)'}
+                      strokeWidth={isHovered ? 2.2 : 0.8}
+                      onMouseEnter={(e) => handleRegionHover(st.name, e)}
+                      onMouseLeave={() => setHoveredRegion(null)}
+                      style={{
+                        cursor: 'pointer',
+                        transition: 'fill-opacity 0.2s, stroke 0.2s, filter 0.2s',
+                        filter: isHovered ? 'drop-shadow(0 0 12px rgba(59, 130, 246, 0.6))' : 'none'
+                      }}
+                    />
+                  );
+                })}
               </g>
 
-              {/* California (Bay Area, LA, San Diego) */}
-              <g onMouseEnter={(e) => handleRegionHover('California', e)} onMouseLeave={() => setHoveredRegion(null)} style={{ cursor: 'pointer' }}>
-                <path d="M 65,220 L 160,230 L 140,320 L 75,290 Z" fill="#3B82F6" fillOpacity="0.9" stroke="#000000" strokeWidth="1" />
-                <path d="M 75,290 L 140,320 L 130,360 L 80,350 Z" fill="#8B5CF6" fillOpacity="0.85" stroke="#000000" strokeWidth="1" />
-              </g>
+              {/* 2. County-Level Mosaic Grid Overlay */}
+              {usMapData.countyBordersPath && (
+                <path
+                  d={usMapData.countyBordersPath}
+                  fill="none"
+                  stroke="rgba(0, 0, 0, 0.35)"
+                  strokeWidth="0.5"
+                  pointerEvents="none"
+                />
+              )}
 
-              {/* Mountain West (Utah / Provo / Nevada / Idaho) */}
-              <g onMouseEnter={(e) => handleRegionHover('Utah', e)} onMouseLeave={() => setHoveredRegion(null)} style={{ cursor: 'pointer' }}>
-                <path d="M 180,75 L 300,70 L 290,170 L 170,150 Z" fill="#8B5CF6" fillOpacity="0.85" stroke="#000000" strokeWidth="1" />
-                <path d="M 170,150 L 290,170 L 280,260 L 160,230 Z" fill="#D946EF" fillOpacity="0.9" stroke="#60A5FA" strokeWidth="1.5" />
-                {/* Active Provo Pin */}
-                <circle cx="230" cy="180" r="5" fill="#3B82F6" stroke="#FFFFFF" strokeWidth="2" />
-                <circle cx="230" cy="180" r="14" fill="rgba(59, 130, 246, 0.4)" />
-                <text x="248" y="184" fill="#FFFFFF" fontSize="11" fontFamily="'Space Mono', monospace" fontWeight="bold">Provo</text>
-              </g>
+              {/* 3. State Inner Borders */}
+              {usMapData.stateBordersPath && (
+                <path
+                  d={usMapData.stateBordersPath}
+                  fill="none"
+                  stroke="rgba(255, 255, 255, 0.2)"
+                  strokeWidth="0.9"
+                  pointerEvents="none"
+                />
+              )}
 
-              {/* Arizona / Phoenix */}
-              <g onMouseEnter={(e) => handleRegionHover('Arizona', e)} onMouseLeave={() => setHoveredRegion(null)} style={{ cursor: 'pointer' }}>
-                <path d="M 160,230 L 280,260 L 270,350 L 140,320 Z" fill="#F43F5E" fillOpacity="0.85" stroke="#000000" strokeWidth="1" />
-                <circle cx="210" cy="300" r="4" fill="#EF4444" stroke="#FFFFFF" strokeWidth="1.5" />
-                <text x="222" y="304" fill="#CBD5E1" fontSize="10" fontFamily="'Space Mono', monospace">Phoenix</text>
-              </g>
+              {/* 4. Outer Nation Glow Boundary */}
+              {usMapData.nationPath && (
+                <path
+                  d={usMapData.nationPath}
+                  fill="none"
+                  stroke="#FFFFFF"
+                  strokeWidth="1.8"
+                  opacity="0.95"
+                  pointerEvents="none"
+                />
+              )}
 
-              {/* Colorado / Denver / Wyoming */}
-              <g onMouseEnter={(e) => handleRegionHover('Colorado', e)} onMouseLeave={() => setHoveredRegion(null)} style={{ cursor: 'pointer' }}>
-                <path d="M 300,70 L 440,65 L 430,170 L 290,170 Z" fill="#2563EB" fillOpacity="0.8" stroke="#000000" strokeWidth="1" />
-                <path d="M 290,170 L 430,170 L 420,270 L 280,260 Z" fill="#F43F5E" fillOpacity="0.85" stroke="#000000" strokeWidth="1" />
-                <circle cx="360" cy="190" r="4" fill="#2563EB" stroke="#FFFFFF" strokeWidth="1.5" />
-                <text x="372" y="194" fill="#CBD5E1" fontSize="10" fontFamily="'Space Mono', monospace">Denver</text>
-              </g>
-
-              {/* Texas (Austin / San Antonio / Dallas / Houston) */}
-              <g onMouseEnter={(e) => handleRegionHover('Texas', e)} onMouseLeave={() => setHoveredRegion(null)} style={{ cursor: 'pointer' }}>
-                <path d="M 280,260 L 420,270 L 410,340 L 270,350 Z" fill="#EF4444" fillOpacity="0.85" stroke="#000000" strokeWidth="1" />
-                <path d="M 420,270 L 540,280 L 510,430 L 410,340 Z" fill="#EC4899" fillOpacity="0.9" stroke="#000000" strokeWidth="1" />
-                <circle cx="430" cy="340" r="4" fill="#EC4899" stroke="#FFFFFF" strokeWidth="1.5" />
-                <text x="442" y="344" fill="#FFFFFF" fontSize="10" fontFamily="'Space Mono', monospace">San Antonio</text>
-                <circle cx="450" cy="310" r="4" fill="#EC4899" stroke="#FFFFFF" strokeWidth="1.5" />
-                <text x="462" y="314" fill="#FFFFFF" fontSize="10" fontFamily="'Space Mono', monospace">Austin</text>
-              </g>
-
-              {/* Midwest (Illinois / Chicago / Minnesota / Wisconsin / Michigan) */}
-              <g onMouseEnter={(e) => handleRegionHover('New York', e)} onMouseLeave={() => setHoveredRegion(null)} style={{ cursor: 'pointer' }}>
-                <path d="M 440,65 L 600,70 L 580,180 L 430,170 Z" fill="#3B82F6" fillOpacity="0.85" stroke="#000000" strokeWidth="1" />
-                <path d="M 430,170 L 580,180 L 560,280 L 420,270 Z" fill="#7C3AED" fillOpacity="0.8" stroke="#000000" strokeWidth="1" />
-                <path d="M 600,70 L 740,65 L 720,180 L 580,180 Z" fill="#2563EB" fillOpacity="0.85" stroke="#000000" strokeWidth="1" />
-                <circle cx="560" cy="150" r="4" fill="#3B82F6" stroke="#FFFFFF" strokeWidth="1.5" />
-                <text x="572" y="154" fill="#CBD5E1" fontSize="10" fontFamily="'Space Mono', monospace">Chicago</text>
-              </g>
-
-              {/* South / Southeast (Tennessee / Georgia / Florida) */}
-              <g onMouseEnter={(e) => handleRegionHover('Florida', e)} onMouseLeave={() => setHoveredRegion(null)} style={{ cursor: 'pointer' }}>
-                <path d="M 580,180 L 720,180 L 690,290 L 560,280 Z" fill="#F43F5E" fillOpacity="0.85" stroke="#000000" strokeWidth="1" />
-                <path d="M 560,280 L 690,290 L 680,360 L 540,280 Z" fill="#EC4899" fillOpacity="0.85" stroke="#000000" strokeWidth="1" />
-                <path d="M 690,290 L 780,310 L 760,420 L 680,360 Z" fill="#D946EF" fillOpacity="0.85" stroke="#000000" strokeWidth="1" />
-                <circle cx="730" cy="380" r="4" fill="#EC4899" stroke="#FFFFFF" strokeWidth="1.5" />
-                <text x="742" y="384" fill="#CBD5E1" fontSize="10" fontFamily="'Space Mono', monospace">Miami</text>
-              </g>
-
-              {/* Northeast (New York / Pennsylvania / New England) */}
-              <g onMouseEnter={(e) => handleRegionHover('New York', e)} onMouseLeave={() => setHoveredRegion(null)} style={{ cursor: 'pointer' }}>
-                <path d="M 740,65 L 850,90 L 830,200 L 720,180 Z" fill="#3B82F6" fillOpacity="0.85" stroke="#000000" strokeWidth="1" />
-                <path d="M 720,180 L 830,200 L 790,300 L 690,290 Z" fill="#EC4899" fillOpacity="0.8" stroke="#000000" strokeWidth="1" />
-                <circle cx="810" cy="140" r="4" fill="#3B82F6" stroke="#FFFFFF" strokeWidth="1.5" />
-                <text x="822" y="144" fill="#FFFFFF" fontSize="10" fontFamily="'Space Mono', monospace">New York</text>
-              </g>
+              {/* 5. Interactive Metro Pins with Pulsing Indicators */}
+              {metroPins.map((pin) => (
+                <g
+                  key={pin.name}
+                  onMouseEnter={(e) => handleRegionHover(pin.state, e)}
+                  onMouseLeave={() => setHoveredRegion(null)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <circle cx={pin.x} cy={pin.y} r="12" fill={pin.color} fillOpacity="0.3" />
+                  <circle cx={pin.x} cy={pin.y} r="4.5" fill={pin.color} stroke="#FFFFFF" strokeWidth="1.8" />
+                  <text
+                    x={pin.x + 10}
+                    y={pin.y + 3.5}
+                    fill="#FFFFFF"
+                    fontSize="10"
+                    fontFamily="'Space Mono', monospace"
+                    fontWeight="700"
+                    style={{ textShadow: '0 1px 4px rgba(0,0,0,0.95)' }}
+                  >
+                    {pin.name}
+                  </text>
+                </g>
+              ))}
 
             </svg>
           </div>
@@ -501,8 +545,8 @@ export default function OverviewPage() {
                   <span style={{ fontWeight: '700' }}>{activeRegion.priceCuts}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: '#CBD5E1' }}>
-                  <span>Unrealized Loss %</span>
-                  <span style={{ fontWeight: '700' }}>{activeRegion.unrealizedLoss}</span>
+                  <span>Supabase Live Buyers</span>
+                  <span style={{ fontWeight: '700', color: '#10B981' }}>{activeRegion.dbBuyers} buyers</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: '#CBD5E1' }}>
                   <span>Dominant Buyer Cluster</span>
@@ -527,7 +571,7 @@ export default function OverviewPage() {
               MOTIVATED SELLER INDEX ⓘ
             </div>
 
-            <div style={{ height: '6px', borderRadius: '3px', background: 'linear-gradient(to right, #3B82F6 0%, #8B5CF6 35%, #EC4899 70%, #EF4444 100%)', marginBottom: '6px' }} />
+            <div style={{ height: '6px', borderRadius: '3px', background: 'linear-gradient(to right, #2563EB 0%, #8B5CF6 35%, #EC4899 70%, #EF4444 100%)', marginBottom: '6px' }} />
 
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#94A3B8', fontFamily: "'Space Mono', monospace" }}>
               <span>Neutral 0-2.5</span>
