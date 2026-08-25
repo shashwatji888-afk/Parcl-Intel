@@ -2,9 +2,9 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import DashboardLayout from '../components/DashboardLayout';
-import { fetchLiveBuyerMetrics, subscribeToLiveBuyerUpdates } from '../../lib/dataService';
+import { fetchLiveBuyerMetrics, subscribeToLiveBuyerUpdates, fetchLiveMarketData, subscribeToLiveMarketUpdates } from '../../lib/dataService';
 import usCountyData from '../../lib/usCountyData.json';
-import marketData from '../../lib/marketData.json';
+import defaultMarketData from '../../lib/marketData.json';
 
 const STATE_FIPS_TO_NAME = {
   '01': 'Alabama', '02': 'Alaska', '04': 'Arizona', '05': 'Arkansas', '06': 'California',
@@ -140,6 +140,7 @@ export default function OverviewPage() {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
   // Live National Rankings Leaderboard State
+  const [liveMarkets, setLiveMarkets] = useState(defaultMarketData);
   const [rankingMinListings, setRankingMinListings] = useState(1000);
   const [rankingLimit, setRankingLimit] = useState(5);
   const [rankingGeo, setRankingGeo] = useState('Metros');
@@ -150,8 +151,8 @@ export default function OverviewPage() {
 
   // Filter and compute real-time leaderboards from live marketData
   const filteredMarkets = useMemo(() => {
-    return marketData.filter(m => m.totalListings >= rankingMinListings);
-  }, [rankingMinListings]);
+    return liveMarkets.filter(m => m.totalListings >= rankingMinListings);
+  }, [liveMarkets, rankingMinListings]);
 
   const mostMotivatedMarkets = useMemo(() => {
     return [...filteredMarkets]
@@ -186,21 +187,35 @@ export default function OverviewPage() {
     };
   }, []);
 
-  // 1. Fetch live metrics & subscribe to real-time database changes
+  // 1. Fetch live metrics from Supabase database & subscribe to real-time changes
   useEffect(() => {
     async function loadData() {
-      const data = await fetchLiveBuyerMetrics();
-      setMetrics(data);
+      const [buyerData, marketRecords] = await Promise.all([
+        fetchLiveBuyerMetrics(),
+        fetchLiveMarketData()
+      ]);
+      setMetrics(buyerData);
+      if (marketRecords && marketRecords.length > 0) {
+        setLiveMarkets(marketRecords);
+      }
     }
     loadData();
 
-    // Supabase Real-time Listener for auto-updating when new land/buyer is inserted
-    const unsubscribe = subscribeToLiveBuyerUpdates((freshData) => {
+    // Supabase Real-time Listener for buyers
+    const unsubBuyers = subscribeToLiveBuyerUpdates((freshData) => {
       setMetrics(freshData);
     });
 
+    // Supabase Real-time Listener for markets
+    const unsubMarkets = subscribeToLiveMarketUpdates((freshMarketData) => {
+      if (freshMarketData && freshMarketData.length > 0) {
+        setLiveMarkets(freshMarketData);
+      }
+    });
+
     return () => {
-      if (typeof unsubscribe === 'function') unsubscribe();
+      if (typeof unsubBuyers === 'function') unsubBuyers();
+      if (typeof unsubMarkets === 'function') unsubMarkets();
     };
   }, []);
 
@@ -435,7 +450,7 @@ export default function OverviewPage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '8px', fontSize: '11.5px', color: '#64748B', fontFamily: "'Space Mono', monospace" }}>
                 <span style={{ color: '#10B981', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
                   <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10B981' }} />
-                  Live Supabase & Parcl Market Database Connected ({marketData.length} Markets)
+                  Live Supabase & Parcl Market Database Connected ({liveMarkets.length} Markets)
                 </span>
                 <span>·</span>
                 <a href="#national-rankings" style={{ color: '#60A5FA', textDecoration: 'none', cursor: 'pointer' }}>View live market rankings ↓</a>
