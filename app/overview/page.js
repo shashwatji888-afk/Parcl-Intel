@@ -501,25 +501,29 @@ export default function OverviewPage() {
                 })}
               </g>
 
-              {/* 2. State Inner Border Lines */}
+              {/* 2. Clearly Marked State Border Lines */}
               {usCountyData.stateBordersPath && (
                 <path
                   d={usCountyData.stateBordersPath}
                   fill="none"
-                  stroke="rgba(255, 255, 255, 0.2)"
-                  strokeWidth="0.5"
+                  stroke="rgba(255, 255, 255, 0.85)"
+                  strokeWidth="1.25"
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
                   pointerEvents="none"
                 />
               )}
 
-              {/* 3. Outer National Boundary Line (Crisp, thin 1.0px white border matching Parcl Labs) */}
+              {/* 3. Clearly Defined Outer National Boundary */}
               {usCountyData.nationPath && (
                 <path
                   d={usCountyData.nationPath}
                   fill="none"
                   stroke="#FFFFFF"
-                  strokeWidth="1.05"
-                  opacity="0.95"
+                  strokeWidth="1.75"
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
+                  opacity="1"
                   pointerEvents="none"
                 />
               )}
