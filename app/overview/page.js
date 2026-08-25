@@ -32,6 +32,76 @@ const STATE_FIPS_TO_CODE = {
   '50': 'VT', '51': 'VA', '53': 'WA', '54': 'WV', '55': 'WI', '56': 'WY'
 };
 
+// Full Parcl Labs Metric Families Architecture
+const METRIC_FAMILIES = {
+  'Seller Stress': {
+    metrics: ['MSI', 'Price Cuts %', 'Unrealized Loss %', 'Relist %'],
+    legend: {
+      title: 'MOTIVATED SELLER INDEX',
+      low: 'Neutral 0-2.5',
+      mid1: 'Stubborn 2.5-5',
+      mid2: 'Motivated 5-7.5',
+      high: 'Fire Selling 7.5-10',
+      gradient: 'linear-gradient(to right, #2563EB 0%, #8B5CF6 35%, #EC4899 70%, #EF4444 100%)'
+    }
+  },
+  'Price': {
+    metrics: ['$/Sqft', '1Y Price Trend %', '5Y Return %', 'Peak to Current %'],
+    legend: {
+      title: 'PRICE METRICS & VALUATION',
+      low: '< $200/sqft',
+      mid1: '$200 - $400',
+      mid2: '$400 - $700',
+      high: '$700+ /sqft',
+      gradient: 'linear-gradient(to right, #06B6D4 0%, #3B82F6 35%, #8B5CF6 70%, #EC4899 100%)'
+    }
+  },
+  'Financing': {
+    metrics: ['All-Cash %', 'Underwater %', 'Listed Underwater %', 'Loan Mix %'],
+    legend: {
+      title: 'FINANCING & LIQUIDITY',
+      low: '0-20% Cash',
+      mid1: '20-40% Cash',
+      mid2: '40-60% Cash',
+      high: '60%+ High Cash',
+      gradient: 'linear-gradient(to right, #3B82F6 0%, #10B981 35%, #F59E0B 70%, #EF4444 100%)'
+    }
+  },
+  'Rentals': {
+    metrics: ['Median Rent', 'Days on Market', 'Algorithmic Pricing %', 'Accidental Landlord %'],
+    legend: {
+      title: 'RENTAL INTELLIGENCE & YIELDS',
+      low: '< $1,400/mo',
+      mid1: '$1,400 - $2,200',
+      mid2: '$2,200 - $3,200',
+      high: '$3,200+/mo',
+      gradient: 'linear-gradient(to right, #2563EB 0%, #6366F1 35%, #EC4899 70%, #F59E0B 100%)'
+    }
+  },
+  'Supply & Demand': {
+    metrics: ['Active Inventory', 'New Listings', 'Absorption Rate', 'Months of Supply'],
+    legend: {
+      title: 'SUPPLY & ABSORPTION VELOCITY',
+      low: '< 2 Mo Supply',
+      mid1: '2-4 Mo Supply',
+      mid2: '4-6 Mo Balanced',
+      high: '6+ Mo Buyer Market',
+      gradient: 'linear-gradient(to right, #10B981 0%, #3B82F6 35%, #8B5CF6 70%, #EF4444 100%)'
+    }
+  },
+  'Ownership': {
+    metrics: ['Single Family %', 'Condo %', 'Investor Owned %', 'New Construction %'],
+    legend: {
+      title: 'OWNERSHIP & PROPERTY TYPE MIX',
+      low: '< 10% Investor',
+      mid1: '10-20% Investor',
+      mid2: '20-30% Investor',
+      high: '30%+ Institutional',
+      gradient: 'linear-gradient(to right, #06B6D4 0%, #3B82F6 35%, #8B5CF6 70%, #EC4899 100%)'
+    }
+  }
+};
+
 export default function OverviewPage() {
   const [metrics, setMetrics] = useState({
     totalBuyers: 2000,
@@ -50,7 +120,11 @@ export default function OverviewPage() {
     regions: {}
   });
 
+  // Metric Family and Metric State
+  const [selectedFamily, setSelectedFamily] = useState('Seller Stress');
+  const [isFamilyDropdownOpen, setIsFamilyDropdownOpen] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState('MSI');
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState('markets');
   
@@ -63,7 +137,30 @@ export default function OverviewPage() {
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  
   const mapContainerRef = useRef(null);
+  const dropdownRef = useRef(null);
+
+  // Close dropdown on click outside or Esc key
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsFamilyDropdownOpen(false);
+      }
+    };
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setIsFamilyDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   // 1. Fetch live metrics & subscribe to real-time database changes
   useEffect(() => {
@@ -138,6 +235,16 @@ export default function OverviewPage() {
     setPanOffset({ x: 0, y: 0 });
   };
 
+  // Switch Metric Family
+  const handleSelectFamily = (family) => {
+    setSelectedFamily(family);
+    setIsFamilyDropdownOpen(false);
+    // Set to first metric in that family
+    if (METRIC_FAMILIES[family]?.metrics?.length) {
+      setSelectedMetric(METRIC_FAMILIES[family].metrics[0]);
+    }
+  };
+
   // State metadata dictionary merging static market metrics with dynamic Supabase database data
   const stateMeta = {
     'Utah': { state: 'UT', msi: 5.43 },
@@ -154,23 +261,47 @@ export default function OverviewPage() {
     'Oregon': { state: 'OR', msi: 5.15 }
   };
 
-  // Compute county fill color replicating Parcl Labs mosaic:
+  // Compute county fill color replicating Parcl Labs mosaic & dynamically reacting to active metric
   const getCountyColor = (fips, stateFips) => {
     const stateName = STATE_FIPS_TO_NAME[stateFips];
     const meta = stateMeta[stateName];
     const baseMsi = meta ? meta.msi : 4.5;
     const fipsNum = parseInt(fips, 10);
 
-    // Parcl Labs density filter: ~42% of counties have 20+ active listings (metro markets)
     const isMetroActive = (fipsNum * 13 + 7) % 100 < 46;
     if (!isMetroActive) {
       return '#141B2F'; // Inactive land color
     }
 
-    // Micro-variation per county reflecting local sub-market MSI
     const countyVariance = ((fipsNum % 7) - 3) * 0.35;
     const countyMsi = Math.max(1.8, Math.min(baseMsi + countyVariance, 9.2));
 
+    // Dynamic coloring based on selected metric family
+    if (selectedFamily === 'Price') {
+      const priceSqft = 180 + (fipsNum % 22) * 28;
+      if (priceSqft > 650) return '#EC4899';
+      if (priceSqft > 450) return '#8B5CF6';
+      if (priceSqft > 280) return '#3B82F6';
+      return '#06B6D4';
+    }
+    
+    if (selectedFamily === 'Financing') {
+      const cashPct = 25 + (fipsNum % 45);
+      if (cashPct > 55) return '#EF4444';
+      if (cashPct > 42) return '#F59E0B';
+      if (cashPct > 30) return '#10B981';
+      return '#3B82F6';
+    }
+
+    if (selectedFamily === 'Rentals') {
+      const rent = 1200 + (fipsNum % 30) * 65;
+      if (rent > 2600) return '#F59E0B';
+      if (rent > 1900) return '#EC4899';
+      if (rent > 1400) return '#6366F1';
+      return '#2563EB';
+    }
+
+    // Default: Seller Stress MSI Colors
     if (countyMsi >= 7.2) return '#EF4444'; // Fire Selling (Red)
     if (countyMsi >= 6.4) return '#F43F5E'; // Hot Rose Red
     if (countyMsi >= 5.5) return '#EC4899'; // High Motivation (Magenta)
@@ -193,7 +324,7 @@ export default function OverviewPage() {
     const countyVariance = ((fipsNum % 7) - 3) * 0.35;
     const countyMsi = Math.max(1.8, Math.min(meta.msi + countyVariance, 9.2)).toFixed(2);
     
-    // County-level active listings (typically 120 to 3,800 listings per county)
+    // County-level active listings
     const countyListings = isMetroActive 
       ? Math.round(280 + (fipsNum % 35) * 85).toLocaleString()
       : Math.round(15 + (fipsNum % 18) * 3).toLocaleString();
@@ -262,6 +393,8 @@ export default function OverviewPage() {
     setHoveredCounty(null);
   };
 
+  const currentLegend = METRIC_FAMILIES[selectedFamily]?.legend || METRIC_FAMILIES['Seller Stress'].legend;
+
   return (
     <DashboardLayout title="Parcl HQ" subtitle="Live Real Estate Market Intelligence">
       <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '28px' }}>
@@ -304,7 +437,7 @@ export default function OverviewPage() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search any county, metro, or market..."
+                placeholder="Search any metro, county, or zip..."
                 style={{ background: 'transparent', border: 'none', outline: 'none', color: '#FFFFFF', fontSize: '14px', width: '100%', fontFamily: 'inherit' }}
               />
             </div>
@@ -333,13 +466,13 @@ export default function OverviewPage() {
             </div>
 
             <div>
-              <span style={{ color: '#64748B' }}>Live Database Buyers </span>
-              <span style={{ fontWeight: '700', color: '#10B981' }}>{metrics.formattedTotalBuyers}</span>
+              <span style={{ color: '#64748B' }}>Unrealized loss </span>
+              <span style={{ fontWeight: '700', color: '#FFFFFF' }}>6.8%</span>
             </div>
 
             <div>
-              <span style={{ color: '#64748B' }}>Financing Mix </span>
-              <span style={{ fontWeight: '700', color: '#60A5FA' }}>{metrics.cashPct}% Cash / {100 - metrics.cashPct}% Loan</span>
+              <span style={{ color: '#64748B' }}>Live Database Buyers </span>
+              <span style={{ fontWeight: '700', color: '#10B981' }}>{metrics.formattedTotalBuyers}</span>
             </div>
 
             <div style={{ padding: '2px 8px', borderRadius: '4px', backgroundColor: '#111827', border: '1px solid rgba(255, 255, 255, 0.1)', fontSize: '11px', fontFamily: "'Space Mono', monospace", color: '#94A3B8' }}>
@@ -349,7 +482,7 @@ export default function OverviewPage() {
 
         </div>
 
-        {/* 3. FILTER & METRICS TOGGLE TOOLBAR */}
+        {/* 3. PRIMARY FILTER TOOLBAR */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
@@ -372,7 +505,7 @@ export default function OverviewPage() {
             </div>
 
             <div style={{ padding: '6px 12px', backgroundColor: '#090D16', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '6px', fontSize: '12px', color: '#CBD5E1', cursor: 'pointer' }}>
-              Geography <span style={{ fontWeight: 'bold' }}>Counties</span> ▼
+              Geography <span style={{ fontWeight: 'bold' }}>Counties & Metros</span> ▼
             </div>
 
             <div style={{ padding: '6px 12px', backgroundColor: '#090D16', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '6px', fontSize: '12px', color: '#CBD5E1', cursor: 'pointer' }}>
@@ -387,23 +520,143 @@ export default function OverviewPage() {
 
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {/* Download and Action Links */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Link
+              href="/reports"
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', borderRadius: '6px', border: '1px solid rgba(59, 130, 246, 0.3)', backgroundColor: 'rgba(37, 99, 235, 0.12)', color: '#60A5FA', fontSize: '12px', fontWeight: '600', textDecoration: 'none' }}
+            >
+              <span>↓</span> View and download listings
+            </Link>
+            <Link
+              href="/pipeline"
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.08)', backgroundColor: '#090D16', color: '#94A3B8', fontSize: '12px', textDecoration: 'none' }}
+            >
+              <span>🖵</span> Terminal
+            </Link>
+          </div>
+
+        </div>
+
+        {/* 4. METRIC FAMILY DROPDOWN & DYNAMIC METRIC PILLS ROW */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', position: 'relative', zIndex: 40 }}>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
             
+            {/* METRIC FAMILY DROPDOWN BUTTON */}
+            <div ref={dropdownRef} style={{ position: 'relative' }}>
+              <button
+                type="button"
+                onClick={() => setIsFamilyDropdownOpen((prev) => !prev)}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '7px 14px',
+                  borderRadius: '6px',
+                  backgroundColor: '#090D16',
+                  border: isFamilyDropdownOpen ? '1px solid #3B82F6' : '1px solid rgba(255, 255, 255, 0.12)',
+                  color: '#FFFFFF',
+                  fontSize: '12.5px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  boxShadow: isFamilyDropdownOpen ? '0 0 15px rgba(59, 130, 246, 0.35)' : 'none',
+                  transition: 'all 0.15s'
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#60A5FA' }}>tune</span>
+                <span>Family <strong style={{ color: '#60A5FA' }}>{selectedFamily}</strong></span>
+                <span style={{ fontSize: '10px', color: '#94A3B8', marginLeft: '4px' }}>
+                  {isFamilyDropdownOpen ? '▲' : '▼'}
+                </span>
+              </button>
+
+              {/* POPUP DROPDOWN MENU */}
+              {isFamilyDropdownOpen && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 'calc(100% + 6px)',
+                    left: 0,
+                    width: '260px',
+                    backgroundColor: 'rgba(5, 8, 16, 0.98)',
+                    backdropFilter: 'blur(20px)',
+                    border: '1px solid #3B82F6',
+                    borderRadius: '8px',
+                    padding: '8px',
+                    boxShadow: '0 12px 35px rgba(0, 0, 0, 0.8), 0 0 20px rgba(59, 130, 246, 0.25)',
+                    zIndex: 100
+                  }}
+                >
+                  <div style={{ fontSize: '9.5px', fontFamily: "'Space Mono', monospace", color: '#64748B', textTransform: 'uppercase', padding: '6px 10px 4px 10px', letterSpacing: '0.5px' }}>
+                    METRIC FAMILY
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                    {Object.keys(METRIC_FAMILIES).map((family) => {
+                      const isSelected = selectedFamily === family;
+                      return (
+                        <button
+                          key={family}
+                          type="button"
+                          onClick={() => handleSelectFamily(family)}
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            width: '100%',
+                            padding: '9px 12px',
+                            borderRadius: '5px',
+                            border: 'none',
+                            backgroundColor: isSelected ? 'rgba(37, 99, 235, 0.2)' : 'transparent',
+                            color: isSelected ? '#FFFFFF' : '#CBD5E1',
+                            fontSize: '13px',
+                            fontWeight: isSelected ? '700' : '400',
+                            textAlign: 'left',
+                            cursor: 'pointer',
+                            transition: 'background-color 0.15s'
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!isSelected) e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!isSelected) e.currentTarget.style.backgroundColor = 'transparent';
+                          }}
+                        >
+                          <span>{family}</span>
+                          {isSelected && (
+                            <span style={{ color: '#3B82F6', fontSize: '14px', fontWeight: 'bold' }}>✓</span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.06)', marginTop: '8px', paddingTop: '6px', paddingLeft: '8px', paddingRight: '8px', fontSize: '10px', color: '#64748B', fontFamily: "'Space Mono', monospace" }}>
+                    <span>Changes the metric row</span>
+                    <span>Esc close</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* DYNAMIC PILL TABS FOR SELECTED FAMILY */}
             <div style={{ display: 'inline-flex', backgroundColor: '#090D16', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '6px', padding: '2px' }}>
-              {['MSI', 'Price Cuts %', 'Unrealized Loss %', 'Relist %'].map((m) => (
+              {METRIC_FAMILIES[selectedFamily].metrics.map((m) => (
                 <button
                   key={m}
                   type="button"
                   onClick={() => setSelectedMetric(m)}
                   style={{
-                    padding: '5px 12px',
+                    padding: '6px 14px',
                     borderRadius: '4px',
                     border: 'none',
                     backgroundColor: selectedMetric === m ? '#1E293B' : 'transparent',
                     color: selectedMetric === m ? '#FFFFFF' : '#94A3B8',
-                    fontSize: '11.5px',
+                    fontSize: '12px',
                     fontWeight: selectedMetric === m ? '700' : '400',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    transition: 'all 0.15s'
                   }}
                 >
                   {m}
@@ -411,15 +664,17 @@ export default function OverviewPage() {
               ))}
             </div>
 
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{ padding: '6px 12px', backgroundColor: '#090D16', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '6px', fontSize: '12px', color: '#CBD5E1' }}>
               Showing <span style={{ fontWeight: 'bold' }}>Current Level</span> ▼
             </div>
-
           </div>
 
         </div>
 
-        {/* 4. EXACT PARCL LABS COUNTY MOSAIC MAP WITH LUMINOUS GLOWING WHITE OUTLINE */}
+        {/* 5. EXACT PARCL LABS COUNTY MOSAIC MAP WITH CONTIGUOUS US SILHOUETTE */}
         <div
           ref={mapContainerRef}
           onWheel={handleReactWheel}
@@ -471,7 +726,7 @@ export default function OverviewPage() {
             </div>
           </div>
 
-          {/* Transformed Vector Map (Exact Parcl Labs County Mosaic + Neon White Glow Line) */}
+          {/* Transformed Vector Map */}
           <div style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoomLevel})`, transition: isDragging ? 'none' : 'transform 0.1s ease-out', transformOrigin: 'center center', willChange: 'transform' }}>
             <svg width="960" height="500" viewBox="0 0 960 500" style={{ maxWidth: '100%', pointerEvents: 'auto' }}>
               {/* 0. Base Contiguous US Landmass Silhouette */}
@@ -483,7 +738,7 @@ export default function OverviewPage() {
                 />
               )}
 
-              {/* 1. All 3,108 Contiguous US Counties (Mosaic colored matching Parcl Labs) */}
+              {/* 1. All 3,108 Contiguous US Counties */}
               <g>
                 {usCountyData.counties.map((c) => {
                   const fillColor = getCountyColor(c.fips, c.stateFips);
@@ -565,7 +820,7 @@ export default function OverviewPage() {
                   </h3>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginTop: '2px' }}>
                     <span style={{ fontSize: '19px', fontWeight: '800', color: '#F59E0B' }}>{activeCountyDetails.msi}</span>
-                    <span style={{ fontSize: '11.5px', color: '#94A3B8' }}>Motivated Seller Index</span>
+                    <span style={{ fontSize: '11.5px', color: '#94A3B8' }}>{selectedMetric} Index</span>
                   </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
@@ -620,23 +875,23 @@ export default function OverviewPage() {
             </div>
           )}
 
-          {/* PERSISTENT BOTTOM-LEFT LEGEND CARD (MATCHING PARCL LABS UI) */}
+          {/* PERSISTENT BOTTOM-LEFT LEGEND CARD (MATCHING ACTIVE METRIC FAMILY) */}
           <div style={{ position: 'absolute', bottom: '16px', left: '16px', zIndex: 20, backgroundColor: 'rgba(5,7,14,0.92)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '12px 16px', maxWidth: '380px' }}>
             <div style={{ fontSize: '11px', color: '#CBD5E1', marginBottom: '8px', lineHeight: '1.3' }}>
-              Showing <strong>Motivated Seller Index</strong> for <strong>all home types</strong> across <strong>counties & metro areas</strong> with <strong>20+ active listings</strong>, at its current level.
+              Showing <strong>{selectedMetric}</strong> for <strong>all home types</strong> across <strong>counties & metro areas</strong> with <strong>20+ active listings</strong>, at its current level.
             </div>
             
             <div style={{ fontSize: '10px', fontFamily: "'Space Mono', monospace", color: '#64748B', textTransform: 'uppercase', marginBottom: '4px' }}>
-              MOTIVATED SELLER INDEX ⓘ
+              {currentLegend.title} ⓘ
             </div>
 
-            <div style={{ height: '6px', borderRadius: '3px', background: 'linear-gradient(to right, #2563EB 0%, #8B5CF6 35%, #EC4899 70%, #EF4444 100%)', marginBottom: '6px' }} />
+            <div style={{ height: '6px', borderRadius: '3px', background: currentLegend.gradient, marginBottom: '6px' }} />
 
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#94A3B8', fontFamily: "'Space Mono', monospace" }}>
-              <span>Neutral 0-2.5</span>
-              <span>Stubborn 2.5-5</span>
-              <span>Motivated 5-7.5</span>
-              <span>Fire Selling 7.5-10</span>
+              <span>{currentLegend.low}</span>
+              <span>{currentLegend.mid1}</span>
+              <span>{currentLegend.mid2}</span>
+              <span>{currentLegend.high}</span>
             </div>
 
             <div style={{ fontSize: '10px', color: '#64748B', marginTop: '6px', fontFamily: "'Space Mono', monospace" }}>
@@ -656,7 +911,7 @@ export default function OverviewPage() {
 
         </div>
 
-        {/* 5. NATIONAL: MOST VS LEAST MOTIVATED METROS */}
+        {/* 6. NATIONAL: MOST VS LEAST MOTIVATED METROS */}
         <section id="national-rankings" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '12px' }}>
