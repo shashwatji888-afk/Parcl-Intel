@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 
-export default function Topbar({ title, subtitle, onToggleMobileNav, onOpenProfile, onOpenUpgrade }) {
+export default function Topbar({ title, subtitle, onOpenProfile }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, profile } = useAuth();
@@ -17,23 +17,23 @@ export default function Topbar({ title, subtitle, onToggleMobileNav, onOpenProfi
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      router.push(`/profiler?q=${encodeURIComponent(searchQuery)}`);
+      router.push(`/overview?q=${encodeURIComponent(searchQuery)}`);
     }
   };
 
   const tickerItems = [
     { city: 'U.S.', trend: '▼ -2.2% YoY', trendColor: '#EF4444', msi: 'MSI 5.49', cuts: 'CUTS 41.3%', dot: true },
-    { city: 'WASHINGTON', trend: '▼ -7.4%', trendColor: '#EF4444', msi: 'MSI 4.95', cuts: 'CUTS 37.8%' },
-    { city: 'DENVER', trend: '▼ -6.3%', trendColor: '#EF4444', msi: 'MSI 6.97', cuts: 'CUTS 52.0%' },
-    { city: 'BOULDER', trend: '▼ -5.7%', trendColor: '#EF4444', msi: 'MSI 5.71', cuts: 'CUTS 44.1%' },
-    { city: 'SAN ANTONIO', trend: '▼ -5.7%', trendColor: '#EF4444', msi: 'MSI 7.23', cuts: 'CUTS 54.5%' },
-    { city: 'BALTIMORE', trend: '▼ -5.1%', trendColor: '#EF4444', msi: 'MSI 5.68', cuts: 'CUTS 39.5%' },
-    { city: 'LAS VEGAS', trend: '▼ -4.9%', trendColor: '#EF4444', msi: 'MSI 5.28', cuts: 'CUTS 42.1%' },
-    { city: 'DUBAI (C1 FLOW)', trend: '▲ +12.4%', trendColor: '#10B981', msi: '72% CASH', cuts: 'CAP $4.2B' },
+    { city: 'DAYTONA BEACH', trend: '▼ -2.0%', trendColor: '#EF4444', msi: 'MSI 6.11', cuts: 'CUTS 47.5%' },
+    { city: 'CHARLESTON', trend: '▼ -1.8%', trendColor: '#EF4444', msi: 'MSI 6.21', cuts: 'CUTS 49.3%' },
+    { city: 'RALEIGH', trend: '▼ -1.8%', trendColor: '#EF4444', msi: 'MSI 5.89', cuts: 'CUTS 46.9%' },
+    { city: 'SAN JOSE', trend: '▼ -1.8%', trendColor: '#EF4444', msi: 'MSI 4.88', cuts: 'CUTS 38.2%' },
+    { city: 'PHOENIX', trend: '▼ -1.7%', trendColor: '#EF4444', msi: 'MSI 6.56', cuts: 'CUTS 49.8%' },
+    { city: 'HOUSTON', trend: '▼ -1.6%', trendColor: '#EF4444', msi: 'MSI 5.71', cuts: 'CUTS 44.3%' },
+    { city: 'LAKELAND', trend: '▼ -1.5%', trendColor: '#EF4444', msi: 'MSI 5.99', cuts: 'CUTS 45.4%' },
   ];
 
   return (
-    <header style={{ position: 'fixed', top: 0, right: 0, left: '240px', zIndex: 30, backgroundColor: '#070B14', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', minHeight: '82px', display: 'flex', flexDirection: 'column' }}>
+    <header style={{ position: 'fixed', top: 0, right: 0, left: '240px', zIndex: 30, backgroundColor: '#070B14', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', minHeight: '82px', display: 'flex', flexDirection: 'column' }}>
       
       {/* 1. TOP MOVING MARKET TICKER */}
       <div style={{ backgroundColor: '#030712', borderBottom: '1px solid rgba(255, 255, 255, 0.06)', overflow: 'hidden', whiteSpace: 'nowrap', padding: '5px 0', fontSize: '10.5px', fontFamily: "'Space Mono', monospace" }}>
@@ -88,13 +88,13 @@ export default function Topbar({ title, subtitle, onToggleMobileNav, onOpenProfi
           </Link>
 
           <Link
-            href="/insights"
+            href="/reports"
             style={{
               fontSize: '13px',
-              fontWeight: pathname === '/insights' ? '700' : '500',
-              color: pathname === '/insights' ? '#FFFFFF' : '#94A3B8',
+              fontWeight: pathname === '/reports' ? '700' : '500',
+              color: pathname === '/reports' ? '#FFFFFF' : '#94A3B8',
               textDecoration: 'none',
-              borderBottom: pathname === '/insights' ? '2px solid #3B82F6' : '2px solid transparent',
+              borderBottom: pathname === '/reports' ? '2px solid #3B82F6' : '2px solid transparent',
               paddingBottom: '4px'
             }}
           >
