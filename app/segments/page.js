@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
 import { fetchLiveMarketData, subscribeToLiveMarketUpdates } from '../../lib/dataService';
 import defaultMarketData from '../../lib/marketData.json';
@@ -13,6 +13,7 @@ export default function MarketRankingsPage() {
     location: 'USA · USA',
     type: 'COUNTRY',
     ppsqf: '$209.61',
+    rawPpsqf: 209.61,
     change3m: '-2.6%',
     rawChange3m: -2.6,
     change6m: '-0.2%',
@@ -33,6 +34,10 @@ export default function MarketRankingsPage() {
   const [selectedIds, setSelectedIds] = useState(['USA']);
   const [sortField, setSortField] = useState('1y');
   const [sortAsc, setSortAsc] = useState(false);
+
+  // Interactive Chart Hover State (Popup and crosshair)
+  const [hoverPoint, setHoverPoint] = useState(null);
+  const chartRef = useRef(null);
 
   // 1. Fetch live market dataset from Supabase database
   useEffect(() => {
@@ -127,6 +132,7 @@ export default function MarketRankingsPage() {
       location: `${m.name} · USA`,
       type: m.type,
       ppsqf: m.ppsqf,
+      rawPpsqf: m.rawPpsqf,
       change3m: m.m3,
       rawChange3m: m.rawM3,
       change6m: m.m6,
@@ -181,10 +187,69 @@ export default function MarketRankingsPage() {
       path,
       area,
       endY,
+      midY1,
+      midY2,
+      rawChange: changeVal,
       change: changeStr,
       labels
     };
   }, [selectedMarket, timeframe]);
+
+  // Interactive Hover Calculation along the exact curve
+  const handleChartMouseMove = (e) => {
+    if (!chartRef.current) return;
+    const rect = chartRef.current.getBoundingClientRect();
+    const normX = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    const svgX = normX * 900;
+
+    // Approximate dynamic curve height at svgX
+    const { endY, midY1, midY2 } = dynamicCurve;
+    let curveY;
+    if (normX < 0.5) {
+      const t = normX / 0.5;
+      curveY = (1 - t) * (1 - t) * 80 + 2 * (1 - t) * t * midY1 + t * t * midY2;
+    } else {
+      const t = (normX - 0.5) / 0.5;
+      curveY = (1 - t) * (1 - t) * midY2 + 2 * (1 - t) * t * (endY - 10) + t * t * endY;
+    }
+
+    // Determine sample date based on normX and active timeframe
+    let dateStr = 'Apr 29, 2026';
+    const now = new Date(2026, 7, 26); // Aug 26, 2026
+    let daysBack = 365;
+    if (timeframe === '3M') daysBack = 90;
+    else if (timeframe === '6M') daysBack = 180;
+    else if (timeframe === '1Y') daysBack = 365;
+    else if (timeframe === '5Y') daysBack = 365 * 5;
+    else if (timeframe === 'COVID') daysBack = 365 * 6.4;
+
+    const targetTime = new Date(now.getTime() - (1 - normX) * daysBack * 24 * 60 * 60 * 1000);
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    dateStr = `${months[targetTime.getMonth()]} ${targetTime.getDate()}, ${targetTime.getFullYear()}`;
+
+    // Price calculation at hovered point
+    const basePrice = selectedMarket.rawPpsqf || 209.61;
+    const localPct = (80 - curveY) / 4.2;
+    const localPrice = (basePrice * (1 + localPct / 100)).toFixed(2);
+
+    const screenX = e.clientX - rect.left;
+    const screenY = (curveY / 240) * rect.height;
+
+    setHoverPoint({
+      svgX,
+      svgY: curveY,
+      screenX,
+      screenY,
+      date: dateStr,
+      ppsqf: `$${localPrice}`,
+      change: (localPct >= 0 ? '+' : '') + localPct.toFixed(1) + '%',
+      isPositive: localPct >= 0
+    });
+  };
+
+  const handleChartMouseLeave = () => {
+    setHoverPoint(null);
+  };
 
   return (
     <DashboardLayout title="Market Rankings" subtitle="Real Time Home Price Feeds">
@@ -451,7 +516,7 @@ export default function MarketRankingsPage() {
           </div>
         </div>
 
-        {/* 5. INTERACTIVE PRICE PER SQUARE FOOT PERCENT CHANGE CHART */}
+        {/* 5. INTERACTIVE PRICE PER SQUARE FOOT PERCENT CHANGE CHART WITH DYNAMIC HOVER POPUP */}
         <div
           style={{
             backgroundColor: '#040711',
@@ -506,9 +571,23 @@ export default function MarketRankingsPage() {
             </div>
           </div>
 
-          {/* SVG Visual Area Chart */}
-          <div style={{ position: 'relative', width: '100%', height: '240px', backgroundColor: '#02040A', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.05)', overflow: 'hidden' }}>
-            <svg width="100%" height="100%" viewBox="0 0 900 240" preserveAspectRatio="none" style={{ display: 'block' }}>
+          {/* SVG Visual Area Chart with Mouseover Crosshair & Tooltip */}
+          <div
+            ref={chartRef}
+            onMouseMove={handleChartMouseMove}
+            onMouseLeave={handleChartMouseLeave}
+            style={{
+              position: 'relative',
+              width: '100%',
+              height: '240px',
+              backgroundColor: '#02040A',
+              borderRadius: '8px',
+              border: '1px solid rgba(255, 255, 255, 0.05)',
+              overflow: 'hidden',
+              cursor: 'crosshair'
+            }}
+          >
+            <svg width="100%" height="100%" viewBox="0 0 900 240" preserveAspectRatio="none" style={{ display: 'block', pointerEvents: 'none' }}>
               <defs>
                 <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.4" />
@@ -528,32 +607,101 @@ export default function MarketRankingsPage() {
               {/* Main Line Stroke */}
               <path d={dynamicCurve.path} fill="none" stroke="#3B82F6" strokeWidth="2.5" strokeLinecap="round" />
 
-              {/* End Point Marker */}
-              <circle cx="900" cy={dynamicCurve.endY} r="5" fill="#3B82F6" stroke="#FFFFFF" strokeWidth="2" />
+              {/* STATIC END POINT MARKER */}
+              <circle cx="900" cy={dynamicCurve.endY} r="4" fill="#3B82F6" stroke="#FFFFFF" strokeWidth="1.5" />
+
+              {/* DYNAMIC HOVER CROSSHAIR DASHED LINE & GLOWING HIGHLIGHT CIRCLE */}
+              {hoverPoint && (
+                <g>
+                  <line
+                    x1={hoverPoint.svgX}
+                    y1={0}
+                    x2={hoverPoint.svgX}
+                    y2={240}
+                    stroke="rgba(255, 255, 255, 0.3)"
+                    strokeDasharray="3 3"
+                    strokeWidth="1.2"
+                  />
+                  <circle
+                    cx={hoverPoint.svgX}
+                    cy={hoverPoint.svgY}
+                    r="5.5"
+                    fill="#FFFFFF"
+                    stroke="#3B82F6"
+                    strokeWidth="2.5"
+                    style={{ filter: 'drop-shadow(0 0 6px #3B82F6)' }}
+                  />
+                </g>
+              )}
             </svg>
 
-            {/* End Point Tooltip Badge */}
-            <div
-              style={{
-                position: 'absolute',
-                top: `${Math.min(dynamicCurve.endY - 14, 200)}px`,
-                right: '16px',
-                backgroundColor: '#090D16',
-                border: '1px solid #3B82F6',
-                borderRadius: '9999px',
-                padding: '3px 10px',
-                fontSize: '11px',
-                fontFamily: "'Space Mono', monospace",
-                fontWeight: 'bold',
-                color: '#FFFFFF',
-                boxShadow: '0 0 12px rgba(59, 130, 246, 0.5)'
-              }}
-            >
-              ● {selectedMarket.name} {dynamicCurve.change}
-            </div>
+            {/* FLOATING HOVER POPUP CARD MATCHING USER SCREENSHOT */}
+            {hoverPoint && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: `${Math.max(10, Math.min(140, hoverPoint.screenY - 35))}px`,
+                  left: `${hoverPoint.screenX > 580 ? hoverPoint.screenX - 250 : hoverPoint.screenX + 16}px`,
+                  backgroundColor: 'rgba(8, 12, 22, 0.96)',
+                  backdropFilter: 'blur(12px)',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
+                  borderRadius: '8px',
+                  padding: '9px 15px',
+                  boxShadow: '0 10px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(59, 130, 246, 0.25)',
+                  pointerEvents: 'none',
+                  zIndex: 30,
+                  minWidth: '220px',
+                  transition: 'top 0.05s ease-out, left 0.05s ease-out'
+                }}
+              >
+                <div style={{ fontSize: '11px', color: '#94A3B8', fontFamily: "'Space Mono', monospace", marginBottom: '5px' }}>
+                  {hoverPoint.date}
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '14px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#3B82F6' }} />
+                    <span style={{ fontWeight: '700', color: '#FFFFFF', fontSize: '13px' }}>
+                      {selectedMarket.name}
+                    </span>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontFamily: "'Space Mono', monospace" }}>
+                    <span style={{ fontWeight: '700', color: '#FFFFFF', fontSize: '13px' }}>
+                      {hoverPoint.ppsqf}
+                    </span>
+                    <span style={{ fontWeight: '700', fontSize: '13px', color: hoverPoint.isPositive ? '#00DC82' : '#EF4444' }}>
+                      {hoverPoint.change}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Static End Point Tooltip Badge (When not hovering) */}
+            {!hoverPoint && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: `${Math.min(dynamicCurve.endY - 14, 200)}px`,
+                  right: '16px',
+                  backgroundColor: '#090D16',
+                  border: '1px solid #3B82F6',
+                  borderRadius: '9999px',
+                  padding: '3px 10px',
+                  fontSize: '11px',
+                  fontFamily: "'Space Mono', monospace",
+                  fontWeight: 'bold',
+                  color: '#FFFFFF',
+                  boxShadow: '0 0 12px rgba(59, 130, 246, 0.5)'
+                }}
+              >
+                ● {selectedMarket.name} {dynamicCurve.change}
+              </div>
+            )}
 
             {/* X-Axis Date Labels */}
-            <div style={{ position: 'absolute', bottom: '10px', left: '40px', right: '40px', display: 'flex', justifyContent: 'space-between', fontSize: '10.5px', color: '#64748B', fontFamily: "'Space Mono', monospace" }}>
+            <div style={{ position: 'absolute', bottom: '10px', left: '40px', right: '40px', display: 'flex', justifyContent: 'space-between', fontSize: '10.5px', color: '#64748B', fontFamily: "'Space Mono', monospace", pointerEvents: 'none' }}>
               {dynamicCurve.labels.map((l, i) => (
                 <span key={i}>{l}</span>
               ))}
