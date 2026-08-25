@@ -31,7 +31,7 @@ export default function OverviewPage() {
   const [hoveredRegion, setHoveredRegion] = useState(null);
   const [tooltipPos, setTooltipPos] = useState({ x: 40, y: 120 });
 
-  // Map Zoom & Pan State
+  // Map Zoom & Pan State (Fully unlocked: 0.15x to 15.0x)
   const [zoomLevel, setZoomLevel] = useState(1);
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -56,7 +56,16 @@ export default function OverviewPage() {
     };
   }, []);
 
-  // 2. Dedicated non-passive wheel listener for smooth zoom without page scroll
+  // Universal continuous zoom function
+  const applyWheelZoom = (deltaY) => {
+    setZoomLevel((prev) => {
+      const factor = deltaY < 0 ? 1.15 : 0.87;
+      const next = prev * factor;
+      return Math.min(Math.max(next, 0.15), 15.0);
+    });
+  };
+
+  // 2. Continuous non-passive wheel listener attached to container
   useEffect(() => {
     const mapElement = mapContainerRef.current;
     if (!mapElement) return;
@@ -64,17 +73,20 @@ export default function OverviewPage() {
     const onWheelHandler = (e) => {
       e.preventDefault();
       e.stopPropagation();
-      setZoomLevel((prev) => {
-        const factor = e.deltaY < 0 ? 1.18 : 0.85;
-        return Math.min(Math.max(prev * factor, 0.2), 12.0);
-      });
+      applyWheelZoom(e.deltaY);
     };
 
     mapElement.addEventListener('wheel', onWheelHandler, { passive: false });
     return () => {
       mapElement.removeEventListener('wheel', onWheelHandler);
     };
-  }, []);
+  });
+
+  const handleReactWheel = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    applyWheelZoom(e.deltaY);
+  };
 
   const handleMouseDown = (e) => {
     if (e.target.tagName === 'path' || e.target.tagName === 'circle' || e.target.tagName === 'text') return;
@@ -202,8 +214,6 @@ export default function OverviewPage() {
   const handleRegionMouseLeave = () => {
     setHoveredRegion(null);
   };
-
-
 
   return (
     <DashboardLayout title="Parcl HQ" subtitle="Live Real Estate Market Intelligence">
@@ -365,6 +375,7 @@ export default function OverviewPage() {
         {/* 4. PRODUCTION-GRADE US CHOROPLETH VECTOR MAP WITH SCROLL-TO-ZOOM */}
         <div
           ref={mapContainerRef}
+          onWheel={handleReactWheel}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
@@ -382,12 +393,11 @@ export default function OverviewPage() {
             userSelect: 'none'
           }}
         >
-
           {/* Top-Right Zoom Controls */}
-          <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 20, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 20, display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
             <button
               type="button"
-              onClick={() => setZoomLevel(prev => Math.min(prev * 1.3, 12.0))}
+              onClick={() => setZoomLevel(prev => Math.min(prev * 1.3, 15.0))}
               title="Zoom In"
               style={{ width: '30px', height: '30px', borderRadius: '4px', backgroundColor: '#090D16', border: '1px solid rgba(255,255,255,0.15)', color: '#FFFFFF', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
@@ -395,7 +405,7 @@ export default function OverviewPage() {
             </button>
             <button
               type="button"
-              onClick={() => setZoomLevel(prev => Math.max(prev / 1.3, 0.2))}
+              onClick={() => setZoomLevel(prev => Math.max(prev / 1.3, 0.15))}
               title="Zoom Out"
               style={{ width: '30px', height: '30px', borderRadius: '4px', backgroundColor: '#090D16', border: '1px solid rgba(255,255,255,0.15)', color: '#FFFFFF', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
@@ -409,11 +419,14 @@ export default function OverviewPage() {
             >
               ⟲
             </button>
+            <div style={{ fontSize: '9px', fontFamily: "'Space Mono', monospace", color: '#64748B', backgroundColor: 'rgba(9,13,22,0.8)', padding: '2px 4px', borderRadius: '3px' }}>
+              {Math.round(zoomLevel * 100)}%
+            </div>
           </div>
 
           {/* Transformed Vector Map (Production High-Precision TopoJSON / D3-Geo Albers USA) */}
-          <div style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoomLevel})`, transition: isDragging ? 'none' : 'transform 0.15s ease-out', transformOrigin: 'center center' }}>
-            <svg width="960" height="500" viewBox="0 0 960 500" style={{ maxWidth: '100%' }}>
+          <div style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoomLevel})`, transition: isDragging ? 'none' : 'transform 0.1s ease-out', transformOrigin: 'center center', willChange: 'transform' }}>
+            <svg width="960" height="500" viewBox="0 0 960 500" style={{ maxWidth: '100%', pointerEvents: 'auto' }}>
               
               {/* 1. All 50 US States Vector Polygons */}
               <g>
