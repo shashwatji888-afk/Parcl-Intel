@@ -22,46 +22,74 @@ export default function Topbar({ title, subtitle, onOpenProfile }) {
   };
 
   const tickerItems = [
-    { city: 'U.S.', trend: '▼ -2.2% YoY', msi: 'MSI 5.49', cuts: 'CUTS 41.3%', dot: true },
-    { city: 'DAYTONA BEACH', trend: '▼ -2.0%', msi: 'MSI 6.11', cuts: 'CUTS 47.5%' },
-    { city: 'CHARLESTON', trend: '▼ -1.8%', msi: 'MSI 6.21', cuts: 'CUTS 49.3%' },
-    { city: 'RALEIGH', trend: '▼ -1.8%', msi: 'MSI 5.89', cuts: 'CUTS 46.9%' },
-    { city: 'SAN JOSE', trend: '▼ -1.8%', msi: 'MSI 4.88', cuts: 'CUTS 38.2%' },
-    { city: 'PHOENIX', trend: '▼ -1.7%', msi: 'MSI 6.56', cuts: 'CUTS 49.8%' },
-    { city: 'HOUSTON', trend: '▼ -1.6%', msi: 'MSI 5.71', cuts: 'CUTS 44.3%' },
-    { city: 'LAKELAND', trend: '▼ -1.5%', msi: 'MSI 5.99', cuts: 'CUTS 45.4%' },
+    { city: 'MILWAUKEE', arrow: '▲', trend: '3.6%', isPositive: true, msi: '4.04', cuts: '28.1%' },
+    { city: 'CLEVELAND', arrow: '▲', trend: '4.3%', isPositive: true, msi: '5.49', cuts: '36.5%' },
+    { city: 'AUSTIN', arrow: '▲', trend: '5.1%', isPositive: true, msi: '7.29', cuts: '54.1%' },
+    { city: 'SAN ANTONIO', arrow: '▼', trend: '1.8%', isPositive: false, msi: '7.23', cuts: '54.5%' },
+    { city: 'KINGSPORT', arrow: '▲', trend: '2.4%', isPositive: true, msi: '7.39', cuts: '50.8%' },
+    { city: 'LAFAYETTE', arrow: '▲', trend: '3.7%', isPositive: true, msi: '2.41', cuts: '18.8%' },
+    { city: 'ROCHESTER', arrow: '▼', trend: '1.2%', isPositive: false, msi: '2.42', cuts: '16.9%' },
+    { city: 'CHARLESTON', arrow: '▲', trend: '1.9%', isPositive: true, msi: '6.21', cuts: '49.3%' },
+    { city: 'RALEIGH', arrow: '▼', trend: '1.4%', isPositive: false, msi: '5.89', cuts: '46.9%' },
+    { city: 'PHOENIX', arrow: '▲', trend: '3.2%', isPositive: true, msi: '6.56', cuts: '49.8%' }
   ];
 
   return (
-    <header style={{ position: 'fixed', top: 0, right: 0, left: '240px', zIndex: 30, backgroundColor: '#000000', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', minHeight: '82px', display: 'flex', flexDirection: 'column' }}>
+    <header style={{ position: 'fixed', top: 0, right: 0, left: '240px', zIndex: 30, backgroundColor: '#000000', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', minHeight: '80px', display: 'flex', flexDirection: 'column' }}>
       
-      {/* 1. TOP MOVING MARKET TICKER — CLEAN MONOCHROME GREY & WHITE */}
-      <div style={{ backgroundColor: '#040711', borderBottom: '1px solid rgba(255, 255, 255, 0.06)', overflow: 'hidden', whiteSpace: 'nowrap', padding: '6px 0', fontSize: '11.5px', fontFamily: "'Space Mono', monospace" }}>
+      {/* 1. TOP MOVING MARKET TICKER — EXACT PARCL LABS PIXEL-PERFECT REPLICA */}
+      <div style={{ backgroundColor: '#000000', borderBottom: '1px solid rgba(255, 255, 255, 0.12)', overflow: 'hidden', whiteSpace: 'nowrap', padding: '7px 0', fontSize: '11.5px', fontFamily: "'Space Mono', monospace" }}>
         <div className="parcl-ticker-track">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '28px', paddingRight: '28px' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
             {tickerItems.map((item, idx) => (
-              <div key={idx} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                {item.dot && (
-                  <span style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: '#10B981', boxShadow: '0 0 5px #10B981' }} />
-                )}
-                <span style={{ fontWeight: '700', color: '#FFFFFF', letterSpacing: '0.4px' }}>{item.city}</span>
-                <span style={{ fontWeight: '600', color: '#CBD5E1' }}>{item.trend}</span>
-                <span style={{ fontWeight: '500', color: '#94A3B8' }}>{item.msi}</span>
-                <span style={{ fontWeight: '500', color: '#64748B' }}>{item.cuts}</span>
+              <div
+                key={idx}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '0 24px',
+                  borderRight: '1px solid rgba(255, 255, 255, 0.14)'
+                }}
+              >
+                <span style={{ fontWeight: '800', color: '#FFFFFF', letterSpacing: '0.6px' }}>
+                  {item.city}
+                </span>
+                <span style={{ fontWeight: '700', color: item.isPositive ? '#00DC82' : '#EF4444', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                  <span>{item.arrow}</span>
+                  <span>{item.trend}</span>
+                </span>
+                <span style={{ color: '#94A3B8', fontWeight: '500' }}>MSI</span>
+                <span style={{ color: '#FFFFFF', fontWeight: '700' }}>{item.msi}</span>
+                <span style={{ color: '#94A3B8', fontWeight: '500' }}>CUTS</span>
+                <span style={{ color: '#FFFFFF', fontWeight: '700' }}>{item.cuts}</span>
               </div>
             ))}
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '28px', paddingRight: '28px' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
             {tickerItems.map((item, idx) => (
-              <div key={`dup-${idx}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                {item.dot && (
-                  <span style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: '#10B981', boxShadow: '0 0 5px #10B981' }} />
-                )}
-                <span style={{ fontWeight: '700', color: '#FFFFFF', letterSpacing: '0.4px' }}>{item.city}</span>
-                <span style={{ fontWeight: '600', color: '#CBD5E1' }}>{item.trend}</span>
-                <span style={{ fontWeight: '500', color: '#94A3B8' }}>{item.msi}</span>
-                <span style={{ fontWeight: '500', color: '#64748B' }}>{item.cuts}</span>
+              <div
+                key={`dup-${idx}`}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '0 24px',
+                  borderRight: '1px solid rgba(255, 255, 255, 0.14)'
+                }}
+              >
+                <span style={{ fontWeight: '800', color: '#FFFFFF', letterSpacing: '0.6px' }}>
+                  {item.city}
+                </span>
+                <span style={{ fontWeight: '700', color: item.isPositive ? '#00DC82' : '#EF4444', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                  <span>{item.arrow}</span>
+                  <span>{item.trend}</span>
+                </span>
+                <span style={{ color: '#94A3B8', fontWeight: '500' }}>MSI</span>
+                <span style={{ color: '#FFFFFF', fontWeight: '700' }}>{item.msi}</span>
+                <span style={{ color: '#94A3B8', fontWeight: '500' }}>CUTS</span>
+                <span style={{ color: '#FFFFFF', fontWeight: '700' }}>{item.cuts}</span>
               </div>
             ))}
           </div>
