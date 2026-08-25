@@ -33,10 +33,10 @@ export default function Topbar({ title, subtitle, onToggleMobileNav, onOpenProfi
   ];
 
   return (
-    <header style={{ position: 'fixed', top: 0, right: 0, left: '230px', zIndex: 30, backgroundColor: '#000000', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+    <header style={{ position: 'fixed', top: 0, right: 0, left: '240px', zIndex: 30, backgroundColor: '#070B14', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', minHeight: '82px', display: 'flex', flexDirection: 'column' }}>
       
       {/* 1. TOP MOVING MARKET TICKER */}
-      <div style={{ backgroundColor: '#05070D', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', overflow: 'hidden', whiteSpace: 'nowrap', padding: '6px 0', fontSize: '10.5px', fontFamily: "'Space Mono', monospace" }}>
+      <div style={{ backgroundColor: '#030712', borderBottom: '1px solid rgba(255, 255, 255, 0.06)', overflow: 'hidden', whiteSpace: 'nowrap', padding: '5px 0', fontSize: '10.5px', fontFamily: "'Space Mono', monospace" }}>
         <div className="parcl-ticker-track">
           <div style={{ display: 'flex', alignItems: 'center', gap: '28px', paddingRight: '28px' }}>
             {tickerItems.map((item, idx) => (
@@ -52,7 +52,6 @@ export default function Topbar({ title, subtitle, onToggleMobileNav, onOpenProfi
             ))}
           </div>
 
-          {/* Duplicate set for infinite loop */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '28px', paddingRight: '28px' }}>
             {tickerItems.map((item, idx) => (
               <div key={`dup-${idx}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', color: '#CBD5E1' }}>
@@ -70,10 +69,10 @@ export default function Topbar({ title, subtitle, onToggleMobileNav, onOpenProfi
       </div>
 
       {/* 2. SUB HEADER NAVIGATION & SEARCH */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 24px' }}>
+      <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 24px' }}>
         
-        {/* Left Tab Pills */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+        {/* Left Tab Navigation */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
           <Link
             href="/overview"
             style={{
@@ -117,10 +116,10 @@ export default function Topbar({ title, subtitle, onToggleMobileNav, onOpenProfi
           </Link>
         </div>
 
-        {/* Right Search Input */}
+        {/* Right Search & Profile */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <form onSubmit={handleSearch} style={{ position: 'relative' }}>
-            <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#090D16', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '6px', padding: '6px 12px', width: '280px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#0B0F19', border: '1px solid rgba(255, 255, 255, 0.15)', borderRadius: '6px', padding: '5px 12px', width: '280px' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#64748B', marginRight: '6px' }}>search</span>
               <input
                 type="text"
@@ -132,19 +131,19 @@ export default function Topbar({ title, subtitle, onToggleMobileNav, onOpenProfi
             </div>
           </form>
 
-          {/* User Profile Pill */}
           <button
             type="button"
             onClick={onOpenProfile}
-            style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'transparent', border: 'none', cursor: 'pointer' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 10px', borderRadius: '9999px', backgroundColor: '#0B0F19', border: '1px solid rgba(255, 255, 255, 0.15)', color: '#FFFFFF', cursor: 'pointer' }}
           >
             {avatarUrl ? (
-              <img src={avatarUrl} alt={userName} style={{ width: '26px', height: '26px', borderRadius: '50%', objectFit: 'cover' }} />
+              <img src={avatarUrl} alt={userName} style={{ width: '22px', height: '22px', borderRadius: '50%', objectFit: 'cover' }} />
             ) : (
-              <div style={{ width: '26px', height: '26px', borderRadius: '50%', backgroundColor: '#2563EB', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFFFFF', fontWeight: 'bold', fontSize: '11px' }}>
+              <div style={{ width: '22px', height: '22px', borderRadius: '50%', backgroundColor: '#2563EB', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFFFFF', fontWeight: 'bold', fontSize: '10px' }}>
                 {userInitial}
               </div>
             )}
+            <span style={{ fontSize: '12px', fontWeight: '600' }}>{userName}</span>
           </button>
         </div>
 

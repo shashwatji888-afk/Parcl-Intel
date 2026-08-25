@@ -7,15 +7,10 @@ import { useAuth } from '../../context/AuthContext';
 const Sidebar = dynamic(() => import('./Sidebar'), { ssr: false });
 const Topbar = dynamic(() => import('./Topbar'), { ssr: false });
 const Footer = dynamic(() => import('./Footer'), { ssr: false });
-const AnimationEnhancer = dynamic(() => import('./AnimationEnhancer'), { ssr: false });
 const UpgradeModal = dynamic(() => import('./UpgradeModal'), { ssr: false });
 const UserProfileModal = dynamic(() => import('./UserProfileModal'), { ssr: false });
 
-/**
- * DashboardLayout — wraps all inner dashboard pages
- * Provides: Admin Authentication Protection (Auth Guard), sidebar, topbar, footer, animations, and global modals
- */
-export default function DashboardLayout({ title, subtitle, children, topbarActions }) {
+export default function DashboardLayout({ title, subtitle, children, actions }) {
   const router = useRouter();
   const pathname = usePathname();
   const { user, loading } = useAuth();
@@ -33,62 +28,44 @@ export default function DashboardLayout({ title, subtitle, children, topbarActio
   // Loading state overlay
   if (loading || !user) {
     return (
-      <div className="min-h-screen bg-[#0A0F1E] flex flex-col items-center justify-center text-white font-body p-4">
-        <div className="w-16 h-16 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center text-primary text-3xl animate-spin shadow-glow-primary mb-4">
-          <span className="material-symbols-outlined">lock_clock</span>
-        </div>
-        <h3 className="text-xl font-headline font-bold mb-1">Verifying Admin Authentication...</h3>
-        <p className="text-xs text-slate-400 font-label">Checking Supabase Auth Credentials & Session</p>
+      <div style={{ minHeight: '100vh', backgroundColor: '#030712', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#FFFFFF', padding: '16px' }}>
+        <div style={{ width: '48px', height: '48px', borderRadius: '50%', border: '3px solid rgba(59, 130, 246, 0.2)', borderTopColor: '#3B82F6', animation: 'spin 1s linear infinite', marginBottom: '16px' }} />
+        <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0, marginBottom: '4px' }}>Loading Parcl Terminal...</h3>
+        <p style={{ fontSize: '12px', color: '#94A3B8', margin: 0 }}>Connecting to Live Database</p>
       </div>
     );
   }
 
   return (
-    <div className="parcl-layout">
-      {/* Animation system — runs on every page */}
-      <AnimationEnhancer />
-
-      {/* Ambient background orbs */}
-      <div className="parcl-orb parcl-orb--blue" style={{
-        width: 480, height: 480,
-        top: -120, left: 180,
-        animationDelay: '0s',
-      }} />
-      <div className="parcl-orb parcl-orb--violet" style={{
-        width: 360, height: 360,
-        top: 400, right: 80,
-        animationDelay: '3s',
-      }} />
-      <div className="parcl-orb parcl-orb--green" style={{
-        width: 280, height: 280,
-        bottom: 80, left: 400,
-        animationDelay: '6s',
-      }} />
-
-      {/* Sidebar with modal triggers */}
+    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#030712', color: '#F8FAFC', overflowX: 'hidden' }}>
+      
+      {/* 1. FIXED LEFT SIDEBAR */}
       <Sidebar
         onOpenUpgrade={() => setIsUpgradeOpen(true)}
         onOpenProfile={() => setIsProfileOpen(true)}
       />
 
-      <div className="parcl-main">
-        {/* Topbar with modal triggers */}
+      {/* 2. MAIN CONTENT AREA (OFFSET BY 240px FOR SIDEBAR) */}
+      <div style={{ flex: 1, marginLeft: '240px', display: 'flex', flexDirection: 'column', minHeight: '100vh', minWidth: 0 }}>
+        
+        {/* FIXED TOPBAR (OFFSET BY 240px) */}
         <Topbar
           title={title}
           subtitle={subtitle}
-          actions={topbarActions}
+          actions={actions}
           onOpenUpgrade={() => setIsUpgradeOpen(true)}
           onOpenProfile={() => setIsProfileOpen(true)}
         />
 
-        <main className="parcl-content" style={{ paddingBottom: 56 }}>
+        {/* INNER SCROLLABLE PAGE CONTENT (PADDING FOR 86px TOPBAR) */}
+        <main style={{ flex: 1, paddingTop: '92px', paddingBottom: '60px', paddingLeft: '32px', paddingRight: '32px', backgroundColor: '#030712' }}>
           {children}
         </main>
 
         <Footer />
       </div>
 
-      {/* Global Modals */}
+      {/* GLOBAL MODALS */}
       <UpgradeModal
         isOpen={isUpgradeOpen}
         onClose={() => setIsUpgradeOpen(false)}

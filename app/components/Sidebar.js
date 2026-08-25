@@ -22,35 +22,35 @@ export default function Sidebar({ onOpenUpgrade, onOpenProfile }) {
   const userInitial = userName.charAt(0).toUpperCase();
 
   return (
-    <aside style={{ width: '230px', backgroundColor: '#05070D', borderRight: '1px solid rgba(255, 255, 255, 0.08)', height: '100vh', display: 'flex', flexDirection: 'column', position: 'fixed', top: 0, left: 0, zIndex: 40, overflowY: 'auto' }}>
+    <aside style={{ width: '240px', backgroundColor: '#0B0F19', borderRight: '1px solid rgba(255, 255, 255, 0.1)', height: '100vh', display: 'flex', flexDirection: 'column', position: 'fixed', top: 0, left: 0, zIndex: 40, overflowY: 'auto' }}>
       
       {/* Brand Header */}
-      <div style={{ padding: '20px 20px 14px 20px', borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <div style={{ padding: '20px 20px 16px 20px', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', backgroundColor: '#070B14' }}>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '9px', textDecoration: 'none' }}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
             <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#FFFFFF" />
-            <path d="M2 17L12 22L22 17" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M2 12L12 17L22 12" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M2 17L12 22L22 17" stroke="#3B82F6" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M2 12L12 17L22 12" stroke="#FFFFFF" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-          <span style={{ fontSize: '17px', fontWeight: '800', color: '#FFFFFF', letterSpacing: '0.5px' }}>PARCL</span>
+          <span style={{ fontSize: '18px', fontWeight: '800', color: '#FFFFFF', letterSpacing: '0.5px' }}>PARCL</span>
         </Link>
       </div>
 
       {/* Nav List */}
-      <div style={{ flex: 1, padding: '16px 0', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <div style={{ flex: 1, padding: '16px 0', display: 'flex', flexDirection: 'column', gap: '22px' }}>
         
         {/* DEFAULT SECTION */}
         <div>
-          <div style={{ padding: '0 20px 8px 20px', fontSize: '10px', fontFamily: "'Space Mono', monospace", textTransform: 'uppercase', color: '#64748B', letterSpacing: '1px' }}>
+          <div style={{ padding: '0 20px 8px 20px', fontSize: '10.5px', fontFamily: "'Space Mono', monospace", textTransform: 'uppercase', color: '#64748B', letterSpacing: '1px', fontWeight: 'bold' }}>
             DEFAULT
           </div>
 
-          <div style={{ padding: '4px 20px 10px 20px', fontSize: '11.5px', color: '#64748B', lineHeight: '1.4' }}>
+          <div style={{ padding: '4px 20px 10px 20px', fontSize: '11.5px', color: '#94A3B8', lineHeight: '1.4' }}>
             No markets yet. Add one to watch its seller stress move.
-            <div style={{ marginTop: '6px', color: '#60A5FA', cursor: 'pointer', fontWeight: '500' }}>+ Add a market</div>
+            <div style={{ marginTop: '6px', color: '#60A5FA', cursor: 'pointer', fontWeight: '600' }}>+ Add a market</div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
             {NAV_ITEMS.map((item) => {
               const isActive = pathname === item.href || (item.href !== '/' && pathname?.startsWith(item.href));
               return (
@@ -61,17 +61,17 @@ export default function Sidebar({ onOpenUpgrade, onOpenProfile }) {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '10px',
-                    padding: '8px 20px',
+                    padding: '9px 20px',
                     fontSize: '13px',
-                    fontWeight: isActive ? '600' : '400',
+                    fontWeight: isActive ? '700' : '400',
                     color: isActive ? '#FFFFFF' : '#94A3B8',
-                    backgroundColor: isActive ? 'rgba(59, 130, 246, 0.12)' : 'transparent',
+                    backgroundColor: isActive ? 'rgba(59, 130, 246, 0.18)' : 'transparent',
                     borderLeft: isActive ? '3px solid #3B82F6' : '3px solid transparent',
                     textDecoration: 'none',
                     transition: 'all 0.15s ease'
                   }}
                 >
-                  <span className="material-symbols-outlined" style={{ fontSize: '18px', color: isActive ? '#3B82F6' : '#64748B' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: '19px', color: isActive ? '#3B82F6' : '#64748B' }}>
                     {item.icon}
                   </span>
                   <span>{item.label}</span>
@@ -83,10 +83,10 @@ export default function Sidebar({ onOpenUpgrade, onOpenProfile }) {
 
         {/* APPS SECTION */}
         <div>
-          <div style={{ padding: '0 20px 8px 20px', fontSize: '10px', fontFamily: "'Space Mono', monospace", textTransform: 'uppercase', color: '#64748B', letterSpacing: '1px' }}>
+          <div style={{ padding: '0 20px 8px 20px', fontSize: '10.5px', fontFamily: "'Space Mono', monospace", textTransform: 'uppercase', color: '#64748B', letterSpacing: '1px', fontWeight: 'bold' }}>
             APPS
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
             <Link
               href="/pipeline"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 20px', fontSize: '13px', color: '#94A3B8', textDecoration: 'none' }}
@@ -114,8 +114,8 @@ export default function Sidebar({ onOpenUpgrade, onOpenProfile }) {
       </div>
 
       {/* FREE PLAN CARD */}
-      <div style={{ padding: '16px 14px', borderTop: '1px solid rgba(255, 255, 255, 0.06)', backgroundColor: '#090D16' }}>
-        <div style={{ fontSize: '10.5px', fontFamily: "'Space Mono', monospace", color: '#3B82F6', textTransform: 'uppercase', fontWeight: 'bold', marginBottom: '4px' }}>
+      <div style={{ margin: '0 12px 12px 12px', padding: '14px', borderRadius: '8px', border: '1px solid rgba(59, 130, 246, 0.25)', backgroundColor: '#070C18' }}>
+        <div style={{ fontSize: '10.5px', fontFamily: "'Space Mono', monospace", color: '#60A5FA', textTransform: 'uppercase', fontWeight: 'bold', marginBottom: '4px' }}>
           FREE PLAN
         </div>
         <p style={{ fontSize: '11px', color: '#94A3B8', lineHeight: '1.4', margin: '0 0 12px 0' }}>
@@ -125,15 +125,15 @@ export default function Sidebar({ onOpenUpgrade, onOpenProfile }) {
         <button
           type="button"
           onClick={onOpenUpgrade}
-          style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 12px', borderRadius: '9999px', border: '1px solid rgba(59, 130, 246, 0.5)', backgroundColor: 'rgba(37, 99, 235, 0.1)', color: '#FFFFFF', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}
+          style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 12px', borderRadius: '9999px', border: '1px solid #3B82F6', backgroundColor: '#2563EB', color: '#FFFFFF', fontSize: '12px', fontWeight: '700', cursor: 'pointer', boxShadow: '0 0 15px rgba(37, 99, 235, 0.4)' }}
         >
           <span>Activate Pro</span>
-          <span style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: '#FFFFFF' }} />
+          <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#FFFFFF' }} />
         </button>
       </div>
 
       {/* FOOTER ACTIONS */}
-      <div style={{ padding: '12px 20px', borderTop: '1px solid rgba(255, 255, 255, 0.05)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <div style={{ padding: '12px 20px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', backgroundColor: '#070B14', display: 'flex', flexDirection: 'column', gap: '8px' }}>
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#94A3B8', fontSize: '12px', cursor: 'pointer' }}>
           <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>notifications</span>
@@ -151,7 +151,7 @@ export default function Sidebar({ onOpenUpgrade, onOpenProfile }) {
           <span style={{ fontSize: '10px', color: '#64748B' }}>^</span>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '10.5px', color: '#64748B', marginTop: '6px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '10.5px', color: '#64748B', marginTop: '4px' }}>
           <div style={{ display: 'flex', gap: '8px' }}>
             <span>in</span>
             <span>𝕏</span>
