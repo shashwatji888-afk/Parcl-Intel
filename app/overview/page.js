@@ -474,19 +474,6 @@ export default function OverviewPage() {
           {/* Transformed Vector Map (Exact Parcl Labs County Mosaic + Neon White Glow Line) */}
           <div style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoomLevel})`, transition: isDragging ? 'none' : 'transform 0.1s ease-out', transformOrigin: 'center center', willChange: 'transform' }}>
             <svg width="960" height="500" viewBox="0 0 960 500" style={{ maxWidth: '100%', pointerEvents: 'auto' }}>
-              
-              <defs>
-                {/* Neon Glow Filter for Outer National Boundary */}
-                <filter id="us-glow-filter" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="3.5" result="blur" />
-                  <feColorMatrix type="matrix" values="1 0 0 0 1   0 1 0 0 1   0 0 1 0 1  0 0 0 0.85 0" />
-                  <feMerge>
-                    <feMergeNode in="blur" />
-                    <feMergeNode in="blur" />
-                    <feMergeNode in="SourceGraphic" />
-                  </feMerge>
-                </filter>
-              </defs>
 
               {/* 1. All 3,142 Real US Counties (Mosaic colored matching Parcl Labs) */}
               <g>
@@ -519,35 +506,22 @@ export default function OverviewPage() {
                 <path
                   d={usCountyData.stateBordersPath}
                   fill="none"
-                  stroke="rgba(255, 255, 255, 0.35)"
-                  strokeWidth="0.85"
+                  stroke="rgba(255, 255, 255, 0.2)"
+                  strokeWidth="0.5"
                   pointerEvents="none"
                 />
               )}
 
-              {/* 3. Outer Glowing White Boundary Line */}
+              {/* 3. Outer National Boundary Line (Crisp, thin 1.0px white border matching Parcl Labs) */}
               {usCountyData.nationPath && (
-                <>
-                  {/* Subtle outer blur glow */}
-                  <path
-                    d={usCountyData.nationPath}
-                    fill="none"
-                    stroke="#FFFFFF"
-                    strokeWidth="3.2"
-                    filter="url(#us-glow-filter)"
-                    opacity="0.9"
-                    pointerEvents="none"
-                  />
-                  {/* Sharp inner white stroke */}
-                  <path
-                    d={usCountyData.nationPath}
-                    fill="none"
-                    stroke="#FFFFFF"
-                    strokeWidth="1.6"
-                    opacity="1"
-                    pointerEvents="none"
-                  />
-                </>
+                <path
+                  d={usCountyData.nationPath}
+                  fill="none"
+                  stroke="#FFFFFF"
+                  strokeWidth="1.05"
+                  opacity="0.95"
+                  pointerEvents="none"
+                />
               )}
 
             </svg>
