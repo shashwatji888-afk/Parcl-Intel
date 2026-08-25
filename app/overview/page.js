@@ -127,10 +127,10 @@ export default function OverviewPage() {
 
   const getRegionDetails = (stateName) => {
     const dbRegion = metrics.regions?.[stateName] || {
-      count: 50,
-      c1: 24, c2: 18, c3: 2, c4: 6,
-      loans: 20, cash: 30,
-      totalSat: 210
+      count: 100,
+      c1: 42, c2: 36, c3: 4, c4: 18,
+      loans: 38, cash: 62,
+      totalSat: 420
     };
 
     const meta = stateMeta[stateName] || {
@@ -152,8 +152,8 @@ export default function OverviewPage() {
       hottest: 'SFR $300k-$500k · 15% · MSI 5.80'
     };
 
-    const totalCount = dbRegion.count || 50;
-    const c1Pct = Math.round(((dbRegion.c1 || 24) / totalCount) * 100);
+    const totalCount = dbRegion.count || 100;
+    const c1Pct = Math.round(((dbRegion.c1 || 42) / totalCount) * 100);
 
     return {
       ...meta,
