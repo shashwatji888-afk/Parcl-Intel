@@ -64,8 +64,10 @@ export default function OverviewPage() {
     const onWheelHandler = (e) => {
       e.preventDefault();
       e.stopPropagation();
-      const zoomDelta = e.deltaY < 0 ? 0.16 : -0.16;
-      setZoomLevel((prev) => Math.min(Math.max(prev + zoomDelta, 0.75), 3.5));
+      setZoomLevel((prev) => {
+        const factor = e.deltaY < 0 ? 1.18 : 0.85;
+        return Math.min(Math.max(prev * factor, 0.2), 12.0);
+      });
     };
 
     mapElement.addEventListener('wheel', onWheelHandler, { passive: false });
@@ -385,14 +387,16 @@ export default function OverviewPage() {
           <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 20, display: 'flex', flexDirection: 'column', gap: '6px' }}>
             <button
               type="button"
-              onClick={() => setZoomLevel(prev => Math.min(prev + 0.25, 3.5))}
+              onClick={() => setZoomLevel(prev => Math.min(prev * 1.3, 12.0))}
+              title="Zoom In"
               style={{ width: '30px', height: '30px', borderRadius: '4px', backgroundColor: '#090D16', border: '1px solid rgba(255,255,255,0.15)', color: '#FFFFFF', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
               +
             </button>
             <button
               type="button"
-              onClick={() => setZoomLevel(prev => Math.max(prev - 0.25, 0.75))}
+              onClick={() => setZoomLevel(prev => Math.max(prev / 1.3, 0.2))}
+              title="Zoom Out"
               style={{ width: '30px', height: '30px', borderRadius: '4px', backgroundColor: '#090D16', border: '1px solid rgba(255,255,255,0.15)', color: '#FFFFFF', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
               −
