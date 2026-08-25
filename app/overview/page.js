@@ -474,8 +474,16 @@ export default function OverviewPage() {
           {/* Transformed Vector Map (Exact Parcl Labs County Mosaic + Neon White Glow Line) */}
           <div style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoomLevel})`, transition: isDragging ? 'none' : 'transform 0.1s ease-out', transformOrigin: 'center center', willChange: 'transform' }}>
             <svg width="960" height="500" viewBox="0 0 960 500" style={{ maxWidth: '100%', pointerEvents: 'auto' }}>
+              {/* 0. Base Contiguous US Landmass Silhouette */}
+              {usCountyData.nationFillPath && (
+                <path
+                  d={usCountyData.nationFillPath}
+                  fill="#080E1A"
+                  pointerEvents="none"
+                />
+              )}
 
-              {/* 1. All 3,142 Real US Counties (Mosaic colored matching Parcl Labs) */}
+              {/* 1. All 3,108 Contiguous US Counties (Mosaic colored matching Parcl Labs) */}
               <g>
                 {usCountyData.counties.map((c) => {
                   const fillColor = getCountyColor(c.fips, c.stateFips);
