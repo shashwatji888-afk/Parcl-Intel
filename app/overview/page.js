@@ -164,7 +164,7 @@ export default function OverviewPage() {
     // Parcl Labs density filter: ~42% of counties have 20+ active listings (metro markets)
     const isMetroActive = (fipsNum * 13 + 7) % 100 < 46;
     if (!isMetroActive) {
-      return '#080E1A'; // Dark obsidian background for non-metro/rural
+      return '#141B2F'; // Inactive land color
     }
 
     // Micro-variation per county reflecting local sub-market MSI
@@ -478,7 +478,7 @@ export default function OverviewPage() {
               {usCountyData.nationFillPath && (
                 <path
                   d={usCountyData.nationFillPath}
-                  fill="#080E1A"
+                  fill="#141B2F"
                   pointerEvents="none"
                 />
               )}
@@ -493,7 +493,7 @@ export default function OverviewPage() {
                       key={c.fips}
                       d={c.d}
                       fill={fillColor}
-                      fillOpacity={fillColor === '#080E1A' ? 0.35 : (isHovered ? 1 : 0.88)}
+                      fillOpacity={fillColor === '#141B2F' ? 1 : (isHovered ? 1 : 0.88)}
                       stroke={isHovered ? '#FFFFFF' : 'rgba(0, 0, 0, 0.4)'}
                       strokeWidth={isHovered ? 1.5 : 0.35}
                       onMouseMove={(e) => handleCountyMouseMove(c, e)}
