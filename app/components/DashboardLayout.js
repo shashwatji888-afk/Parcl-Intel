@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 
 const Sidebar = dynamic(() => import('./Sidebar'), { ssr: false });
 const Topbar = dynamic(() => import('./Topbar'), { ssr: false });
+const Footer = dynamic(() => import('./Footer'), { ssr: false });
 const UpgradeModal = dynamic(() => import('./UpgradeModal'), { ssr: false });
 const UserProfileModal = dynamic(() => import('./UserProfileModal'), { ssr: false });
 
@@ -60,6 +61,9 @@ export default function DashboardLayout({ title, subtitle, children, actions }) 
         <main style={{ flex: 1, paddingTop: '92px', paddingBottom: '40px', paddingLeft: '32px', paddingRight: '32px', backgroundColor: '#030712' }}>
           {children}
         </main>
+
+        {/* IN-FLOW NON-OVERLAPPING TERMINAL FOOTER */}
+        <Footer />
       </div>
 
       {/* GLOBAL MODALS */}
