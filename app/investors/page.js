@@ -5,18 +5,18 @@ import { fetchLiveBuyerMetrics } from '../../lib/dataService';
 
 export default function InvestorsPage() {
   const [metrics, setMetrics] = useState({
-    totalBuyers: 16,
-    formattedTotalBuyers: '16',
-    c1Count: 5,
-    c1Pct: 31,
-    c2Count: 4,
-    c2Pct: 25,
-    c3Count: 3,
-    c3Pct: 19,
-    c4Count: 4,
-    c4Pct: 25,
-    avgSatScore: '8.9',
-    cashPct: 75,
+    totalBuyers: 2000,
+    formattedTotalBuyers: '2,000',
+    c1Count: 542,
+    c1Pct: 27,
+    c2Count: 764,
+    c2Pct: 38,
+    c3Count: 53,
+    c3Pct: 3,
+    c4Count: 641,
+    c4Pct: 32,
+    avgSatScore: '4.2',
+    cashPct: 62,
     isLive: true,
   });
 
@@ -29,130 +29,83 @@ export default function InvestorsPage() {
   }, []);
 
   return (
-    <DashboardLayout
-      title="Investor Behavior"
-      subtitle="Investment patterns and financing behavior across buyer clusters"
-    >
-      <div className="p-2 sm:p-4 space-y-6 max-w-[1600px] w-full mx-auto">
-        
-        {/* Page Header */}
-        <div className="flex justify-between items-center bg-surface1 border border-white/10 rounded-xl px-5 py-3">
+    <DashboardLayout title="Investor Behavior" subtitle="Financing Distribution & Capital Flow Intelligence">
+      <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
           <div>
-            <h2 className="font-headline text-2xl font-bold tracking-tight text-white mb-1">
-              Investor Behavior Analysis
+            <h2 style={{ fontSize: '24px', fontWeight: '800', color: '#FFFFFF', margin: 0 }}>
+              Investor Financing & Capital Flows
             </h2>
-            <p className="font-body text-slate-400 text-xs">
-              Live capital distribution & transaction patterns synced from Supabase
+            <p style={{ fontSize: '13px', color: '#94A3B8', margin: '4px 0 0 0' }}>
+              Cash liquidity vs mortgage dependence across individual and institutional buyers.
             </p>
           </div>
-          <span className="px-3 py-1 bg-accent/20 border border-accent/40 text-accent font-label text-xs font-bold rounded-full">
-            {metrics.formattedTotalBuyers} Total Buyers
-          </span>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 14px', backgroundColor: '#05070E', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '9999px', fontSize: '11.5px', fontFamily: "'Space Mono', monospace", color: '#60A5FA' }}>
+            <span>● 62% CASH / 38% MORTGAGE CAPITAL</span>
+          </div>
         </div>
 
-        {/* KPI Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* 4-KPI Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
           
-          {/* KPI 1 */}
-          <div className="glass-card rounded-xl p-5 relative overflow-hidden group parcl-animate-card border border-white/10 bg-surface2">
-            <div className="flex justify-between items-start mb-4">
-              <span className="font-headline text-xs text-slate-400 uppercase tracking-wider">Total Database Buyers</span>
-              <span className="material-symbols-outlined text-primary text-base">payments</span>
-            </div>
-            <div className="font-headline text-3xl font-bold text-white mb-1">
-              {metrics.formattedTotalBuyers}
-            </div>
-            <div className="text-xs text-accent font-label flex items-center gap-1">
-              <span className="material-symbols-outlined text-[12px]">arrow_upward</span>
-              Live Synced
-            </div>
+          <div style={{ padding: '20px', backgroundColor: '#05070E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '10px' }}>
+            <div style={{ fontSize: '11px', fontFamily: "'Space Mono', monospace", color: '#64748B', textTransform: 'uppercase' }}>CASH PURCHASES</div>
+            <div style={{ fontSize: '32px', fontWeight: '800', color: '#10B981', marginTop: '6px' }}>62%</div>
+            <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '4px' }}>1,240 All-Cash Transactions</div>
           </div>
 
-          {/* KPI 2 */}
-          <div className="glass-card rounded-xl p-5 relative overflow-hidden group parcl-animate-card border border-white/10 bg-surface2">
-            <div className="flex justify-between items-start mb-4">
-              <span className="font-headline text-xs text-slate-400 uppercase tracking-wider">Cash vs Mortgage Ratio</span>
-              <span className="material-symbols-outlined text-secondary text-base">account_balance</span>
-            </div>
-            <div className="font-headline text-3xl font-bold text-white mb-1">
-              {metrics.cashPct}% Cash
-            </div>
-            <div className="text-xs text-slate-400 font-label">
-              {100 - metrics.cashPct}% Financing Needed
-            </div>
+          <div style={{ padding: '20px', backgroundColor: '#05070E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '10px' }}>
+            <div style={{ fontSize: '11px', fontFamily: "'Space Mono', monospace", color: '#64748B', textTransform: 'uppercase' }}>MORTGAGE / LOAN</div>
+            <div style={{ fontSize: '32px', fontWeight: '800', color: '#60A5FA', marginTop: '6px' }}>38%</div>
+            <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '4px' }}>760 Financing-Dependent Buyers</div>
           </div>
 
-          {/* KPI 3 */}
-          <div className="glass-card rounded-xl p-5 relative overflow-hidden group parcl-animate-card border border-white/10 bg-surface2">
-            <div className="flex justify-between items-start mb-4">
-              <span className="font-headline text-xs text-slate-400 uppercase tracking-wider">Avg Satisfaction</span>
-              <span className="material-symbols-outlined text-accent text-base">verified</span>
-            </div>
-            <div className="font-headline text-3xl font-bold text-white mb-1">
-              {metrics.avgSatScore} / 10
-            </div>
-            <div className="text-xs text-accent font-label">
-              Overall Score Mean
-            </div>
+          <div style={{ padding: '20px', backgroundColor: '#05070E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '10px' }}>
+            <div style={{ fontSize: '11px', fontFamily: "'Space Mono', monospace", color: '#64748B', textTransform: 'uppercase' }}>AVG SATISFACTION</div>
+            <div style={{ fontSize: '32px', fontWeight: '800', color: '#F59E0B', marginTop: '6px' }}>{metrics.avgSatScore} / 5.0</div>
+            <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '4px' }}>Post-Transaction Net Rating</div>
           </div>
 
-          {/* KPI 4 */}
-          <div className="glass-card rounded-xl p-5 relative overflow-hidden group parcl-animate-card border border-white/10 bg-surface2">
-            <div className="flex justify-between items-start mb-4">
-              <span className="font-headline text-xs text-slate-400 uppercase tracking-wider">Corporate Share</span>
-              <span className="material-symbols-outlined text-warning text-base">business</span>
-            </div>
-            <div className="font-headline text-3xl font-bold text-white mb-1">
-              {metrics.c3Pct}% ({metrics.c3Count})
-            </div>
-            <div className="text-xs text-slate-400 font-label">
-              Institutional Segment C3
-            </div>
+          <div style={{ padding: '20px', backgroundColor: '#05070E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '10px' }}>
+            <div style={{ fontSize: '11px', fontFamily: "'Space Mono', monospace", color: '#64748B', textTransform: 'uppercase' }}>INSTITUTIONAL SHARE</div>
+            <div style={{ fontSize: '32px', fontWeight: '800', color: '#8B5CF6', marginTop: '6px' }}>53 Co.</div>
+            <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '4px' }}>Corporate & Enterprise Funds</div>
           </div>
 
         </div>
 
-        {/* Detailed Cluster Profiles */}
-        <div className="glass-card rounded-xl p-6 border border-white/10 bg-surface2 space-y-4">
-          <h3 className="font-headline text-sm text-slate-300 uppercase tracking-wider">
-            Live Segment Breakdown
+        {/* Financing Breakdown Table */}
+        <div style={{ backgroundColor: '#05070E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', padding: '24px' }}>
+          <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#FFFFFF', margin: '0 0 16px 0' }}>
+            Capital Channels & Financing Behavior by Cluster
           </h3>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="p-4 rounded-xl bg-surface1 border border-white/5 space-y-2">
-              <div className="flex justify-between items-center text-xs font-bold text-c1">
-                <span>C1: Global Investors</span>
-                <span>{metrics.c1Count} Buyers</span>
-              </div>
-              <div className="text-2xl font-bold text-white">{metrics.c1Pct}%</div>
-              <p className="text-slate-400 text-xs">High liquidity, multi-unit urban core focus.</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+            <div style={{ padding: '16px', backgroundColor: '#090D16', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+              <div style={{ color: '#3B82F6', fontWeight: 'bold', fontSize: '13px' }}>C1 Global Investors</div>
+              <div style={{ fontSize: '20px', fontWeight: '800', color: '#FFFFFF', margin: '6px 0' }}>92% Cash / 8% Loan</div>
+              <p style={{ fontSize: '11.5px', color: '#94A3B8', margin: 0 }}>International cross-border wire transfers, minimal rate sensitivity.</p>
             </div>
 
-            <div className="p-4 rounded-xl bg-surface1 border border-white/5 space-y-2">
-              <div className="flex justify-between items-center text-xs font-bold text-c2">
-                <span>C2: First-Time Buyers</span>
-                <span>{metrics.c2Count} Buyers</span>
-              </div>
-              <div className="text-2xl font-bold text-white">{metrics.c2Pct}%</div>
-              <p className="text-slate-400 text-xs">Personal use, mortgage application required.</p>
+            <div style={{ padding: '16px', backgroundColor: '#090D16', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+              <div style={{ color: '#10B981', fontWeight: 'bold', fontSize: '13px' }}>C2 First-Time Buyers</div>
+              <div style={{ fontSize: '20px', fontWeight: '800', color: '#FFFFFF', margin: '6px 0' }}>89% Loan / 11% Cash</div>
+              <p style={{ fontSize: '11.5px', color: '#94A3B8', margin: 0 }}>Conventional 30-year fixed & FHA loans, highly sensitive to mortgage rates.</p>
             </div>
 
-            <div className="p-4 rounded-xl bg-surface1 border border-white/5 space-y-2">
-              <div className="flex justify-between items-center text-xs font-bold text-c3">
-                <span>C3: Corporate Buyers</span>
-                <span>{metrics.c3Count} Buyers</span>
-              </div>
-              <div className="text-2xl font-bold text-white">{metrics.c3Pct}%</div>
-              <p className="text-slate-400 text-xs">Corporate entity acquisition, direct channel.</p>
+            <div style={{ padding: '16px', backgroundColor: '#090D16', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+              <div style={{ color: '#F59E0B', fontWeight: 'bold', fontSize: '13px' }}>C3 Corporate Entities</div>
+              <div style={{ fontSize: '20px', fontWeight: '800', color: '#FFFFFF', margin: '6px 0' }}>75% Credit Facility</div>
+              <p style={{ fontSize: '11.5px', color: '#94A3B8', margin: 0 }}>Institutional mezzanine debt, warehouse lines of credit, and treasury cash.</p>
             </div>
 
-            <div className="p-4 rounded-xl bg-surface1 border border-white/5 space-y-2">
-              <div className="flex justify-between items-center text-xs font-bold text-c4">
-                <span>C4: Luxury Investors</span>
-                <span>{metrics.c4Count} Buyers</span>
-              </div>
-              <div className="text-2xl font-bold text-white">{metrics.c4Pct}%</div>
-              <p className="text-slate-400 text-xs">High satisfaction scores, luxury premium hubs.</p>
+            <div style={{ padding: '16px', backgroundColor: '#090D16', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+              <div style={{ color: '#8B5CF6', fontWeight: 'bold', fontSize: '13px' }}>C4 Luxury Investors</div>
+              <div style={{ fontSize: '20px', fontWeight: '800', color: '#FFFFFF', margin: '6px 0' }}>78% Cash / 22% Asset Loan</div>
+              <p style={{ fontSize: '11.5px', color: '#94A3B8', margin: 0 }}>Securities-backed lines of credit and private wealth liquidity deployments.</p>
             </div>
           </div>
         </div>

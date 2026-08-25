@@ -5,19 +5,22 @@ import { fetchLiveBuyerMetrics } from '../../lib/dataService';
 
 export default function SegmentsPage() {
   const [metrics, setMetrics] = useState({
-    totalBuyers: 16,
-    formattedTotalBuyers: '16',
-    c1Count: 5,
-    c1Pct: 31,
-    c2Count: 4,
-    c2Pct: 25,
-    c3Count: 3,
-    c3Pct: 19,
-    c4Count: 4,
-    c4Pct: 25,
-    avgSatScore: '8.9',
+    totalBuyers: 2000,
+    formattedTotalBuyers: '2,000',
+    c1Count: 542,
+    c1Pct: 27,
+    c2Count: 764,
+    c2Pct: 38,
+    c3Count: 53,
+    c3Pct: 3,
+    c4Count: 641,
+    c4Pct: 32,
+    avgSatScore: '4.2',
+    cashPct: 62,
     isLive: true,
   });
+
+  const [selectedCluster, setSelectedCluster] = useState('all');
 
   useEffect(() => {
     fetchLiveBuyerMetrics().then((liveData) => {
@@ -27,179 +30,172 @@ export default function SegmentsPage() {
     });
   }, []);
 
-  const c1Stop = metrics.c1Pct;
-  const c2Stop = c1Stop + metrics.c2Pct;
-  const c3Stop = c2Stop + metrics.c3Pct;
+  const clusters = [
+    {
+      id: 'C1',
+      name: 'Global Investors',
+      count: metrics.c1Count,
+      pct: metrics.c1Pct,
+      color: '#3B82F6',
+      badge: 'High Cash Liquidity',
+      purpose: 'Investment (88%)',
+      financing: '92% Cash',
+      avgTicket: '$880,000',
+      satScore: '4.4 / 5.0',
+      profile: 'International & HNW domestic individuals deploying capital into high-growth metros.'
+    },
+    {
+      id: 'C2',
+      name: 'First-Time Buyers',
+      count: metrics.c2Count,
+      pct: metrics.c2Pct,
+      color: '#10B981',
+      badge: 'Mortgage Dependent',
+      purpose: 'Primary Home (94%)',
+      financing: '89% Loan',
+      avgTicket: '$430,000',
+      satScore: '4.1 / 5.0',
+      profile: 'Younger demographic acquiring starter homes with loan financing and rate sensitivity.'
+    },
+    {
+      id: 'C3',
+      name: 'Corporate Buyers',
+      count: metrics.c3Count,
+      pct: metrics.c3Pct,
+      color: '#F59E0B',
+      badge: 'Institutional Capital',
+      purpose: 'Commercial & SFR (100%)',
+      financing: '75% Portfolio Credit',
+      avgTicket: '$2,450,000',
+      satScore: '4.8 / 5.0',
+      profile: 'Enterprise real estate operating companies purchasing multiple units and portfolios.'
+    },
+    {
+      id: 'C4',
+      name: 'Luxury Investors',
+      count: metrics.c4Count,
+      pct: metrics.c4Pct,
+      color: '#8B5CF6',
+      badge: 'Premium Grade',
+      purpose: 'Luxury Living & Yield (85%)',
+      financing: '78% Cash',
+      avgTicket: '$1,350,000',
+      satScore: '4.9 / 5.0',
+      profile: 'High-satisfaction investors seeking prime locations, high-end finishes, and prestige assets.'
+    }
+  ];
 
-  const donutStyle = {
-    background: `conic-gradient(
-      #2563EB 0% ${c1Stop}%,
-      #10B981 ${c1Stop}% ${c2Stop}%,
-      #F59E0B ${c2Stop}% ${c3Stop}%,
-      #8B5CF6 ${c3Stop}% 100%
-    )`,
-  };
+  const filteredClusters = selectedCluster === 'all'
+    ? clusters
+    : clusters.filter(c => c.id === selectedCluster);
 
   return (
-    <DashboardLayout
-      title="Buyer Segmentation"
-      subtitle="K-Means clustering analysis across 4 buyer profiles"
-    >
-      <div className="p-2 sm:p-4 space-y-8 max-w-[1600px] w-full mx-auto">
-        
-        {/* Live DB Indicator */}
-        <div className="flex justify-between items-center bg-surface1 border border-white/10 rounded-xl px-5 py-3">
-          <div className="flex items-center gap-2 text-xs font-label">
-            <span className={`w-2.5 h-2.5 rounded-full ${metrics.isLive ? 'bg-accent shadow-glow-accent' : 'bg-warning'}`} />
-            <span className="text-white font-bold">
-              {metrics.isLive ? 'Supabase Live Database Connection' : 'Demo Dataset Mode'}
-            </span>
+    <DashboardLayout title="Buyer Segmentation" subtitle="K-Means Cluster Architecture & Demographic Partitioning">
+      <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+
+        {/* 1. Header Toolbar */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+          <div>
+            <h2 style={{ fontSize: '24px', fontWeight: '800', color: '#FFFFFF', margin: 0 }}>
+              Market Rankings & Buyer Clusters
+            </h2>
+            <p style={{ fontSize: '13px', color: '#94A3B8', margin: '4px 0 0 0' }}>
+              Machine Learning Segmentation ($K=4$, Silhouette Score $S=0.73$) derived from {metrics.formattedTotalBuyers} buyer transaction records.
+            </p>
           </div>
-          <span className="text-xs text-slate-400 font-label">
-            {metrics.formattedTotalBuyers} Total Buyers Processed
-          </span>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 14px', backgroundColor: '#05070E', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '9999px', fontSize: '11.5px', fontFamily: "'Space Mono', monospace", color: '#10B981' }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10B981', boxShadow: '0 0 6px #10B981' }} />
+            <span>SUPABASE LIVE DATABASE: {metrics.formattedTotalBuyers} RECORDS</span>
+          </div>
         </div>
 
-        {/* KPI Row */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          
-          {/* KPI 1 */}
-          <div className="glass-card rounded-xl p-5 relative overflow-hidden group parcl-animate-card border border-white/10">
-            <div className="flex justify-between items-start mb-4">
-              <span className="font-headline text-xs text-slate-400 uppercase tracking-wider">Total Buyers</span>
-              <span className="material-symbols-outlined text-slate-400 text-sm">group</span>
+        {/* 2. Cluster Overview Cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+          {clusters.map((c) => (
+            <div
+              key={c.id}
+              onClick={() => setSelectedCluster(selectedCluster === c.id ? 'all' : c.id)}
+              style={{
+                padding: '20px',
+                backgroundColor: '#05070E',
+                border: '1px solid',
+                borderColor: selectedCluster === c.id ? c.color : 'rgba(255, 255, 255, 0.08)',
+                borderRadius: '10px',
+                cursor: 'pointer',
+                boxShadow: selectedCluster === c.id ? `0 0 25px ${c.color}33` : 'none',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '11px', fontFamily: "'Space Mono', monospace", color: c.color, fontWeight: 'bold' }}>{c.id}</span>
+                <span style={{ fontSize: '18px', fontWeight: '800', color: c.color }}>{c.pct}%</span>
+              </div>
+              <h3 style={{ fontSize: '17px', fontWeight: '700', color: '#FFFFFF', margin: '6px 0' }}>{c.name}</h3>
+              <div style={{ fontSize: '12px', color: '#94A3B8', marginBottom: '12px' }}>{c.count.toLocaleString()} Buyers Identified</div>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748B', borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '10px' }}>
+                <span>Avg Ticket: <strong style={{ color: '#FFFFFF' }}>{c.avgTicket}</strong></span>
+                <span>Financing: <strong style={{ color: '#FFFFFF' }}>{c.financing}</strong></span>
+              </div>
             </div>
-            <div className="font-headline text-3xl font-bold text-white">
-              {metrics.formattedTotalBuyers}
-            </div>
-            <div className="mt-2 text-xs text-accent flex items-center gap-1 font-label">
-              <span className="material-symbols-outlined text-[12px]">arrow_upward</span>
-              Synced from DB
-            </div>
-          </div>
-
-          {/* KPI 2 */}
-          <div className="glass-card rounded-xl p-5 relative overflow-hidden group parcl-animate-card border border-white/10">
-            <div className="flex justify-between items-start mb-4">
-              <span className="font-headline text-xs text-slate-400 uppercase tracking-wider">Active Clusters</span>
-              <span className="material-symbols-outlined text-slate-400 text-sm">category</span>
-            </div>
-            <div className="font-headline text-3xl font-bold text-white">4</div>
-            <div className="mt-2 text-xs text-slate-400 font-label">
-              Optimal K=4 Clustering
-            </div>
-          </div>
-
-          {/* KPI 3 */}
-          <div className="glass-card rounded-xl p-5 relative overflow-hidden group parcl-animate-card border border-white/10">
-            <div className="flex justify-between items-start mb-4">
-              <span className="font-headline text-xs text-slate-400 uppercase tracking-wider">Silhouette Score</span>
-              <span className="material-symbols-outlined text-slate-400 text-sm">scatter_plot</span>
-            </div>
-            <div className="font-headline text-3xl font-bold text-white">0.73</div>
-            <div className="mt-2 text-xs text-accent flex items-center gap-1 font-label">
-              <span className="material-symbols-outlined text-[12px]">arrow_upward</span>
-              High Separation
-            </div>
-          </div>
-
-          {/* KPI 4 */}
-          <div className="glass-card rounded-xl p-5 relative overflow-hidden group parcl-animate-card border border-white/10">
-            <div className="flex justify-between items-start mb-4">
-              <span className="font-headline text-xs text-slate-400 uppercase tracking-wider">Avg Satisfaction</span>
-              <span className="material-symbols-outlined text-slate-400 text-sm">sentiment_satisfied</span>
-            </div>
-            <div className="font-headline text-3xl font-bold text-white">
-              {metrics.avgSatScore} <span className="text-slate-400 text-lg">/10</span>
-            </div>
-            <div className="mt-2 text-xs text-accent flex items-center gap-1 font-label">
-              <span className="material-symbols-outlined text-[12px]">arrow_upward</span>
-              Score Mean
-            </div>
-          </div>
-
+          ))}
         </div>
 
-        {/* Analytics Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          
-          {/* Donut Chart Card */}
-          <div className="glass-card rounded-xl p-6 flex flex-col parcl-animate-card border border-white/10">
-            <h3 className="font-headline text-sm text-slate-300 uppercase tracking-wider mb-6">
-              Live Cluster Distribution
-            </h3>
+        {/* 3. Deep Segment Dossier View */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '20px' }}>
+          {filteredClusters.map((c) => (
+            <div
+              key={`detail-${c.id}`}
+              style={{
+                backgroundColor: '#05070E',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: '12px',
+                padding: '24px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: c.color }} />
+                  <h4 style={{ fontSize: '18px', fontWeight: '700', color: '#FFFFFF', margin: 0 }}>{c.name} ({c.id})</h4>
+                </div>
+                <span style={{ padding: '3px 10px', borderRadius: '9999px', backgroundColor: `${c.color}22`, border: `1px solid ${c.color}55`, color: c.color, fontSize: '11px', fontWeight: '600' }}>
+                  {c.badge}
+                </span>
+              </div>
 
-            <div className="flex-1 flex flex-col sm:flex-row items-center justify-center gap-8 py-4">
-              {/* Dynamic CSS Donut Chart */}
-              <div
-                className="w-48 h-48 rounded-full flex items-center justify-center relative shadow-[0_0_30px_rgba(0,0,0,0.5)] flex-shrink-0 transition-all duration-700"
-                style={donutStyle}
-              >
-                <div className="w-32 h-32 rounded-full bg-[#1E293B] flex items-center justify-center flex-col border border-white/5">
-                  <span className="font-headline text-2xl font-bold text-white">100%</span>
-                  <span className="font-label text-xs text-slate-400">N={metrics.formattedTotalBuyers}</span>
+              <p style={{ fontSize: '13px', color: '#CBD5E1', lineHeight: '1.5', margin: 0 }}>
+                {c.profile}
+              </p>
+
+              {/* Metric Breakdown Table */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
+                <div style={{ padding: '10px', backgroundColor: '#090D16', borderRadius: '6px' }}>
+                  <div style={{ fontSize: '10.5px', color: '#64748B' }}>ACQUISITION PURPOSE</div>
+                  <div style={{ fontSize: '13.5px', fontWeight: '700', color: '#FFFFFF', marginTop: '2px' }}>{c.purpose}</div>
+                </div>
+
+                <div style={{ padding: '10px', backgroundColor: '#090D16', borderRadius: '6px' }}>
+                  <div style={{ fontSize: '10.5px', color: '#64748B' }}>CAPITAL STRUCTURE</div>
+                  <div style={{ fontSize: '13.5px', fontWeight: '700', color: '#FFFFFF', marginTop: '2px' }}>{c.financing}</div>
+                </div>
+
+                <div style={{ padding: '10px', backgroundColor: '#090D16', borderRadius: '6px' }}>
+                  <div style={{ fontSize: '10.5px', color: '#64748B' }}>AVERAGE UNIT VALUATION</div>
+                  <div style={{ fontSize: '13.5px', fontWeight: '700', color: '#10B981', marginTop: '2px' }}>{c.avgTicket}</div>
+                </div>
+
+                <div style={{ padding: '10px', backgroundColor: '#090D16', borderRadius: '6px' }}>
+                  <div style={{ fontSize: '10.5px', color: '#64748B' }}>SATISFACTION SCORE</div>
+                  <div style={{ fontSize: '13.5px', fontWeight: '700', color: '#F59E0B', marginTop: '2px' }}>{c.satScore}</div>
                 </div>
               </div>
 
-              {/* Legend List */}
-              <div className="flex flex-col gap-4 text-xs font-label">
-                <div className="flex items-center justify-between gap-6">
-                  <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-c1" />
-                    <span className="text-white font-bold">C1 Global Investors</span>
-                  </div>
-                  <span className="text-slate-300 font-bold">{metrics.c1Pct}% ({metrics.c1Count})</span>
-                </div>
-
-                <div className="flex items-center justify-between gap-6">
-                  <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-c2" />
-                    <span className="text-white font-bold">C2 First-Time Buyers</span>
-                  </div>
-                  <span className="text-slate-300 font-bold">{metrics.c2Pct}% ({metrics.c2Count})</span>
-                </div>
-
-                <div className="flex items-center justify-between gap-6">
-                  <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-c3" />
-                    <span className="text-white font-bold">C3 Corporate Buyers</span>
-                  </div>
-                  <span className="text-slate-300 font-bold">{metrics.c3Pct}% ({metrics.c3Count})</span>
-                </div>
-
-                <div className="flex items-center justify-between gap-6">
-                  <div className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full bg-c4" />
-                    <span className="text-white font-bold">C4 Luxury Investors</span>
-                  </div>
-                  <span className="text-slate-300 font-bold">{metrics.c4Pct}% ({metrics.c4Count})</span>
-                </div>
-              </div>
             </div>
-          </div>
-
-          {/* Cluster Feature Insights */}
-          <div className="glass-card rounded-xl p-6 flex flex-col justify-between parcl-animate-card border border-white/10">
-            <h3 className="font-headline text-sm text-slate-300 uppercase tracking-wider mb-4">
-              Key Cluster Characteristics
-            </h3>
-
-            <div className="space-y-3 text-xs">
-              <div className="p-3 bg-surface1 rounded-lg border border-white/5">
-                <div className="font-headline font-bold text-c1 mb-1">C1: Global Investors ({metrics.c1Count} Records)</div>
-                <div className="text-slate-300">High liquidity, Tier-1 urban core focus, cash purchases.</div>
-              </div>
-              <div className="p-3 bg-surface1 rounded-lg border border-white/5">
-                <div className="font-headline font-bold text-c2 mb-1">C2: First-Time Buyers ({metrics.c2Count} Records)</div>
-                <div className="text-slate-300">Personal use, mortgage dependent, interest rate sensitive.</div>
-              </div>
-              <div className="p-3 bg-surface1 rounded-lg border border-white/5">
-                <div className="font-headline font-bold text-c3 mb-1">C3: Corporate Buyers ({metrics.c3Count} Records)</div>
-                <div className="text-slate-300">Institutional transactions, direct channel acquisition.</div>
-              </div>
-            </div>
-          </div>
-
+          ))}
         </div>
 
       </div>

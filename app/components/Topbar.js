@@ -1,181 +1,155 @@
 'use client';
 import { useState } from 'react';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 
-const styles = {
-  wrapper: { display: 'flex', alignItems: 'center', gap: '16px' },
-  mobileBtn: { display: 'none' },
-  title: {
-    fontFamily: "'Sora', sans-serif",
-    fontSize: '18px',
-    fontWeight: '700',
-    color: 'var(--text-primary)',
-    letterSpacing: '-0.3px',
-  },
-  subtitle: {
-    fontSize: '11px',
-    color: 'var(--text-muted)',
-    marginTop: '2px',
-    fontFamily: "'Space Mono', monospace",
-    letterSpacing: '0.5px',
-  },
-  actions: { display: 'flex', alignItems: 'center', gap: '16px' },
-  statusWrap: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    fontFamily: "'Space Mono', monospace",
-    fontSize: '10px',
-    textTransform: 'uppercase',
-    letterSpacing: '1.5px',
-    color: 'var(--text-muted)',
-  },
-  dot: {
-    width: '7px',
-    height: '7px',
-    borderRadius: '50%',
-    background: 'var(--accent)',
-    boxShadow: '0 0 6px rgba(16,185,129,0.8)',
-    animation: 'pulse-dot 2s infinite',
-    flexShrink: '0',
-  },
-  notifDot: {
-    position: 'absolute',
-    top: '6px',
-    right: '6px',
-    width: '7px',
-    height: '7px',
-    borderRadius: '50%',
-    background: 'var(--primary)',
-    border: '1.5px solid var(--bg)',
-    boxShadow: '0 0 6px rgba(37,99,235,0.8)',
-  },
-  cta: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '6px',
-    background: 'var(--primary)',
-    color: '#fff',
-    border: 'none',
-    padding: '8px 16px',
-    borderRadius: '8px',
-    fontFamily: "'Space Mono', monospace",
-    fontSize: '11px',
-    textTransform: 'uppercase',
-    letterSpacing: '1px',
-    fontWeight: '700',
-    cursor: 'pointer',
-    transition: 'all 200ms ease',
-    boxShadow: '0 0 16px rgba(37,99,235,0.3)',
-  },
-  ctaIcon: { fontSize: '16px' },
-};
-
-export default function Topbar({ title, subtitle, actions, onOpenProfile, onOpenUpgrade }) {
+export default function Topbar({ title, subtitle, onToggleMobileNav, onOpenProfile, onOpenUpgrade }) {
+  const pathname = usePathname();
+  const router = useRouter();
   const { user, profile } = useAuth();
-  const [showSearch, setShowSearch] = useState(false);
-  const [showNotif, setShowNotif] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const userName = profile?.full_name || user?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
-  const avatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.picture || profile?.avatar_url;
+  const userName = profile?.full_name || user?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Shashwat';
+  const avatarUrl = user?.user_metadata?.avatar_url || profile?.avatar_url;
   const userInitial = userName.charAt(0).toUpperCase();
 
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/profiler?q=${encodeURIComponent(searchQuery)}`);
+    }
+  };
+
+  const tickerItems = [
+    { city: 'U.S.', trend: '▼ -2.2% YoY', trendColor: '#EF4444', msi: 'MSI 5.49', cuts: 'CUTS 41.3%', dot: true },
+    { city: 'WASHINGTON', trend: '▼ -7.4%', trendColor: '#EF4444', msi: 'MSI 4.95', cuts: 'CUTS 37.8%' },
+    { city: 'DENVER', trend: '▼ -6.3%', trendColor: '#EF4444', msi: 'MSI 6.97', cuts: 'CUTS 52.0%' },
+    { city: 'BOULDER', trend: '▼ -5.7%', trendColor: '#EF4444', msi: 'MSI 5.71', cuts: 'CUTS 44.1%' },
+    { city: 'SAN ANTONIO', trend: '▼ -5.7%', trendColor: '#EF4444', msi: 'MSI 7.23', cuts: 'CUTS 54.5%' },
+    { city: 'BALTIMORE', trend: '▼ -5.1%', trendColor: '#EF4444', msi: 'MSI 5.68', cuts: 'CUTS 39.5%' },
+    { city: 'LAS VEGAS', trend: '▼ -4.9%', trendColor: '#EF4444', msi: 'MSI 5.28', cuts: 'CUTS 42.1%' },
+    { city: 'DUBAI (C1 FLOW)', trend: '▲ +12.4%', trendColor: '#10B981', msi: '72% CASH', cuts: 'CAP $4.2B' },
+  ];
+
   return (
-    <header className="parcl-topbar" role="banner">
-      <div style={styles.wrapper}>
-        <button className="parcl-icon-btn" style={styles.mobileBtn} aria-label="Open menu">
-          <span className="material-symbols-outlined">menu</span>
-        </button>
-        <div>
-          <div style={styles.title}>{title}</div>
-          {subtitle && <div style={styles.subtitle}>{subtitle}</div>}
+    <header style={{ position: 'fixed', top: 0, right: 0, left: '230px', zIndex: 30, backgroundColor: '#000000', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+      
+      {/* 1. TOP MOVING MARKET TICKER */}
+      <div style={{ backgroundColor: '#05070D', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', overflow: 'hidden', whiteSpace: 'nowrap', padding: '6px 0', fontSize: '10.5px', fontFamily: "'Space Mono', monospace" }}>
+        <div className="parcl-ticker-track">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '28px', paddingRight: '28px' }}>
+            {tickerItems.map((item, idx) => (
+              <div key={idx} style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', color: '#CBD5E1' }}>
+                {item.dot && (
+                  <span style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: '#10B981', boxShadow: '0 0 5px #10B981' }} />
+                )}
+                <span style={{ fontWeight: 'bold', color: item.dot ? '#10B981' : '#FFFFFF' }}>{item.city}</span>
+                <span style={{ color: item.trendColor }}>{item.trend}</span>
+                <span style={{ color: '#64748B' }}>{item.msi}</span>
+                <span style={{ color: '#94A3B8' }}>{item.cuts}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* Duplicate set for infinite loop */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '28px', paddingRight: '28px' }}>
+            {tickerItems.map((item, idx) => (
+              <div key={`dup-${idx}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', color: '#CBD5E1' }}>
+                {item.dot && (
+                  <span style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: '#10B981', boxShadow: '0 0 5px #10B981' }} />
+                )}
+                <span style={{ fontWeight: 'bold', color: item.dot ? '#10B981' : '#FFFFFF' }}>{item.city}</span>
+                <span style={{ color: item.trendColor }}>{item.trend}</span>
+                <span style={{ color: '#64748B' }}>{item.msi}</span>
+                <span style={{ color: '#94A3B8' }}>{item.cuts}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div style={styles.actions}>
-        {/* Pipeline status */}
-        <div style={styles.statusWrap}>
-          <div style={styles.dot} />
-          Pipeline Active
+      {/* 2. SUB HEADER NAVIGATION & SEARCH */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 24px' }}>
+        
+        {/* Left Tab Pills */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <Link
+            href="/overview"
+            style={{
+              fontSize: '13px',
+              fontWeight: pathname === '/overview' ? '700' : '500',
+              color: pathname === '/overview' ? '#FFFFFF' : '#94A3B8',
+              textDecoration: 'none',
+              borderBottom: pathname === '/overview' ? '2px solid #3B82F6' : '2px solid transparent',
+              paddingBottom: '4px'
+            }}
+          >
+            Parcl HQ
+          </Link>
+
+          <Link
+            href="/insights"
+            style={{
+              fontSize: '13px',
+              fontWeight: pathname === '/insights' ? '700' : '500',
+              color: pathname === '/insights' ? '#FFFFFF' : '#94A3B8',
+              textDecoration: 'none',
+              borderBottom: pathname === '/insights' ? '2px solid #3B82F6' : '2px solid transparent',
+              paddingBottom: '4px'
+            }}
+          >
+            Research
+          </Link>
+
+          <Link
+            href="/segments"
+            style={{
+              fontSize: '13px',
+              fontWeight: pathname === '/segments' ? '700' : '500',
+              color: pathname === '/segments' ? '#FFFFFF' : '#94A3B8',
+              textDecoration: 'none',
+              borderBottom: pathname === '/segments' ? '2px solid #3B82F6' : '2px solid transparent',
+              paddingBottom: '4px'
+            }}
+          >
+            Trackers
+          </Link>
         </div>
 
-        {/* Search */}
-        <div className="relative">
-          <button
-            onClick={() => setShowSearch(!showSearch)}
-            className="parcl-icon-btn"
-            aria-label="Search"
-          >
-            <span className="material-symbols-outlined">search</span>
-          </button>
-
-          {showSearch && (
-            <div className="absolute right-0 top-12 w-72 bg-surface2 border border-white/10 rounded-xl p-3 shadow-2xl z-50 animate-fadeIn">
+        {/* Right Search Input */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <form onSubmit={handleSearch} style={{ position: 'relative' }}>
+            <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#090D16', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '6px', padding: '6px 12px', width: '280px' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#64748B', marginRight: '6px' }}>search</span>
               <input
                 type="text"
-                placeholder="Search profiles, clusters..."
-                autoFocus
-                className="w-full bg-surface1 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-primary"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search any metro, county, or zip"
+                style={{ background: 'transparent', border: 'none', outline: 'none', color: '#FFFFFF', fontSize: '12px', width: '100%', fontFamily: 'inherit' }}
               />
             </div>
-          )}
-        </div>
+          </form>
 
-        {/* Notifications */}
-        <div className="relative">
+          {/* User Profile Pill */}
           <button
-            onClick={() => setShowNotif(!showNotif)}
-            className="parcl-icon-btn"
-            aria-label="Notifications"
-            style={{ position: 'relative' }}
+            type="button"
+            onClick={onOpenProfile}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'transparent', border: 'none', cursor: 'pointer' }}
           >
-            <span className="material-symbols-outlined">notifications</span>
-            <span style={styles.notifDot} />
+            {avatarUrl ? (
+              <img src={avatarUrl} alt={userName} style={{ width: '26px', height: '26px', borderRadius: '50%', objectFit: 'cover' }} />
+            ) : (
+              <div style={{ width: '26px', height: '26px', borderRadius: '50%', backgroundColor: '#2563EB', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFFFFF', fontWeight: 'bold', fontSize: '11px' }}>
+                {userInitial}
+              </div>
+            )}
           </button>
-
-          {showNotif && (
-            <div className="absolute right-0 top-12 w-80 bg-surface2 border border-white/10 rounded-xl p-4 shadow-2xl z-50 animate-fadeIn space-y-3">
-              <div className="flex justify-between items-center border-b border-white/10 pb-2">
-                <span className="text-xs font-headline font-bold text-white">Notifications</span>
-                <span className="text-[10px] font-label text-accent font-bold">2 New</span>
-              </div>
-              <div className="space-y-2 text-xs text-slate-300">
-                <div className="p-2 rounded bg-surface1/60 border border-white/5">
-                  <div className="font-bold text-white">K-Means Cluster Run</div>
-                  <div className="text-[10px] text-slate-400">50,247 records processed with score 0.73</div>
-                </div>
-                <div className="p-2 rounded bg-surface1/60 border border-white/5">
-                  <div className="font-bold text-white font-label">New High-Yield Segment</div>
-                  <div className="text-[10px] text-slate-400">C4 Luxury Investor activity +14% in UAE</div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
-        {/* Profile Shortcut Avatar */}
-        <button
-          onClick={onOpenProfile}
-          className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden border border-primary/40 hover:scale-105 transition-all shadow-glow-primary cursor-pointer p-0 bg-transparent"
-          title={`Profile & Settings (${userName})`}
-        >
-          {avatarUrl ? (
-            <img src={avatarUrl} alt={userName} className="w-full h-full object-cover" />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-xs font-bold text-white">
-              {userInitial}
-            </div>
-          )}
-        </button>
-
-        {/* Primary CTA */}
-        {actions ?? (
-          <button style={styles.cta} id="topbar-cta" onClick={onOpenUpgrade}>
-            <span className="material-symbols-outlined" style={styles.ctaIcon}>auto_awesome</span>
-            Pro Access
-          </button>
-        )}
       </div>
+
     </header>
   );
 }

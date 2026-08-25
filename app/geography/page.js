@@ -1,475 +1,254 @@
 'use client';
-import { useEffect } from 'react';
+import { useState } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
 
 export default function GeographyPage() {
-  useEffect(() => {
-    
-  }, []);
+  const [selectedMetro, setSelectedMetro] = useState('Utah (Provo / Salt Lake)');
+  const [activeLayer, setActiveLayer] = useState('Clusters');
+
+  const metroData = {
+    'Utah (Provo / Salt Lake)': {
+      state: 'UT',
+      buyers: 342,
+      msi: '5.43',
+      c1: '32%',
+      c2: '38%',
+      c3: '4%',
+      c4: '26%',
+      avgPrice: '$485,200',
+      priceCutPct: '42.9%',
+      cashPct: '61%',
+      topSubmarket: 'Provo East Bench',
+      hottestZip: '84604'
+    },
+    'California (Bay Area & LA)': {
+      state: 'CA',
+      buyers: 618,
+      msi: '6.12',
+      c1: '38%',
+      c2: '24%',
+      c3: '6%',
+      c4: '32%',
+      avgPrice: '$1,120,000',
+      priceCutPct: '39.4%',
+      cashPct: '68%',
+      topSubmarket: 'Santa Clara / Silicon Valley',
+      hottestZip: '94025'
+    },
+    'Colorado (Denver / Boulder)': {
+      state: 'CO',
+      buyers: 284,
+      msi: '6.97',
+      c1: '21%',
+      c2: '46%',
+      c3: '3%',
+      c4: '30%',
+      avgPrice: '$620,000',
+      priceCutPct: '52.0%',
+      cashPct: '54%',
+      topSubmarket: 'Denver Highlands',
+      hottestZip: '80211'
+    },
+    'Washington (Seattle / Tacoma)': {
+      state: 'WA',
+      buyers: 215,
+      msi: '4.95',
+      c1: '29%',
+      c2: '35%',
+      c3: '4%',
+      c4: '32%',
+      avgPrice: '$780,000',
+      priceCutPct: '37.8%',
+      cashPct: '64%',
+      topSubmarket: 'Bellevue Downtown',
+      hottestZip: '98004'
+    },
+    'Texas (Austin / San Antonio)': {
+      state: 'TX',
+      buyers: 312,
+      msi: '7.23',
+      c1: '25%',
+      c2: '49%',
+      c3: '2%',
+      c4: '24%',
+      avgPrice: '$440,000',
+      priceCutPct: '54.5%',
+      cashPct: '51%',
+      topSubmarket: 'San Antonio North Central',
+      hottestZip: '78258'
+    },
+    'International (Europe & UAE)': {
+      state: 'GLOBAL',
+      buyers: 229,
+      msi: '3.80',
+      c1: '78%',
+      c2: '4%',
+      c3: '8%',
+      c4: '10%',
+      avgPrice: '$890,000',
+      priceCutPct: '18.2%',
+      cashPct: '92%',
+      topSubmarket: 'London Mayfair & Dubai Marina',
+      hottestZip: 'W1J / DXB'
+    }
+  };
+
+  const active = metroData[selectedMetro] || metroData['Utah (Provo / Salt Lake)'];
 
   return (
-    <DashboardLayout
-      title="Geographic Analysis"
-      subtitle="Regional investment distribution and buyer cluster mapping"
-    >
-      <div dangerouslySetInnerHTML={{ __html: `<style>
+    <DashboardLayout title="Geographic Map" subtitle="Real Estate Market Segmentation across 70,000+ Markets">
+      <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
-        body {
-            background-color: theme('colors.background');
-            color: theme('colors.textPrimary');
-            font-family: theme('fontFamily.body');
-        }
-        .glass-panel {
-            background-color: theme('colors.surface2');
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            backdrop-filter: blur(12px);
-            transition: transform 200ms ease, box-shadow 200ms ease;
-        }
-        .glass-panel:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.15);
-        }
-        .glow-text {
-            text-shadow: 0 0 10px rgba(37, 99, 235, 0.5);
-        }
-        .map-dot {
-            position: absolute;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 0 10px currentColor;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .map-dot:hover {
-            transform: translate(-50%, -50%) scale(1.5);
-            box-shadow: 0 0 20px currentColor;
-            z-index: 10;
-        }
-        .map-tooltip {
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%) translateY(-10px);
-            background-color: theme('colors.surface3');
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-size: 12px;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s, transform 0.2s;
-            z-index: 20;
-            backdrop-filter: blur(8px);
-        }
-        .map-dot:hover .map-tooltip {
-            opacity: 1;
-            transform: translateX(-50%) translateY(-5px);
-        }
-        /* Custom scrollbar for tables */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: theme('colors.surface1');
-        }
-        ::-webkit-scrollbar-thumb {
-            background: theme('colors.surface3');
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: theme('colors.primary');
-        }
-        
-        .chart-bar-hover:hover {
-            filter: brightness(1.2);
-        }
-    
-</style>
-` }} />
-      <div dangerouslySetInnerHTML={{ __html: `
-<!-- Header -->
-<div class="mb-8">
-<h2 class="font-headline text-3xl font-bold text-white tracking-tight mb-2">Geographic Buyer Analysis</h2>
-<p class="text-slate-400 text-sm">Regional investment distribution and buyer cluster mapping</p>
-</div>
-<!-- KPI Cards -->
-<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
-<div class="glass-panel p-5 rounded-xl relative overflow-hidden group parcl-animate-card">
-<div class="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-primary/20 transition-all"></div>
-<div class="flex justify-between items-start mb-2 relative z-10">
-<span class="text-slate-400 text-xs font-label uppercase tracking-widest">Countries Analyzed</span>
-<span class="material-symbols-outlined text-primary">public</span>
-</div>
-<div class="text-3xl font-headline font-bold text-white mb-1 relative z-10">47</div>
-<div class="text-xs text-accent flex items-center gap-1 relative z-10">
-<span class="material-symbols-outlined text-[14px]">trending_up</span> +3 this quarter
-                </div>
-</div>
-<div class="glass-panel p-5 rounded-xl relative overflow-hidden group parcl-animate-card">
-<div class="absolute top-0 right-0 w-32 h-32 bg-accent/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-accent/20 transition-all"></div>
-<div class="flex justify-between items-start mb-2 relative z-10">
-<span class="text-slate-400 text-xs font-label uppercase tracking-widest">Top Country</span>
-<span class="material-symbols-outlined text-accent">flag</span>
-</div>
-<div class="text-3xl font-headline font-bold text-white mb-1 relative z-10">UAE</div>
-<div class="text-xs text-slate-400 flex items-center gap-1 relative z-10">
-<span class="text-white font-label">24%</span> of total volume
-                </div>
-</div>
-<div class="glass-panel p-5 rounded-xl relative overflow-hidden group parcl-animate-card">
-<div class="absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-secondary/20 transition-all"></div>
-<div class="flex justify-between items-start mb-2 relative z-10">
-<span class="text-slate-400 text-xs font-label uppercase tracking-widest">Top Region</span>
-<span class="material-symbols-outlined text-secondary">map</span>
-</div>
-<div class="text-3xl font-headline font-bold text-white mb-1 relative z-10">APAC</div>
-<div class="text-xs text-slate-400 flex items-center gap-1 relative z-10">
-                    Led by Singapore &amp; HK
-                </div>
-</div>
-<div class="glass-panel p-5 rounded-xl relative overflow-hidden group parcl-animate-card">
-<div class="absolute top-0 right-0 w-32 h-32 bg-warning/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-warning/20 transition-all"></div>
-<div class="flex justify-between items-start mb-2 relative z-10">
-<span class="text-slate-400 text-xs font-label uppercase tracking-widest">Intl. Buyers</span>
-<span class="material-symbols-outlined text-warning">flight_takeoff</span>
-</div>
-<div class="text-3xl font-headline font-bold text-white mb-1 relative z-10">68%</div>
-<div class="text-xs text-accent flex items-center gap-1 relative z-10">
-<span class="material-symbols-outlined text-[14px]">trending_up</span> +5.2% YoY
-                </div>
-</div>
-</div>
-<!-- Large Interactive Map -->
-<div class="glass-panel rounded-xl mb-8 p-1 relative min-h-[500px] flex flex-col">
-<div class="px-6 py-4 border-b border-white/5 flex justify-between items-center">
-<h3 class="font-headline text-lg font-bold text-white">Global Distribution Network</h3>
-<div class="flex gap-4">
-<div class="flex items-center gap-2">
-<div class="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_theme('colors.primary')]"></div>
-<span class="text-xs text-slate-400 font-label">C1 Global</span>
-</div>
-<div class="flex items-center gap-2">
-<div class="w-2 h-2 rounded-full bg-accent shadow-[0_0_8px_theme('colors.accent')]"></div>
-<span class="text-xs text-slate-400 font-label">C2 First-Time</span>
-</div>
-<div class="flex items-center gap-2">
-<div class="w-2 h-2 rounded-full bg-warning shadow-[0_0_8px_theme('colors.warning')]"></div>
-<span class="text-xs text-slate-400 font-label">C3 Corp</span>
-</div>
-<div class="flex items-center gap-2">
-<div class="w-2 h-2 rounded-full bg-secondary shadow-[0_0_8px_theme('colors.secondary')]"></div>
-<span class="text-xs text-slate-400 font-label">C4 Luxury</span>
-</div>
-</div>
-</div>
-<div class="relative flex-1 w-full bg-[#050812] rounded-b-lg overflow-hidden flex items-center justify-center">
-<!-- Abstract Map Background representation -->
-<div class="absolute inset-0 opacity-30" data-alt="A highly stylized, dark-mode abstract vector map of the world. The oceans are deep black and continents are outlined with fine, glowing blue lines in a high-precision, futuristic aesthetic. No text or labels." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDYGGKpAGz71Wu--tWQnXRWdeFpWj3M9BAZvUEfHzygSf0LOEtYqhdbTpjmppzu16J5kR6afQkOqHOtmbWM5FM58R0v8b613--Y8PxJy1kOKJEh2QettNwdfnlfSMmFsU52E20eACUxhlAGDqwZCFvDkt7xNdxX0s9bhMJJG7c1PcGZazBPXouxXiR6yIXHJcx5ZEmcySTpycVSwGI9maamYbHLzB8pwGt8kpDbz2KFdWGKrOflxZX9RbNE9ocEqv4aiyX3hK7yid6V'); background-size: cover; background-position: center;"></div>
-<!-- Map Dots (Approximate positions over the map) -->
-<!-- North America -->
-<div class="map-dot bg-warning text-warning w-4 h-4" style="left: 25%; top: 35%;">
-<div class="map-tooltip">
-<div class="font-bold text-white mb-1">New York</div>
-<div class="text-warning">C3 Dominant</div>
-<div>Volume: 12.4k</div>
-</div>
-</div>
-<div class="map-dot bg-secondary text-secondary w-3 h-3" style="left: 20%; top: 40%;">
-<div class="map-tooltip">
-<div class="font-bold text-white mb-1">Miami</div>
-<div class="text-secondary">C4 Dominant</div>
-<div>Volume: 8.2k</div>
-</div>
-</div>
-<div class="map-dot bg-accent text-accent w-2 h-2" style="left: 15%; top: 38%;">
-<div class="map-tooltip">
-<div class="font-bold text-white mb-1">Austin</div>
-<div class="text-accent">C2 Dominant</div>
-<div>Volume: 5.1k</div>
-</div>
-</div>
-<!-- Europe -->
-<div class="map-dot bg-primary text-primary w-5 h-5" style="left: 48%; top: 30%;">
-<div class="map-tooltip">
-<div class="font-bold text-white mb-1">London</div>
-<div class="text-primary">C1 Dominant</div>
-<div>Volume: 18.5k</div>
-</div>
-</div>
-<div class="map-dot bg-secondary text-secondary w-3 h-3" style="left: 52%; top: 32%;">
-<div class="map-tooltip">
-<div class="font-bold text-white mb-1">Paris</div>
-<div class="text-secondary">C4 Dominant</div>
-<div>Volume: 9.1k</div>
-</div>
-</div>
-<!-- Middle East -->
-<div class="map-dot bg-warning text-warning w-6 h-6" style="left: 60%; top: 42%;">
-<div class="map-tooltip">
-<div class="font-bold text-white mb-1">Dubai</div>
-<div class="text-warning">C3 Dominant</div>
-<div>Volume: 24.2k</div>
-</div>
-</div>
-<!-- Asia Pacific -->
-<div class="map-dot bg-primary text-primary w-5 h-5" style="left: 78%; top: 45%;">
-<div class="map-tooltip">
-<div class="font-bold text-white mb-1">Singapore</div>
-<div class="text-primary">C1 Dominant</div>
-<div>Volume: 19.8k</div>
-</div>
-</div>
-<div class="map-dot bg-accent text-accent w-3 h-3" style="left: 82%; top: 38%;">
-<div class="map-tooltip">
-<div class="font-bold text-white mb-1">Tokyo</div>
-<div class="text-accent">C2 Dominant</div>
-<div>Volume: 11.3k</div>
-</div>
-</div>
-<div class="map-dot bg-primary text-primary w-4 h-4" style="left: 85%; top: 75%;">
-<div class="map-tooltip">
-<div class="font-bold text-white mb-1">Sydney</div>
-<div class="text-primary">C1 Dominant</div>
-<div>Volume: 14.5k</div>
-</div>
-</div>
-</div>
-</div>
-<!-- Charts Row -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-<!-- Buyers by Region -->
-<div class="glass-panel rounded-xl p-6 parcl-animate-card">
-<h3 class="font-headline text-lg font-bold text-white mb-6">Buyers by Region &amp; Cluster</h3>
-<div class="space-y-6">
-<!-- APAC -->
-<div>
-<div class="flex justify-between text-sm mb-2">
-<span class="text-white">Asia-Pacific</span>
-<span class="font-label text-slate-400">45,600</span>
-</div>
-<div class="w-full h-3 bg-surface1 rounded-full overflow-hidden flex">
-<div class="h-full bg-primary chart-bar-hover" style="width: 40%" title="C1: 40%"></div>
-<div class="h-full bg-accent chart-bar-hover" style="width: 20%" title="C2: 20%"></div>
-<div class="h-full bg-warning chart-bar-hover" style="width: 25%" title="C3: 25%"></div>
-<div class="h-full bg-secondary chart-bar-hover" style="width: 15%" title="C4: 15%"></div>
-</div>
-</div>
-<!-- Middle East -->
-<div>
-<div class="flex justify-between text-sm mb-2">
-<span class="text-white">Middle East</span>
-<span class="font-label text-slate-400">32,100</span>
-</div>
-<div class="w-3/4 h-3 bg-surface1 rounded-full overflow-hidden flex">
-<div class="h-full bg-primary chart-bar-hover" style="width: 15%" title="C1: 15%"></div>
-<div class="h-full bg-accent chart-bar-hover" style="width: 10%" title="C2: 10%"></div>
-<div class="h-full bg-warning chart-bar-hover" style="width: 60%" title="C3: 60%"></div>
-<div class="h-full bg-secondary chart-bar-hover" style="width: 15%" title="C4: 15%"></div>
-</div>
-</div>
-<!-- North America -->
-<div>
-<div class="flex justify-between text-sm mb-2">
-<span class="text-white">North America</span>
-<span class="font-label text-slate-400">28,400</span>
-</div>
-<div class="w-2/3 h-3 bg-surface1 rounded-full overflow-hidden flex">
-<div class="h-full bg-primary chart-bar-hover" style="width: 25%" title="C1: 25%"></div>
-<div class="h-full bg-accent chart-bar-hover" style="width: 35%" title="C2: 35%"></div>
-<div class="h-full bg-warning chart-bar-hover" style="width: 15%" title="C3: 15%"></div>
-<div class="h-full bg-secondary chart-bar-hover" style="width: 25%" title="C4: 25%"></div>
-</div>
-</div>
-<!-- Europe -->
-<div>
-<div class="flex justify-between text-sm mb-2">
-<span class="text-white">Europe</span>
-<span class="font-label text-slate-400">24,500</span>
-</div>
-<div class="w-3/5 h-3 bg-surface1 rounded-full overflow-hidden flex">
-<div class="h-full bg-primary chart-bar-hover" style="width: 45%" title="C1: 45%"></div>
-<div class="h-full bg-accent chart-bar-hover" style="width: 15%" title="C2: 15%"></div>
-<div class="h-full bg-warning chart-bar-hover" style="width: 10%" title="C3: 10%"></div>
-<div class="h-full bg-secondary chart-bar-hover" style="width: 30%" title="C4: 30%"></div>
-</div>
-</div>
-</div>
-<div class="mt-6 pt-4 border-t border-white/5 flex gap-4 text-xs font-label text-slate-400 justify-center">
-<span class="flex items-center gap-1"><span class="w-2 h-2 bg-primary rounded-sm"></span> C1</span>
-<span class="flex items-center gap-1"><span class="w-2 h-2 bg-accent rounded-sm"></span> C2</span>
-<span class="flex items-center gap-1"><span class="w-2 h-2 bg-warning rounded-sm"></span> C3</span>
-<span class="flex items-center gap-1"><span class="w-2 h-2 bg-secondary rounded-sm"></span> C4</span>
-</div>
-</div>
-<!-- Cluster Dominance Donut (Simulated via SVG) -->
-<div class="glass-panel rounded-xl p-6 flex flex-col items-center parcl-animate-card">
-<div class="w-full flex justify-between items-center mb-6">
-<h3 class="font-headline text-lg font-bold text-white">Global Cluster Distribution</h3>
-<button class="text-slate-400 hover:text-white"><span class="material-symbols-outlined text-sm">more_horiz</span></button>
-</div>
-<div class="relative w-48 h-48 my-auto">
-<!-- SVG Donut Chart -->
-<svg class="w-full h-full transform -rotate-90" viewbox="0 0 100 100">
-<!-- C1 Primary -->
-<circle class="hover:stroke-opacity-80 transition-all cursor-pointer" cx="50" cy="50" fill="transparent" r="40" stroke="theme('colors.primary')" stroke-dasharray="251.2" stroke-dashoffset="0" stroke-width="12"></circle>
-<!-- C3 Warning -->
-<circle class="hover:stroke-opacity-80 transition-all cursor-pointer" cx="50" cy="50" fill="transparent" r="40" stroke="theme('colors.warning')" stroke-dasharray="251.2" stroke-dashoffset="87.92" stroke-width="12"></circle> <!-- 35% -->
-<!-- C2 Accent -->
-<circle class="hover:stroke-opacity-80 transition-all cursor-pointer" cx="50" cy="50" fill="transparent" r="40" stroke="theme('colors.accent')" stroke-dasharray="251.2" stroke-dashoffset="163.28" stroke-width="12"></circle> <!-- 30% -->
-<!-- C4 Secondary -->
-<circle class="hover:stroke-opacity-80 transition-all cursor-pointer" cx="50" cy="50" fill="transparent" r="40" stroke="theme('colors.secondary')" stroke-dasharray="251.2" stroke-dashoffset="213.52" stroke-width="12"></circle> <!-- 20% -->
-</svg>
-<!-- Center Text -->
-<div class="absolute inset-0 flex flex-col items-center justify-center">
-<span class="text-3xl font-headline font-bold text-white">130k</span>
-<span class="text-xs text-slate-400 font-label uppercase">Total Profiles</span>
-</div>
-</div>
-<div class="w-full grid grid-cols-2 gap-4 mt-8">
-<div class="bg-surface1 p-3 rounded-lg border border-white/5">
-<div class="text-xs text-slate-400 mb-1 font-label">C1 Global</div>
-<div class="text-lg text-primary font-bold">35%</div>
-</div>
-<div class="bg-surface1 p-3 rounded-lg border border-white/5">
-<div class="text-xs text-slate-400 mb-1 font-label">C3 Corporate</div>
-<div class="text-lg text-warning font-bold">30%</div>
-</div>
-<div class="bg-surface1 p-3 rounded-lg border border-white/5">
-<div class="text-xs text-slate-400 mb-1 font-label">C2 First-Time</div>
-<div class="text-lg text-accent font-bold">20%</div>
-</div>
-<div class="bg-surface1 p-3 rounded-lg border border-white/5">
-<div class="text-xs text-slate-400 mb-1 font-label">C4 Luxury</div>
-<div class="text-lg text-secondary font-bold">15%</div>
-</div>
-</div>
-</div>
-</div>
-<!-- Data Table -->
-<div class="glass-panel rounded-xl overflow-hidden mb-8">
-<div class="px-6 py-4 border-b border-white/5 flex justify-between items-center bg-surface2">
-<h3 class="font-headline text-lg font-bold text-white">Top Target Markets</h3>
-<button class="flex items-center gap-2 text-xs font-label text-primary hover:text-white transition-colors">
-<span class="material-symbols-outlined text-[16px]">download</span> Export CSV
+        {/* 1. Header Toolbar */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+          <div>
+            <h2 style={{ fontSize: '24px', fontWeight: '800', color: '#FFFFFF', margin: 0 }}>
+              Geographic Buyer Distribution
+            </h2>
+            <p style={{ fontSize: '13px', color: '#94A3B8', margin: '4px 0 0 0' }}>
+              Cluster density, price elasticity, and transaction volume by metro, county, and state.
+            </p>
+          </div>
+
+          {/* Layer Selector */}
+          <div style={{ display: 'inline-flex', backgroundColor: '#05070E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '8px', padding: '3px' }}>
+            {['Clusters', 'MSI Stress', 'Price / SqFt', 'Cash Purchases'].map((layer) => (
+              <button
+                key={layer}
+                type="button"
+                onClick={() => setActiveLayer(layer)}
+                style={{
+                  padding: '6px 14px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  backgroundColor: activeLayer === layer ? '#2563EB' : 'transparent',
+                  color: activeLayer === layer ? '#FFFFFF' : '#94A3B8',
+                  fontSize: '12px',
+                  fontWeight: activeLayer === layer ? '700' : '400',
+                  cursor: 'pointer'
+                }}
+              >
+                {layer}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 2. Interactive Map & Metro Inspection Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '20px' }}>
+          
+          {/* Map Graphic Canvas */}
+          <div style={{ backgroundColor: '#030509', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', padding: '24px', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', minHeight: '440px' }}>
+            <div style={{ fontSize: '11px', fontFamily: "'Space Mono', monospace", color: '#64748B', textTransform: 'uppercase', marginBottom: '12px' }}>
+              SELECT METRO REGION TO INSPECT
+            </div>
+
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '20px' }}>
+              {Object.keys(metroData).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => setSelectedMetro(m)}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: '6px',
+                    border: '1px solid',
+                    borderColor: selectedMetro === m ? '#3B82F6' : 'rgba(255, 255, 255, 0.08)',
+                    backgroundColor: selectedMetro === m ? 'rgba(59, 130, 246, 0.15)' : '#05070E',
+                    color: selectedMetro === m ? '#FFFFFF' : '#94A3B8',
+                    fontSize: '11.5px',
+                    fontWeight: selectedMetro === m ? '700' : '500',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {m}
                 </button>
-</div>
-<div class="overflow-x-auto">
-<table class="w-full text-left text-sm">
-<thead class="text-xs text-slate-400 font-label uppercase bg-surface1">
-<tr>
-<th class="px-6 py-4 font-normal">Rank</th>
-<th class="px-6 py-4 font-normal">Market</th>
-<th class="px-6 py-4 font-normal">Region</th>
-<th class="px-6 py-4 font-normal text-right">Total Buyers</th>
-<th class="px-6 py-4 font-normal">Dominant Cluster</th>
-<th class="px-6 py-4 font-normal text-right">Inv. Ratio</th>
-<th class="px-6 py-4 font-normal text-right">Satisfaction</th>
-</tr>
-</thead>
-<tbody class="divide-y divide-white/5">
-<tr class="hover:bg-white/5 transition-colors group">
-<td class="px-6 py-4 text-slate-500 font-label">01</td>
-<td class="px-6 py-4 font-medium text-white">Dubai, UAE</td>
-<td class="px-6 py-4 text-slate-400">Middle East</td>
-<td class="px-6 py-4 text-right font-label text-slate-300">24,200</td>
-<td class="px-6 py-4">
-<span class="px-2 py-1 rounded text-[10px] font-label uppercase border border-warning text-warning bg-warning/10">C3 Corp</span>
-</td>
-<td class="px-6 py-4 text-right text-accent">82%</td>
-<td class="px-6 py-4 text-right">
-<div class="flex items-center justify-end gap-2">
-<span class="text-slate-300">9.2</span>
-<div class="w-12 h-1.5 bg-surface1 rounded-full overflow-hidden"><div class="h-full bg-accent" style="width: 92%"></div></div>
-</div>
-</td>
-</tr>
-<tr class="hover:bg-white/5 transition-colors group">
-<td class="px-6 py-4 text-slate-500 font-label">02</td>
-<td class="px-6 py-4 font-medium text-white">Singapore</td>
-<td class="px-6 py-4 text-slate-400">Asia-Pacific</td>
-<td class="px-6 py-4 text-right font-label text-slate-300">19,850</td>
-<td class="px-6 py-4">
-<span class="px-2 py-1 rounded text-[10px] font-label uppercase border border-primary text-primary bg-primary/10">C1 Global</span>
-</td>
-<td class="px-6 py-4 text-right text-accent">78%</td>
-<td class="px-6 py-4 text-right">
-<div class="flex items-center justify-end gap-2">
-<span class="text-slate-300">8.9</span>
-<div class="w-12 h-1.5 bg-surface1 rounded-full overflow-hidden"><div class="h-full bg-accent" style="width: 89%"></div></div>
-</div>
-</td>
-</tr>
-<tr class="hover:bg-white/5 transition-colors group">
-<td class="px-6 py-4 text-slate-500 font-label">03</td>
-<td class="px-6 py-4 font-medium text-white">London, UK</td>
-<td class="px-6 py-4 text-slate-400">Europe</td>
-<td class="px-6 py-4 text-right font-label text-slate-300">18,500</td>
-<td class="px-6 py-4">
-<span class="px-2 py-1 rounded text-[10px] font-label uppercase border border-primary text-primary bg-primary/10">C1 Global</span>
-</td>
-<td class="px-6 py-4 text-right text-slate-400">65%</td>
-<td class="px-6 py-4 text-right">
-<div class="flex items-center justify-end gap-2">
-<span class="text-slate-300">7.8</span>
-<div class="w-12 h-1.5 bg-surface1 rounded-full overflow-hidden"><div class="h-full bg-primary" style="width: 78%"></div></div>
-</div>
-</td>
-</tr>
-<tr class="hover:bg-white/5 transition-colors group">
-<td class="px-6 py-4 text-slate-500 font-label">04</td>
-<td class="px-6 py-4 font-medium text-white">Sydney, AU</td>
-<td class="px-6 py-4 text-slate-400">Asia-Pacific</td>
-<td class="px-6 py-4 text-right font-label text-slate-300">14,500</td>
-<td class="px-6 py-4">
-<span class="px-2 py-1 rounded text-[10px] font-label uppercase border border-primary text-primary bg-primary/10">C1 Global</span>
-</td>
-<td class="px-6 py-4 text-right text-slate-400">71%</td>
-<td class="px-6 py-4 text-right">
-<div class="flex items-center justify-end gap-2">
-<span class="text-slate-300">8.1</span>
-<div class="w-12 h-1.5 bg-surface1 rounded-full overflow-hidden"><div class="h-full bg-accent" style="width: 81%"></div></div>
-</div>
-</td>
-</tr>
-<tr class="hover:bg-white/5 transition-colors group">
-<td class="px-6 py-4 text-slate-500 font-label">05</td>
-<td class="px-6 py-4 font-medium text-white">New York, US</td>
-<td class="px-6 py-4 text-slate-400">North America</td>
-<td class="px-6 py-4 text-right font-label text-slate-300">12,400</td>
-<td class="px-6 py-4">
-<span class="px-2 py-1 rounded text-[10px] font-label uppercase border border-warning text-warning bg-warning/10">C3 Corp</span>
-</td>
-<td class="px-6 py-4 text-right text-slate-400">55%</td>
-<td class="px-6 py-4 text-right">
-<div class="flex items-center justify-end gap-2">
-<span class="text-slate-300">7.2</span>
-<div class="w-12 h-1.5 bg-surface1 rounded-full overflow-hidden"><div class="h-full bg-warning" style="width: 72%"></div></div>
-</div>
-</td>
-</tr>
-<tr class="hover:bg-white/5 transition-colors group">
-<td class="px-6 py-4 text-slate-500 font-label">06</td>
-<td class="px-6 py-4 font-medium text-white">Tokyo, JP</td>
-<td class="px-6 py-4 text-slate-400">Asia-Pacific</td>
-<td class="px-6 py-4 text-right font-label text-slate-300">11,300</td>
-<td class="px-6 py-4">
-<span class="px-2 py-1 rounded text-[10px] font-label uppercase border border-accent text-accent bg-accent/10">C2 First</span>
-</td>
-<td class="px-6 py-4 text-right text-slate-400">42%</td>
-<td class="px-6 py-4 text-right">
-<div class="flex items-center justify-end gap-2">
-<span class="text-slate-300">8.5</span>
-<div class="w-12 h-1.5 bg-surface1 rounded-full overflow-hidden"><div class="h-full bg-accent" style="width: 85%"></div></div>
-</div>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-` }} />
+              ))}
+            </div>
+
+            {/* Map Visual */}
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+              <svg width="100%" height="260" viewBox="0 0 600 280">
+                <path d="M 50,60 L 150,50 L 180,100 L 130,200 L 40,160 Z" fill="#EF4444" fillOpacity="0.75" stroke="#FFFFFF" strokeWidth="1" />
+                <path d="M 150,50 L 280,40 L 290,140 L 180,100 Z" fill="#3B82F6" fillOpacity="0.85" stroke="#60A5FA" strokeWidth="2" />
+                <path d="M 280,40 L 420,50 L 430,190 L 290,140 Z" fill="#8B5CF6" fillOpacity="0.7" stroke="#FFFFFF" strokeWidth="1" />
+                <path d="M 420,50 L 540,70 L 510,210 L 430,190 Z" fill="#EC4899" fillOpacity="0.8" stroke="#FFFFFF" strokeWidth="1" />
+                <circle cx="230" cy="85" r="6" fill="#10B981" stroke="#FFFFFF" strokeWidth="2" />
+                <circle cx="230" cy="85" r="14" fill="rgba(16, 185, 129, 0.3)" />
+              </svg>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11.5px', color: '#64748B', fontFamily: "'Space Mono', monospace" }}>
+              <span>● ACTIVE LAYER: {activeLayer.toUpperCase()}</span>
+              <span>150M PROPERTIES INDEXED</span>
+            </div>
+          </div>
+
+          {/* Detailed Metro Inspection Card */}
+          <div style={{ backgroundColor: '#05070E', border: '1px solid rgba(59, 130, 246, 0.4)', borderRadius: '12px', padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', boxShadow: '0 0 30px rgba(37, 99, 235, 0.12)' }}>
+            
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '12px' }}>
+              <div>
+                <span style={{ fontSize: '11px', fontFamily: "'Space Mono', monospace", color: '#60A5FA', textTransform: 'uppercase' }}>{active.state} REGION DOSSIER</span>
+                <h3 style={{ fontSize: '20px', fontWeight: '800', color: '#FFFFFF', margin: '4px 0 0 0' }}>{selectedMetro}</h3>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: '22px', fontWeight: '800', color: '#F59E0B' }}>{active.msi}</div>
+                <div style={{ fontSize: '10.5px', color: '#64748B' }}>Motivated Seller Index</div>
+              </div>
+            </div>
+
+            {/* Quick Metrics 4-Grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
+              <div style={{ padding: '10px', backgroundColor: '#090D16', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <div style={{ fontSize: '10.5px', color: '#64748B' }}>BUYERS IDENTIFIED</div>
+                <div style={{ fontSize: '16px', fontWeight: '700', color: '#FFFFFF', marginTop: '2px' }}>{active.buyers}</div>
+              </div>
+              <div style={{ padding: '10px', backgroundColor: '#090D16', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <div style={{ fontSize: '10.5px', color: '#64748B' }}>AVG SALE PRICE</div>
+                <div style={{ fontSize: '16px', fontWeight: '700', color: '#10B981', marginTop: '2px' }}>{active.avgPrice}</div>
+              </div>
+              <div style={{ padding: '10px', backgroundColor: '#090D16', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <div style={{ fontSize: '10.5px', color: '#64748B' }}>PRICE CUTS %</div>
+                <div style={{ fontSize: '16px', fontWeight: '700', color: '#EF4444', marginTop: '2px' }}>{active.priceCutPct}</div>
+              </div>
+              <div style={{ padding: '10px', backgroundColor: '#090D16', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <div style={{ fontSize: '10.5px', color: '#64748B' }}>CASH SHARE</div>
+                <div style={{ fontSize: '16px', fontWeight: '700', color: '#60A5FA', marginTop: '2px' }}>{active.cashPct}</div>
+              </div>
+            </div>
+
+            {/* Cluster Mix Progress Bars */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ fontSize: '11px', fontFamily: "'Space Mono', monospace", color: '#64748B' }}>BUYER CLUSTER CONCENTRATION</div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                <span>C1 Global Investors</span>
+                <span style={{ fontWeight: '700', color: '#3B82F6' }}>{active.c1}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                <span>C2 First-Time Buyers</span>
+                <span style={{ fontWeight: '700', color: '#10B981' }}>{active.c2}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                <span>C3 Corporate Entities</span>
+                <span style={{ fontWeight: '700', color: '#F59E0B' }}>{active.c3}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                <span>C4 Luxury Investors</span>
+                <span style={{ fontWeight: '700', color: '#8B5CF6' }}>{active.c4}</span>
+              </div>
+            </div>
+
+            <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '10px', fontSize: '11.5px', color: '#94A3B8', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <div><strong>Top Micro-Market:</strong> {active.topSubmarket}</div>
+              <div><strong>Hottest ZIP Code:</strong> {active.hottestZip}</div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
     </DashboardLayout>
   );
 }

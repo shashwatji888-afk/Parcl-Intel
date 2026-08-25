@@ -4,14 +4,13 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 
 const NAV_ITEMS = [
-  { href: '/overview',  label: 'Overview',  icon: 'dashboard'  },
-  { href: '/segments',  label: 'Segments',  icon: 'pie_chart'  },
-  { href: '/investors', label: 'Investors', icon: 'groups'     },
-  { href: '/geography', label: 'Geography', icon: 'map'        },
-  { href: '/insights',  label: 'Insights',  icon: 'analytics'  },
-  { href: '/profiler',  label: 'Profiler',  icon: 'psychology' },
-  { href: '/pipeline',  label: 'Pipeline',  icon: 'lan'        },
-  { href: '/reports',   label: 'Reports',   icon: 'assessment' },
+  { href: '/overview',  label: 'Motivated Sellers', icon: 'bar_chart', sub: 'Overview' },
+  { href: '/segments',  label: 'Market Rankings',  icon: 'leaderboard', sub: 'Segments' },
+  { href: '/investors', label: 'Watchlists',       icon: 'bookmark', sub: 'Investors' },
+  { href: '/geography', label: 'Geographic Map',   icon: 'map', sub: 'Geography' },
+  { href: '/profiler',  label: 'Buyer Profiler',   icon: 'psychology', sub: 'AI Predictor' },
+  { href: '/pipeline',  label: 'Data Pipeline',    icon: 'database', sub: 'Ingestion' },
+  { href: '/reports',   label: 'Reports & Export', icon: 'assessment', sub: 'Reports' },
 ];
 
 export default function Sidebar({ onOpenUpgrade, onOpenProfile }) {
@@ -22,106 +21,146 @@ export default function Sidebar({ onOpenUpgrade, onOpenProfile }) {
   const avatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.picture || profile?.avatar_url;
   const userInitial = userName.charAt(0).toUpperCase();
 
-  let userRole = profile?.role || user?.app_role || user?.role;
-  if (!userRole || userRole === 'authenticated') {
-    userRole = user?.email === 'shashwat@parclintel.io' ? 'Admin & Lead ML' : 'Real Estate Analyst';
-  }
-
   return (
-    <nav className="parcl-sidebar" role="navigation" aria-label="Main navigation">
+    <aside style={{ width: '230px', backgroundColor: '#05070D', borderRight: '1px solid rgba(255, 255, 255, 0.08)', height: '100vh', display: 'flex', flexDirection: 'column', position: 'fixed', top: 0, left: 0, zIndex: 40, overflowY: 'auto' }}>
+      
       {/* Brand Header */}
-      <div className="parcl-sidebar__brand">
-        <Link href="/overview" style={{ textDecoration: 'none' }}>
-          <div className="parcl-sidebar__logo flex items-center gap-2">
-            <span>Parcl Intel</span>
-          </div>
+      <div style={{ padding: '20px 20px 14px 20px', borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#FFFFFF" />
+            <path d="M2 17L12 22L22 17" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M2 12L12 17L22 12" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <span style={{ fontSize: '17px', fontWeight: '800', color: '#FFFFFF', letterSpacing: '0.5px' }}>PARCL</span>
         </Link>
-        <div className="parcl-sidebar__tagline">ML Intelligence</div>
       </div>
 
-      {/* Nav Items */}
-      <div className="parcl-sidebar__nav">
-        {NAV_ITEMS.map((item) => {
-          const isActive =
-            pathname === item.href ||
-            (item.href !== '/' && pathname?.startsWith(item.href));
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`parcl-nav-item${isActive ? ' active' : ''}`}
-              aria-current={isActive ? 'page' : undefined}
-            >
-              <span
-                className="material-symbols-outlined parcl-nav-icon"
-                style={{ fontVariationSettings: isActive ? "'FILL' 1" : "'FILL' 0" }}
-              >
-                {item.icon}
-              </span>
-              <span className="parcl-nav-label">{item.label}</span>
-            </Link>
-          );
-        })}
+      {/* Nav List */}
+      <div style={{ flex: 1, padding: '16px 0', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        
+        {/* DEFAULT SECTION */}
+        <div>
+          <div style={{ padding: '0 20px 8px 20px', fontSize: '10px', fontFamily: "'Space Mono', monospace", textTransform: 'uppercase', color: '#64748B', letterSpacing: '1px' }}>
+            DEFAULT
+          </div>
 
-        {/* Upgrade Pro Card */}
-        <div className="mt-4 px-1">
-          <div
-            onClick={onOpenUpgrade}
-            className="p-3.5 rounded-xl border border-primary/30 bg-gradient-to-b from-primary/15 via-surface2/60 to-surface1 cursor-pointer transition-all duration-200 hover:border-primary hover:shadow-[0_0_20px_rgba(37,99,235,0.3)] group relative overflow-hidden"
-          >
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[10px] font-label font-bold uppercase tracking-wider text-primary flex items-center gap-1">
-                <span className="material-symbols-outlined text-[13px]">auto_awesome</span>
-                Parcl Pro
-              </span>
-              <span className="px-1.5 py-0.5 rounded bg-primary/20 text-primary text-[9px] font-label font-bold uppercase">
-                Unlock
-              </span>
-            </div>
+          <div style={{ padding: '4px 20px 10px 20px', fontSize: '11.5px', color: '#64748B', lineHeight: '1.4' }}>
+            No markets yet. Add one to watch its seller stress move.
+            <div style={{ marginTop: '6px', color: '#60A5FA', cursor: 'pointer', fontWeight: '500' }}>+ Add a market</div>
+          </div>
 
-            <div className="text-xs font-headline font-bold text-white mb-2">
-              Unlimited ML Models
-            </div>
-
-            <div className="w-full py-1.5 rounded-lg bg-primary group-hover:bg-blue-600 text-white font-headline font-bold text-[10px] uppercase tracking-wider text-center transition-colors shadow-glow-primary flex items-center justify-center gap-1">
-              <span>Upgrade Now</span>
-              <span className="material-symbols-outlined text-[12px] group-hover:translate-x-0.5 transition-transform">
-                arrow_forward
-              </span>
-            </div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {NAV_ITEMS.map((item) => {
+              const isActive = pathname === item.href || (item.href !== '/' && pathname?.startsWith(item.href));
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '8px 20px',
+                    fontSize: '13px',
+                    fontWeight: isActive ? '600' : '400',
+                    color: isActive ? '#FFFFFF' : '#94A3B8',
+                    backgroundColor: isActive ? 'rgba(59, 130, 246, 0.12)' : 'transparent',
+                    borderLeft: isActive ? '3px solid #3B82F6' : '3px solid transparent',
+                    textDecoration: 'none',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px', color: isActive ? '#3B82F6' : '#64748B' }}>
+                    {item.icon}
+                  </span>
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
           </div>
         </div>
+
+        {/* APPS SECTION */}
+        <div>
+          <div style={{ padding: '0 20px 8px 20px', fontSize: '10px', fontFamily: "'Space Mono', monospace", textTransform: 'uppercase', color: '#64748B', letterSpacing: '1px' }}>
+            APPS
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <Link
+              href="/pipeline"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 20px', fontSize: '13px', color: '#94A3B8', textDecoration: 'none' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#64748B' }}>storage</span>
+                <span>Data Vault App</span>
+              </div>
+              <span style={{ fontSize: '11px', color: '#64748B' }}>›</span>
+            </Link>
+
+            <Link
+              href="/profiler"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 20px', fontSize: '13px', color: '#94A3B8', textDecoration: 'none' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#64748B' }}>apps</span>
+                <span>Prediction Markets</span>
+              </div>
+              <span style={{ fontSize: '11px', color: '#64748B' }}>›</span>
+            </Link>
+          </div>
+        </div>
+
       </div>
 
-      {/* User Profile Footer Card */}
-      <div className="parcl-sidebar__footer pt-3 border-t border-white/5 mt-auto px-2">
+      {/* FREE PLAN CARD */}
+      <div style={{ padding: '16px 14px', borderTop: '1px solid rgba(255, 255, 255, 0.06)', backgroundColor: '#090D16' }}>
+        <div style={{ fontSize: '10.5px', fontFamily: "'Space Mono', monospace", color: '#3B82F6', textTransform: 'uppercase', fontWeight: 'bold', marginBottom: '4px' }}>
+          FREE PLAN
+        </div>
+        <p style={{ fontSize: '11px', color: '#94A3B8', lineHeight: '1.4', margin: '0 0 12px 0' }}>
+          Pro unlocks every county and zip, full history, and unlimited tracked markets. $50/mo.
+        </p>
+
         <button
           type="button"
-          onClick={onOpenProfile}
-          className="w-full text-left bg-surface2/40 hover:bg-surface2/80 border border-white/5 hover:border-white/15 p-2.5 rounded-xl transition-all cursor-pointer flex items-center gap-2.5 group"
+          onClick={onOpenUpgrade}
+          style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 12px', borderRadius: '9999px', border: '1px solid rgba(59, 130, 246, 0.5)', backgroundColor: 'rgba(37, 99, 235, 0.1)', color: '#FFFFFF', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}
         >
-          <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-xs font-bold text-white border border-primary/40 flex-shrink-0 shadow-glow-primary">
-            {avatarUrl ? (
-              <img src={avatarUrl} alt={userName} className="w-full h-full object-cover" />
-            ) : (
-              userInitial
-            )}
-          </div>
-
-          <div className="flex-1 min-w-0">
-            <div className="text-xs font-headline font-semibold text-white truncate group-hover:text-primary transition-colors">
-              {userName}
-            </div>
-            <div className="text-[10px] font-label text-slate-400 truncate">
-              {userRole}
-            </div>
-          </div>
-
-          <span className="material-symbols-outlined text-slate-500 group-hover:text-slate-300 text-sm flex-shrink-0">
-            settings
-          </span>
+          <span>Activate Pro</span>
+          <span style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: '#FFFFFF' }} />
         </button>
       </div>
-    </nav>
+
+      {/* FOOTER ACTIONS */}
+      <div style={{ padding: '12px 20px', borderTop: '1px solid rgba(255, 255, 255, 0.05)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#94A3B8', fontSize: '12px', cursor: 'pointer' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>notifications</span>
+          <span>Alerts</span>
+        </div>
+
+        <div
+          onClick={onOpenProfile}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#CBD5E1', fontSize: '12px', cursor: 'pointer' }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>account_circle</span>
+            <span>Account ({userName})</span>
+          </div>
+          <span style={{ fontSize: '10px', color: '#64748B' }}>^</span>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '10.5px', color: '#64748B', marginTop: '6px' }}>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <span>in</span>
+            <span>𝕏</span>
+          </div>
+          <span>© 2026 Parcl Labs</span>
+        </div>
+
+      </div>
+
+    </aside>
   );
 }
