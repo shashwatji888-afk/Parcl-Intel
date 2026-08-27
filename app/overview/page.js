@@ -436,70 +436,74 @@ export default function OverviewPage() {
     <DashboardLayout title="Parcl HQ" subtitle="Live Real Estate Market Intelligence">
       <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '28px' }}>
 
-        {/* 1. HERO TITLE & SEARCH BAR */}
+        {/* 1. HERO TITLE, GLOWING SEARCH BAR & METADATA MATCHING SCREENSHOT */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '6px' }}>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
             <div>
-              <h1 style={{ fontSize: '38px', fontWeight: '800', color: '#FFFFFF', letterSpacing: '-1px', margin: 0, lineHeight: '1.1' }}>
+              <h1 style={{ fontSize: '42px', fontWeight: '800', color: '#FFFFFF', letterSpacing: '-1px', margin: 0, lineHeight: '1.1' }}>
                 Parcl HQ
               </h1>
-              <p style={{ fontSize: '14px', color: '#94A3B8', margin: '6px 0 0 0' }}>
+              <p style={{ fontSize: '14.5px', color: '#94A3B8', margin: '8px 0 0 0' }}>
                 Prices, rents, supply, and seller motivation across every US market - updated daily, down to the ZIP code.
               </p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '8px', fontSize: '11.5px', color: '#64748B', fontFamily: "'Space Mono', monospace" }}>
-                <span style={{ color: '#10B981', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10B981' }} />
-                  Live Supabase & Parcl Market Database Connected ({liveMarkets.length} Markets)
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '10px', fontSize: '12px', fontFamily: "'Inter', sans-serif" }}>
+                <span style={{ color: '#FFFFFF', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#10B981', boxShadow: '0 0 6px #10B981' }} />
+                  <span style={{ fontWeight: '600' }}>Updated Aug 28, 2026</span>
+                  <span style={{ color: '#64748B' }}>· refreshed daily</span>
                 </span>
-                <span>·</span>
-                <a href="#national-rankings" style={{ color: '#60A5FA', textDecoration: 'none', cursor: 'pointer' }}>View live market rankings ↓</a>
+                <a href="#national-rankings" style={{ color: '#94A3B8', textDecoration: 'none', cursor: 'pointer', marginLeft: '6px' }}>
+                  View market rankings ↓
+                </a>
               </div>
             </div>
 
             <button
               type="button"
-              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '9999px', backgroundColor: '#090D16', border: '1px solid rgba(255, 255, 255, 0.12)', color: '#CBD5E1', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '7px 16px', borderRadius: '9999px', backgroundColor: '#090D16', border: '1px solid rgba(59, 130, 246, 0.4)', color: '#FFFFFF', fontSize: '12.5px', fontWeight: '600', cursor: 'pointer' }}
             >
-              <span style={{ color: '#3B82F6', fontSize: '14px' }}>▶</span>
-              <span>Video How to use Parcl HQ</span>
+              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '18px', height: '18px', borderRadius: '50%', backgroundColor: '#2563EB', color: '#FFFFFF', fontSize: '9px' }}>▶</span>
+              <span style={{ color: '#60A5FA' }}>Video</span>
+              <span>How to use Parcl HQ</span>
             </button>
           </div>
 
-          {/* Central Glowing Search Box */}
-          <div style={{ maxWidth: '680px', width: '100%', marginTop: '4px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#05070E', border: '1px solid #3B82F6', borderRadius: '8px', padding: '8px 16px', boxShadow: '0 0 20px rgba(59, 130, 246, 0.3)' }}>
-              <span className="material-symbols-outlined" style={{ color: '#94A3B8', fontSize: '20px', marginRight: '10px' }}>search</span>
+          {/* Glowing High-Contrast White Search Box */}
+          <div style={{ maxWidth: '820px', width: '100%', marginTop: '4px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#FFFFFF', border: '2px solid #38BDF8', borderRadius: '8px', padding: '12px 18px', boxShadow: '0 0 25px rgba(56, 189, 248, 0.45)' }}>
+              <span className="material-symbols-outlined" style={{ color: '#0F172A', fontSize: '22px', marginRight: '10px' }}>search</span>
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search any metro, county, or zip..."
-                style={{ background: 'transparent', border: 'none', outline: 'none', color: '#FFFFFF', fontSize: '14px', width: '100%', fontFamily: 'inherit' }}
+                placeholder="Search any market"
+                style={{ background: 'transparent', border: 'none', outline: 'none', color: '#0F172A', fontSize: '15px', fontWeight: '500', width: '100%', fontFamily: 'inherit' }}
               />
             </div>
           </div>
 
         </div>
 
-        {/* 2. STATS STRIP & QUICK DATA BAR */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '20px', padding: '16px 20px', backgroundColor: '#05070E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '8px' }}>
+        {/* 2. EXACT UNITED STATES MACRO STRESS CARD */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '18px 24px', backgroundColor: '#000000', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '10px' }}>
           
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
-            <span style={{ fontSize: '11px', fontFamily: "'Space Mono', monospace", color: '#64748B', letterSpacing: '1px' }}>UNITED STATES</span>
-            <span style={{ fontSize: '32px', fontWeight: '800', color: '#F59E0B', letterSpacing: '-1px', lineHeight: 1 }}>5.49</span>
-            <span style={{ fontSize: '13px', fontWeight: '600', color: '#F59E0B' }}>Motivated MSI</span>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
+            <span style={{ fontSize: '11px', fontFamily: "'Space Mono', monospace", color: '#64748B', letterSpacing: '1px', textTransform: 'uppercase' }}>UNITED STATES</span>
+            <span style={{ fontSize: '38px', fontWeight: '900', color: '#F59E0B', letterSpacing: '-1px', lineHeight: 1 }}>5.51</span>
+            <span style={{ fontSize: '16px', fontWeight: '700', color: '#F59E0B' }}>Motivated</span>
+            <span style={{ fontSize: '12.5px', fontWeight: '800', color: '#3B82F6', fontFamily: "'Space Mono', monospace" }}>MSI</span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap', fontSize: '12.5px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '28px', flexWrap: 'wrap', fontSize: '13px', borderTop: '1px solid rgba(255, 255, 255, 0.06)', paddingTop: '10px' }}>
             <div>
               <span style={{ color: '#64748B' }}>Active listings </span>
-              <span style={{ fontWeight: '700', color: '#FFFFFF' }}>16,22,464</span>
+              <span style={{ fontWeight: '700', color: '#FFFFFF' }}>16,01,310</span>
             </div>
 
             <div>
               <span style={{ color: '#64748B' }}>Price cuts </span>
-              <span style={{ fontWeight: '700', color: '#FFFFFF' }}>41.3%</span>
+              <span style={{ fontWeight: '700', color: '#FFFFFF' }}>41.7%</span>
             </div>
 
             <div>
@@ -507,70 +511,70 @@ export default function OverviewPage() {
               <span style={{ fontWeight: '700', color: '#FFFFFF' }}>6.8%</span>
             </div>
 
-            <div>
-              <span style={{ color: '#64748B' }}>Live Database Buyers </span>
-              <span style={{ fontWeight: '700', color: '#10B981' }}>{metrics.formattedTotalBuyers}</span>
-            </div>
-
-            <div style={{ padding: '2px 8px', borderRadius: '4px', backgroundColor: '#111827', border: '1px solid rgba(255, 255, 255, 0.1)', fontSize: '11px', fontFamily: "'Space Mono', monospace", color: '#94A3B8' }}>
-              AUG 26
+            <div style={{ fontSize: '11px', fontFamily: "'Space Mono', monospace", color: '#64748B', marginLeft: 'auto' }}>
+              AUG 28
             </div>
           </div>
 
         </div>
 
-        {/* 3. PRIMARY FILTER TOOLBAR */}
+        {/* 3. PRIMARY FILTER TOOLBAR MATCHING SCREENSHOT */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
             
+            {/* Segmented Markets vs Homes */}
             <div style={{ display: 'inline-flex', backgroundColor: '#090D16', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '6px', padding: '2px' }}>
               <button
                 type="button"
                 onClick={() => setViewMode('markets')}
-                style={{ padding: '6px 14px', borderRadius: '4px', border: 'none', backgroundColor: viewMode === 'markets' ? '#2563EB' : 'transparent', color: viewMode === 'markets' ? '#FFFFFF' : '#94A3B8', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}
+                style={{ padding: '6px 14px', borderRadius: '4px', border: 'none', backgroundColor: viewMode === 'markets' ? '#2563EB' : 'transparent', color: viewMode === 'markets' ? '#FFFFFF' : '#94A3B8', fontSize: '12.5px', fontWeight: '600', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
               >
-                Markets
+                <span>⬡</span> Markets
               </button>
               <button
                 type="button"
                 onClick={() => setViewMode('homes')}
-                style={{ padding: '6px 14px', borderRadius: '4px', border: 'none', backgroundColor: viewMode === 'homes' ? '#2563EB' : 'transparent', color: viewMode === 'homes' ? '#FFFFFF' : '#94A3B8', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}
+                style={{ padding: '6px 14px', borderRadius: '4px', border: 'none', backgroundColor: viewMode === 'homes' ? '#2563EB' : 'transparent', color: viewMode === 'homes' ? '#FFFFFF' : '#94A3B8', fontSize: '12.5px', fontWeight: '600', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
               >
-                Homes <span style={{ fontSize: '10px', opacity: 0.7 }}>every listing</span>
+                <span>⌂</span> Homes <span style={{ fontSize: '10px', opacity: 0.7 }}>every listing</span>
               </button>
             </div>
 
-            <div style={{ padding: '6px 12px', backgroundColor: '#090D16', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '6px', fontSize: '12px', color: '#CBD5E1', cursor: 'pointer' }}>
-              Geography <span style={{ fontWeight: 'bold' }}>Counties & Metros</span> ▼
+            {/* Geography Pill */}
+            <div style={{ padding: '6px 14px', backgroundColor: '#090D16', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '6px', fontSize: '12.5px', color: '#CBD5E1', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ color: '#64748B' }}>📖</span> Geography <span style={{ fontWeight: 'bold' }}>Metros</span> <span style={{ fontSize: '10px' }}>⌵</span>
             </div>
 
-            <div style={{ padding: '6px 12px', backgroundColor: '#090D16', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '6px', fontSize: '12px', color: '#CBD5E1', cursor: 'pointer' }}>
-              Home Types <span style={{ fontWeight: 'bold' }}>Aggregate</span> ▼
+            {/* Home Types Pill */}
+            <div style={{ padding: '6px 14px', backgroundColor: '#090D16', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '6px', fontSize: '12.5px', color: '#CBD5E1', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ color: '#64748B' }}>🏠</span> Home Types <span style={{ fontWeight: 'bold' }}>Aggregate</span> <span style={{ fontSize: '10px' }}>⌵</span>
             </div>
 
-            <div style={{ padding: '6px 12px', backgroundColor: '#090D16', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '6px', fontSize: '12px', color: '#CBD5E1', cursor: 'pointer' }}>
-              Min Listings <span style={{ fontWeight: 'bold' }}>20+</span> ▼
+            {/* Min Listings Pill */}
+            <div style={{ padding: '6px 14px', backgroundColor: '#090D16', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '6px', fontSize: '12.5px', color: '#CBD5E1', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ color: '#64748B' }}>☰</span> Min Listings <span style={{ fontWeight: 'bold' }}>20+</span> <span style={{ fontSize: '10px' }}>⌵</span>
             </div>
 
-            <span style={{ fontSize: '12px', color: '#64748B', cursor: 'pointer' }}>Reset</span>
+            <span style={{ fontSize: '12px', color: '#64748B', cursor: 'pointer', marginLeft: '4px' }}>Reset</span>
 
           </div>
 
-          {/* Download and Action Links */}
+          {/* Action Links */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Link
-              href="/reports"
-              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 14px', borderRadius: '6px', border: '1px solid rgba(59, 130, 246, 0.3)', backgroundColor: 'rgba(37, 99, 235, 0.12)', color: '#60A5FA', fontSize: '12px', fontWeight: '600', textDecoration: 'none' }}
+            <button
+              type="button"
+              onClick={resetZoom}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '6px 10px', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.08)', backgroundColor: '#090D16', color: '#94A3B8', fontSize: '12px', cursor: 'pointer' }}
             >
-              <span>↓</span> View and download listings
-            </Link>
-            <Link
-              href="/pipeline"
-              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 12px', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.08)', backgroundColor: '#090D16', color: '#94A3B8', fontSize: '12px', textDecoration: 'none' }}
+              <span>⤢</span>
+            </button>
+            <button
+              type="button"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '6px 10px', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.08)', backgroundColor: '#090D16', color: '#94A3B8', fontSize: '12px', cursor: 'pointer' }}
             >
-              <span>🖵</span> Terminal
-            </Link>
+              <span>🔗</span>
+            </button>
           </div>
 
         </div>

@@ -99,23 +99,24 @@ export default function Sidebar({ onOpenUpgrade, onOpenProfile }) {
 
       </div>
 
-      {/* FREE PLAN CARD */}
-      <div style={{ margin: '0 12px 12px 12px', padding: '14px', borderRadius: '8px', border: '1px solid rgba(59, 130, 246, 0.25)', backgroundColor: '#04070F' }}>
-        <div style={{ fontSize: '10.5px', fontFamily: "'Space Mono', monospace", color: '#60A5FA', textTransform: 'uppercase', fontWeight: 'bold', marginBottom: '4px' }}>
+      {/* FREE PLAN CARD MATCHING SCREENSHOT */}
+      <div style={{ margin: '0 12px 14px 12px', padding: '16px', borderRadius: '8px', border: '1px solid rgba(59, 130, 246, 0.25)', backgroundColor: 'rgba(5, 10, 24, 0.85)', boxShadow: '0 0 20px rgba(37, 99, 235, 0.1)' }}>
+        <div style={{ fontSize: '11px', fontFamily: "'Space Mono', monospace", color: '#60A5FA', textTransform: 'uppercase', fontWeight: 'bold', marginBottom: '6px' }}>
           FREE PLAN
         </div>
-        <p style={{ fontSize: '11px', color: '#94A3B8', lineHeight: '1.4', margin: '0 0 12px 0' }}>
+        <p style={{ fontSize: '11.5px', color: '#94A3B8', lineHeight: '1.4', margin: '0 0 12px 0' }}>
           Pro unlocks every county and zip, full history, and unlimited tracked markets. $50/mo.
         </p>
 
-        <button
-          type="button"
+        <div
           onClick={onOpenUpgrade}
-          style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 12px', borderRadius: '9999px', border: '1px solid #3B82F6', backgroundColor: '#2563EB', color: '#FFFFFF', fontSize: '12px', fontWeight: '700', cursor: 'pointer', boxShadow: '0 0 15px rgba(37, 99, 235, 0.4)' }}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 14px', borderRadius: '9999px', border: '1px solid #3B82F6', backgroundColor: '#070C18', color: '#FFFFFF', fontSize: '12px', fontWeight: '700', cursor: 'pointer', boxShadow: '0 0 12px rgba(37, 99, 235, 0.3)' }}
         >
           <span>Activate Pro</span>
-          <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#FFFFFF' }} />
-        </button>
+          <span style={{ width: '30px', height: '16px', borderRadius: '9999px', backgroundColor: '#090D16', border: '1px solid #3B82F6', display: 'flex', alignItems: 'center', padding: '2px' }}>
+            <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#FFFFFF' }} />
+          </span>
+        </div>
       </div>
 
       {/* FOOTER ACTIONS */}
