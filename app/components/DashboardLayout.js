@@ -37,7 +37,7 @@ export default function DashboardLayout({ title, subtitle, children, actions }) 
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#0B0B0B', color: '#FFFFFF', overflowX: 'hidden' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#0E0E0E', color: '#FFFFFF', overflowX: 'hidden' }}>
       
       {/* 1. FIXED LEFT SIDEBAR (EXACT MATCH TO SCREENSHOT) */}
       <Sidebar
@@ -46,7 +46,7 @@ export default function DashboardLayout({ title, subtitle, children, actions }) 
       />
 
       {/* 2. MAIN CONTENT AREA (OFFSET BY 220px) */}
-      <div style={{ flex: 1, marginLeft: '220px', display: 'flex', flexDirection: 'column', minHeight: '100vh', minWidth: 0, backgroundColor: '#0B0B0B' }}>
+      <div style={{ flex: 1, marginLeft: '220px', display: 'flex', flexDirection: 'column', minHeight: '100vh', minWidth: 0, backgroundColor: '#0E0E0E' }}>
         
         {/* FIXED TOPBAR (OFFSET BY 220px) */}
         <Topbar
@@ -58,7 +58,7 @@ export default function DashboardLayout({ title, subtitle, children, actions }) 
         />
 
         {/* INNER SCROLLABLE PAGE CONTENT (PADDING FOR 76px TOPBAR + BREATHING SPACE) */}
-        <main style={{ flex: 1, paddingTop: '98px', paddingBottom: '36px', paddingLeft: '28px', paddingRight: '28px', backgroundColor: '#0B0B0B' }}>
+        <main style={{ flex: 1, paddingTop: '98px', paddingBottom: '36px', paddingLeft: '28px', paddingRight: '28px', backgroundColor: '#0E0E0E' }}>
           {children}
         </main>
 
