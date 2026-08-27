@@ -130,7 +130,7 @@ export default function InsightsPage() {
       title="Segment Insights"
       subtitle="Descriptive statistics and deep analytics per buyer cluster"
     >
-      <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
         {/* Page Header */}
         <div>
@@ -141,20 +141,20 @@ export default function InsightsPage() {
           <h1 style={{ fontSize: '32px', fontWeight: '800', color: '#FFFFFF', letterSpacing: '-0.6px', margin: 0 }}>
             Segment Insights Panel
           </h1>
-          <p style={{ fontSize: '13.5px', color: '#94A3B8', margin: '4px 0 0 0' }}>
+          <p style={{ fontSize: '13px', color: '#94A3B8', margin: '4px 0 0 0' }}>
             Descriptive statistics and machine learning behavioral metrics per buyer cohort.
           </p>
         </div>
 
         {/* Filters Strip */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 20px', backgroundColor: '#05070E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '10px', flexWrap: 'wrap' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#64748B' }}>filter_list</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px', backgroundColor: '#090A0E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '6px', flexWrap: 'wrap' }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#64748B' }}>filter_list</span>
 
           {/* Country Filter */}
           <select
             value={filterCountry}
             onChange={(e) => setFilterCountry(e.target.value)}
-            style={{ padding: '6px 12px', backgroundColor: '#090D16', border: '1px solid rgba(255, 255, 255, 0.12)', borderRadius: '6px', color: '#FFFFFF', fontSize: '12px', outline: 'none', cursor: 'pointer' }}
+            style={{ padding: '5px 10px', backgroundColor: '#000000', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '4px', color: '#FFFFFF', fontSize: '12px', outline: 'none', cursor: 'pointer' }}
           >
             <option value="all">All Countries</option>
             <option value="United States">United States</option>
@@ -167,7 +167,7 @@ export default function InsightsPage() {
           <select
             value={filterPurpose}
             onChange={(e) => setFilterPurpose(e.target.value)}
-            style={{ padding: '6px 12px', backgroundColor: '#090D16', border: '1px solid rgba(255, 255, 255, 0.12)', borderRadius: '6px', color: '#FFFFFF', fontSize: '12px', outline: 'none', cursor: 'pointer' }}
+            style={{ padding: '5px 10px', backgroundColor: '#000000', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '4px', color: '#FFFFFF', fontSize: '12px', outline: 'none', cursor: 'pointer' }}
           >
             <option value="all">All Acquisition Purposes</option>
             <option value="Investment">Investment</option>
@@ -178,15 +178,15 @@ export default function InsightsPage() {
           <select
             value={filterClientType}
             onChange={(e) => setFilterClientType(e.target.value)}
-            style={{ padding: '6px 12px', backgroundColor: '#090D16', border: '1px solid rgba(255, 255, 255, 0.12)', borderRadius: '6px', color: '#FFFFFF', fontSize: '12px', outline: 'none', cursor: 'pointer' }}
+            style={{ padding: '5px 10px', backgroundColor: '#000000', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '4px', color: '#FFFFFF', fontSize: '12px', outline: 'none', cursor: 'pointer' }}
           >
             <option value="all">All Client Types</option>
             <option value="Individual">Individual</option>
             <option value="Corporate">Corporate</option>
           </select>
 
-          <div style={{ marginLeft: 'auto', fontSize: '12px', color: '#94A3B8', fontFamily: "'Space Mono', monospace" }}>
-            ● Active Cohort: <span style={{ color: '#60A5FA', fontWeight: 'bold' }}>{filteredBuyers.length.toLocaleString()} Live Profiles</span>
+          <div style={{ marginLeft: 'auto', fontSize: '11.5px', color: '#94A3B8', fontFamily: "'Space Mono', monospace" }}>
+            ● Active Cohort: <span style={{ color: '#3B82F6', fontWeight: 'bold' }}>{filteredBuyers.length.toLocaleString()} Live Profiles</span>
           </div>
         </div>
 
@@ -200,14 +200,14 @@ export default function InsightsPage() {
                 type="button"
                 onClick={() => setSelectedCluster(cId)}
                 style={{
-                  padding: '10px 20px',
+                  padding: '8px 16px',
                   borderBottom: isActive ? `2px solid ${conf.color}` : '2px solid transparent',
                   backgroundColor: 'transparent',
                   borderTop: 'none',
                   borderLeft: 'none',
                   borderRight: 'none',
                   color: isActive ? '#FFFFFF' : '#64748B',
-                  fontSize: '13px',
+                  fontSize: '12.5px',
                   fontWeight: isActive ? '700' : '500',
                   cursor: 'pointer',
                   display: 'inline-flex',
@@ -216,7 +216,7 @@ export default function InsightsPage() {
                   transition: 'all 0.15s'
                 }}
               >
-                <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: conf.color, boxShadow: isActive ? `0 0 8px ${conf.color}` : 'none' }} />
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: conf.color }} />
                 <span>{cId} {conf.name}</span>
               </button>
             );
@@ -224,80 +224,80 @@ export default function InsightsPage() {
         </div>
 
         {/* Dynamic Cluster Detail Card & KPI Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px' }}>
           
           {/* Main Cluster Overview Card */}
-          <div style={{ backgroundColor: '#05070E', border: '1px solid rgba(255, 255, 255, 0.08)', borderLeft: `4px solid ${activeConf.color}`, borderRadius: '10px', padding: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <div style={{ display: 'inline-flex', padding: '2px 8px', borderRadius: '4px', backgroundColor: `${activeConf.color}22`, border: `1px solid ${activeConf.color}44`, color: activeConf.color, fontSize: '11px', fontFamily: "'Space Mono', monospace", fontWeight: 'bold', width: 'max-content' }}>
+          <div style={{ backgroundColor: '#090A0E', border: '1px solid rgba(255, 255, 255, 0.08)', borderLeft: `3px solid ${activeConf.color}`, borderRadius: '6px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ display: 'inline-flex', padding: '2px 6px', borderRadius: '3px', backgroundColor: `${activeConf.color}18`, border: `1px solid ${activeConf.color}33`, color: activeConf.color, fontSize: '10.5px', fontFamily: "'Space Mono', monospace", fontWeight: 'bold', width: 'max-content' }}>
               {selectedCluster} · {activeConf.badge}
             </div>
 
-            <h2 style={{ fontSize: '26px', fontWeight: '800', color: '#FFFFFF', margin: 0 }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '800', color: '#FFFFFF', margin: 0 }}>
               {activeConf.name}
             </h2>
 
-            <p style={{ fontSize: '13px', color: '#94A3B8', lineHeight: '1.6', margin: 0 }}>
+            <p style={{ fontSize: '12.5px', color: '#94A3B8', lineHeight: '1.5', margin: 0 }}>
               {activeConf.desc}
             </p>
 
-            <div style={{ marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.06)' }}>
-              <div style={{ fontSize: '11px', color: '#64748B', fontFamily: "'Space Mono', monospace", textTransform: 'uppercase' }}>Strategy Recommendation</div>
-              <div style={{ fontSize: '12.5px', color: '#CBD5E1', marginTop: '4px' }}>{activeConf.strategy}</div>
+            <div style={{ marginTop: 'auto', paddingTop: '12px', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
+              <div style={{ fontSize: '10.5px', color: '#64748B', fontFamily: "'Space Mono', monospace", textTransform: 'uppercase' }}>Strategy Recommendation</div>
+              <div style={{ fontSize: '12px', color: '#CBD5E1', marginTop: '2px' }}>{activeConf.strategy}</div>
             </div>
           </div>
 
           {/* 4-KPI Analytics Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
             
-            <div style={{ padding: '16px', backgroundColor: '#05070E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '8px' }}>
-              <div style={{ fontSize: '10.5px', color: '#64748B', fontFamily: "'Space Mono', monospace", textTransform: 'uppercase' }}>COHORT VOLUME</div>
-              <div style={{ fontSize: '28px', fontWeight: '800', color: '#FFFFFF', marginTop: '4px' }}>
-                {clusterStats.count.toLocaleString()} <span style={{ fontSize: '14px', color: '#60A5FA' }}>({clusterStats.pct}%)</span>
+            <div style={{ padding: '14px', backgroundColor: '#090A0E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '6px' }}>
+              <div style={{ fontSize: '10px', color: '#64748B', fontFamily: "'Space Mono', monospace", textTransform: 'uppercase' }}>COHORT VOLUME</div>
+              <div style={{ fontSize: '24px', fontWeight: '800', color: '#FFFFFF', marginTop: '2px' }}>
+                {clusterStats.count.toLocaleString()} <span style={{ fontSize: '12px', color: '#3B82F6' }}>({clusterStats.pct}%)</span>
               </div>
-              <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '2px' }}>Total live records in cluster</div>
+              <div style={{ fontSize: '10.5px', color: '#94A3B8', marginTop: '2px' }}>Total live records in cluster</div>
             </div>
 
-            <div style={{ padding: '16px', backgroundColor: '#05070E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '8px' }}>
-              <div style={{ fontSize: '10.5px', color: '#64748B', fontFamily: "'Space Mono', monospace", textTransform: 'uppercase' }}>CASH VS LOAN</div>
-              <div style={{ fontSize: '28px', fontWeight: '800', color: '#10B981', marginTop: '4px' }}>
-                {clusterStats.cashRate}% <span style={{ fontSize: '13px', color: '#64748B' }}>Cash</span>
+            <div style={{ padding: '14px', backgroundColor: '#090A0E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '6px' }}>
+              <div style={{ fontSize: '10px', color: '#64748B', fontFamily: "'Space Mono', monospace", textTransform: 'uppercase' }}>CASH VS LOAN</div>
+              <div style={{ fontSize: '24px', fontWeight: '800', color: '#10B981', marginTop: '2px' }}>
+                {clusterStats.cashRate}% <span style={{ fontSize: '11px', color: '#64748B' }}>Cash</span>
               </div>
-              <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '2px' }}>{clusterStats.loanRate}% Mortgage Financing</div>
+              <div style={{ fontSize: '10.5px', color: '#94A3B8', marginTop: '2px' }}>{clusterStats.loanRate}% Mortgage Financing</div>
             </div>
 
-            <div style={{ padding: '16px', backgroundColor: '#05070E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '8px' }}>
-              <div style={{ fontSize: '10.5px', color: '#64748B', fontFamily: "'Space Mono', monospace", textTransform: 'uppercase' }}>AVG SATISFACTION</div>
-              <div style={{ fontSize: '28px', fontWeight: '800', color: '#F59E0B', marginTop: '4px' }}>
-                {clusterStats.avgSat} <span style={{ fontSize: '13px', color: '#64748B' }}>/ 10</span>
+            <div style={{ padding: '14px', backgroundColor: '#090A0E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '6px' }}>
+              <div style={{ fontSize: '10px', color: '#64748B', fontFamily: "'Space Mono', monospace", textTransform: 'uppercase' }}>AVG SATISFACTION</div>
+              <div style={{ fontSize: '24px', fontWeight: '800', color: '#F59E0B', marginTop: '2px' }}>
+                {clusterStats.avgSat} <span style={{ fontSize: '11px', color: '#64748B' }}>/ 10</span>
               </div>
-              <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '2px' }}>Post-purchase rating</div>
+              <div style={{ fontSize: '10.5px', color: '#94A3B8', marginTop: '2px' }}>Post-purchase rating</div>
             </div>
 
-            <div style={{ padding: '16px', backgroundColor: '#05070E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '8px' }}>
-              <div style={{ fontSize: '10.5px', color: '#64748B', fontFamily: "'Space Mono', monospace", textTransform: 'uppercase' }}>PRIMARY INTENT</div>
-              <div style={{ fontSize: '18px', fontWeight: '800', color: '#60A5FA', marginTop: '6px' }}>
+            <div style={{ padding: '14px', backgroundColor: '#090A0E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '6px' }}>
+              <div style={{ fontSize: '10px', color: '#64748B', fontFamily: "'Space Mono', monospace", textTransform: 'uppercase' }}>PRIMARY INTENT</div>
+              <div style={{ fontSize: '16px', fontWeight: '800', color: '#3B82F6', marginTop: '4px' }}>
                 {activeConf.purpose}
               </div>
-              <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '2px' }}>Dominant acquisition purpose</div>
+              <div style={{ fontSize: '10.5px', color: '#94A3B8', marginTop: '2px' }}>Dominant acquisition purpose</div>
             </div>
 
           </div>
         </div>
 
         {/* Top Geographic Metros for this Cluster */}
-        <div style={{ backgroundColor: '#05070E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '10px', padding: '20px' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#FFFFFF', margin: '0 0 14px 0' }}>
+        <div style={{ backgroundColor: '#090A0E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '6px', padding: '16px' }}>
+          <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#FFFFFF', margin: '0 0 12px 0' }}>
             Top Active Regions for {activeConf.name}
           </h3>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '10px' }}>
             {clusterStats.topRegions.map(([regName, cnt], idx) => (
-              <div key={regName} style={{ padding: '12px 16px', backgroundColor: '#090D16', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div key={regName} style={{ padding: '10px 14px', backgroundColor: '#000000', borderRadius: '4px', border: '1px solid rgba(255, 255, 255, 0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <div style={{ fontSize: '11px', color: '#64748B', fontFamily: "'Space Mono', monospace" }}>#{idx + 1} REGION</div>
-                  <div style={{ fontSize: '14px', fontWeight: '700', color: '#FFFFFF', marginTop: '2px' }}>{regName}</div>
+                  <div style={{ fontSize: '10.5px', color: '#64748B', fontFamily: "'Space Mono', monospace" }}>#{idx + 1} REGION</div>
+                  <div style={{ fontSize: '13px', fontWeight: '700', color: '#FFFFFF', marginTop: '2px' }}>{regName}</div>
                 </div>
-                <span style={{ fontSize: '13px', fontWeight: 'bold', color: activeConf.color, fontFamily: "'Space Mono', monospace" }}>
+                <span style={{ fontSize: '12px', fontWeight: 'bold', color: activeConf.color, fontFamily: "'Space Mono', monospace" }}>
                   {cnt} buyers
                 </span>
               </div>

@@ -44,12 +44,12 @@ export default function InvestorsPage() {
 
   return (
     <DashboardLayout title="Investor Behavior" subtitle="Financing Distribution & Capital Flow Intelligence">
-      <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
           <div>
-            <h2 style={{ fontSize: '24px', fontWeight: '800', color: '#FFFFFF', margin: 0 }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '800', color: '#FFFFFF', margin: 0, letterSpacing: '-0.4px' }}>
               Investor Financing & Capital Flows
             </h2>
             <p style={{ fontSize: '13px', color: '#94A3B8', margin: '4px 0 0 0' }}>
@@ -57,69 +57,69 @@ export default function InvestorsPage() {
             </p>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 14px', backgroundColor: '#05070E', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '9999px', fontSize: '11.5px', fontFamily: "'Space Mono', monospace", color: '#60A5FA' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '5px 12px', backgroundColor: '#090A0E', border: '1px solid rgba(59, 130, 246, 0.3)', borderRadius: '4px', fontSize: '11px', fontFamily: "'Space Mono', monospace", color: '#3B82F6' }}>
             <span>● {cashPct}% CASH / {loanPct}% MORTGAGE CAPITAL</span>
           </div>
         </div>
 
-        {/* 4-KPI Grid (100% Dynamic from Database) */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
+        {/* 4-KPI Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px' }}>
           
-          <div style={{ padding: '20px', backgroundColor: '#05070E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '10px' }}>
-            <div style={{ fontSize: '11px', fontFamily: "'Space Mono', monospace", color: '#64748B', textTransform: 'uppercase' }}>CASH PURCHASES</div>
-            <div style={{ fontSize: '32px', fontWeight: '800', color: '#10B981', marginTop: '6px' }}>{cashPct}%</div>
-            <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '4px' }}>{cashCount.toLocaleString()} All-Cash Transactions</div>
+          <div style={{ padding: '16px 20px', backgroundColor: '#090A0E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '6px' }}>
+            <div style={{ fontSize: '10.5px', fontFamily: "'Space Mono', monospace", color: '#64748B', textTransform: 'uppercase' }}>CASH PURCHASES</div>
+            <div style={{ fontSize: '28px', fontWeight: '900', color: '#10B981', marginTop: '4px', letterSpacing: '-0.5px' }}>{cashPct}%</div>
+            <div style={{ fontSize: '11.5px', color: '#94A3B8', marginTop: '2px' }}>{cashCount.toLocaleString()} All-Cash Transactions</div>
           </div>
 
-          <div style={{ padding: '20px', backgroundColor: '#05070E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '10px' }}>
-            <div style={{ fontSize: '11px', fontFamily: "'Space Mono', monospace", color: '#64748B', textTransform: 'uppercase' }}>MORTGAGE / LOAN</div>
-            <div style={{ fontSize: '32px', fontWeight: '800', color: '#60A5FA', marginTop: '6px' }}>{loanPct}%</div>
-            <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '4px' }}>{loanCount.toLocaleString()} Financing-Dependent Buyers</div>
+          <div style={{ padding: '16px 20px', backgroundColor: '#090A0E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '6px' }}>
+            <div style={{ fontSize: '10.5px', fontFamily: "'Space Mono', monospace", color: '#64748B', textTransform: 'uppercase' }}>MORTGAGE / LOAN</div>
+            <div style={{ fontSize: '28px', fontWeight: '900', color: '#3B82F6', marginTop: '4px', letterSpacing: '-0.5px' }}>{loanPct}%</div>
+            <div style={{ fontSize: '11.5px', color: '#94A3B8', marginTop: '2px' }}>{loanCount.toLocaleString()} Financing-Dependent Buyers</div>
           </div>
 
-          <div style={{ padding: '20px', backgroundColor: '#05070E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '10px' }}>
-            <div style={{ fontSize: '11px', fontFamily: "'Space Mono', monospace", color: '#64748B', textTransform: 'uppercase' }}>AVG SATISFACTION</div>
-            <div style={{ fontSize: '32px', fontWeight: '800', color: '#F59E0B', marginTop: '6px' }}>{metrics.avgSatScore} / 5.0</div>
-            <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '4px' }}>Post-Transaction Net Rating</div>
+          <div style={{ padding: '16px 20px', backgroundColor: '#090A0E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '6px' }}>
+            <div style={{ fontSize: '10.5px', fontFamily: "'Space Mono', monospace", color: '#64748B', textTransform: 'uppercase' }}>AVG SATISFACTION</div>
+            <div style={{ fontSize: '28px', fontWeight: '900', color: '#F59E0B', marginTop: '4px', letterSpacing: '-0.5px' }}>{metrics.avgSatScore} / 5.0</div>
+            <div style={{ fontSize: '11.5px', color: '#94A3B8', marginTop: '2px' }}>Post-Transaction Net Rating</div>
           </div>
 
-          <div style={{ padding: '20px', backgroundColor: '#05070E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '10px' }}>
-            <div style={{ fontSize: '11px', fontFamily: "'Space Mono', monospace", color: '#64748B', textTransform: 'uppercase' }}>INSTITUTIONAL SHARE</div>
-            <div style={{ fontSize: '32px', fontWeight: '800', color: '#8B5CF6', marginTop: '6px' }}>{metrics.c3Count || 53} Co.</div>
-            <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '4px' }}>Corporate & Enterprise Funds ({metrics.c3Pct}%)</div>
+          <div style={{ padding: '16px 20px', backgroundColor: '#090A0E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '6px' }}>
+            <div style={{ fontSize: '10.5px', fontFamily: "'Space Mono', monospace", color: '#64748B', textTransform: 'uppercase' }}>INSTITUTIONAL SHARE</div>
+            <div style={{ fontSize: '28px', fontWeight: '900', color: '#8B5CF6', marginTop: '4px', letterSpacing: '-0.5px' }}>{metrics.c3Count || 53} Co.</div>
+            <div style={{ fontSize: '11.5px', color: '#94A3B8', marginTop: '2px' }}>Corporate & Enterprise Funds ({metrics.c3Pct}%)</div>
           </div>
 
         </div>
 
         {/* Financing Breakdown Table by Cluster */}
-        <div style={{ backgroundColor: '#05070E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', padding: '24px' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#FFFFFF', margin: '0 0 16px 0' }}>
+        <div style={{ backgroundColor: '#090A0E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '6px', padding: '20px' }}>
+          <h3 style={{ fontSize: '15px', fontWeight: '700', color: '#FFFFFF', margin: '0 0 14px 0' }}>
             Capital Channels & Financing Behavior by Cluster
           </h3>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
-            <div style={{ padding: '16px', backgroundColor: '#090D16', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
-              <div style={{ color: '#3B82F6', fontWeight: 'bold', fontSize: '13px' }}>C1 Global Investors ({metrics.c1Count || 542} buyers)</div>
-              <div style={{ fontSize: '20px', fontWeight: '800', color: '#FFFFFF', margin: '6px 0' }}>92% Cash / 8% Loan</div>
-              <p style={{ fontSize: '11.5px', color: '#94A3B8', margin: 0 }}>International cross-border wire transfers, minimal interest rate sensitivity.</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px' }}>
+            <div style={{ padding: '14px', backgroundColor: '#000000', borderRadius: '4px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+              <div style={{ color: '#3B82F6', fontWeight: 'bold', fontSize: '12.5px' }}>C1 Global Investors ({metrics.c1Count || 542} buyers)</div>
+              <div style={{ fontSize: '18px', fontWeight: '800', color: '#FFFFFF', margin: '4px 0' }}>92% Cash / 8% Loan</div>
+              <p style={{ fontSize: '11px', color: '#94A3B8', margin: 0 }}>International cross-border wire transfers, minimal interest rate sensitivity.</p>
             </div>
 
-            <div style={{ padding: '16px', backgroundColor: '#090D16', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
-              <div style={{ color: '#10B981', fontWeight: 'bold', fontSize: '13px' }}>C2 First-Time Buyers ({metrics.c2Count || 764} buyers)</div>
-              <div style={{ fontSize: '20px', fontWeight: '800', color: '#FFFFFF', margin: '6px 0' }}>89% Loan / 11% Cash</div>
-              <p style={{ fontSize: '11.5px', color: '#94A3B8', margin: 0 }}>Conventional 30-year fixed & FHA loans, highly sensitive to mortgage rates.</p>
+            <div style={{ padding: '14px', backgroundColor: '#000000', borderRadius: '4px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+              <div style={{ color: '#10B981', fontWeight: 'bold', fontSize: '12.5px' }}>C2 First-Time Buyers ({metrics.c2Count || 764} buyers)</div>
+              <div style={{ fontSize: '18px', fontWeight: '800', color: '#FFFFFF', margin: '4px 0' }}>89% Loan / 11% Cash</div>
+              <p style={{ fontSize: '11px', color: '#94A3B8', margin: 0 }}>Conventional 30-year fixed & FHA loans, highly sensitive to mortgage rates.</p>
             </div>
 
-            <div style={{ padding: '16px', backgroundColor: '#090D16', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
-              <div style={{ color: '#F59E0B', fontWeight: 'bold', fontSize: '13px' }}>C3 Corporate Entities ({metrics.c3Count || 53} buyers)</div>
-              <div style={{ fontSize: '20px', fontWeight: '800', color: '#FFFFFF', margin: '6px 0' }}>98% Cash / Line of Credit</div>
-              <p style={{ fontSize: '11.5px', color: '#94A3B8', margin: 0 }}>Institutional liquidity facilities, bulk single-family portfolio acquisitions.</p>
+            <div style={{ padding: '14px', backgroundColor: '#000000', borderRadius: '4px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+              <div style={{ color: '#F59E0B', fontWeight: 'bold', fontSize: '12.5px' }}>C3 Corporate Entities ({metrics.c3Count || 53} buyers)</div>
+              <div style={{ fontSize: '18px', fontWeight: '800', color: '#FFFFFF', margin: '4px 0' }}>98% Cash / Line of Credit</div>
+              <p style={{ fontSize: '11px', color: '#94A3B8', margin: 0 }}>Institutional liquidity facilities, bulk single-family portfolio acquisitions.</p>
             </div>
 
-            <div style={{ padding: '16px', backgroundColor: '#090D16', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
-              <div style={{ color: '#8B5CF6', fontWeight: 'bold', fontSize: '13px' }}>C4 Luxury Investors ({metrics.c4Count || 641} buyers)</div>
-              <div style={{ fontSize: '20px', fontWeight: '800', color: '#FFFFFF', margin: '6px 0' }}>84% Cash / 16% Private Bank</div>
-              <p style={{ fontSize: '11.5px', color: '#94A3B8', margin: 0 }}>High net-worth asset backed financing, prime residential estates.</p>
+            <div style={{ padding: '14px', backgroundColor: '#000000', borderRadius: '4px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+              <div style={{ color: '#8B5CF6', fontWeight: 'bold', fontSize: '12.5px' }}>C4 Luxury Investors ({metrics.c4Count || 641} buyers)</div>
+              <div style={{ fontSize: '18px', fontWeight: '800', color: '#FFFFFF', margin: '4px 0' }}>84% Cash / 16% Private Bank</div>
+              <p style={{ fontSize: '11px', color: '#94A3B8', margin: 0 }}>High net-worth asset backed financing, prime residential estates.</p>
             </div>
           </div>
         </div>

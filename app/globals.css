@@ -1,80 +1,117 @@
 /* =============================================
-   PARCL INTEL — Global Design System (Parcl Labs Theme)
-   Deep Obsidian, High Contrast, Precision Neon Blue
+   PARCL INTEL — Premium Financial Intelligence Terminal Theme
+   Matte Black, High-Contrast White, Restrained Blue Accent & Orange Metrics
+   Clean, Dense, Professional, Non-Neon Aesthetic
    ============================================= */
 
-/* --- Google Fonts --- */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sora:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 
-/* --- CSS Variables (Parcl Labs Aesthetic) --- */
 :root {
-  --bg:            #000000;
-  --surface1:      #05070E;
-  --surface2:      #0E131F;
-  --surface3:      #161D2E;
-  --border:        rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.15);
-  --border-focus:  #3B82F6;
-  --primary:       #2563EB;
-  --primary-light: #60A5FA;
-  --accent:        #10B981;
-  --warning:       #F59E0B;
-  --danger:        #EF4444;
-  --text-primary:  #FFFFFF;
-  --text-secondary:#94A3B8;
-  --text-muted:    #64748B;
-  --c1:            #3B82F6;
-  --c2:            #10B981;
-  --c3:            #F59E0B;
-  --c4:            #8B5CF6;
-  --sidebar-w:     240px;
-  --topbar-h:      56px;
-  --radius:        10px;
-  --transition:    200ms cubic-bezier(0.4,0,0.2,1);
+  /* Matte Surfaces */
+  --bg:              #000000;
+  --bg-sidebar:      #08090C;
+  --bg-header:       #000000;
+  --surface-card:    #090A0E;
+  --surface-subtle:  #0F1117;
+  --surface-input:   #090A0E;
+  --surface-hover:   #151821;
+
+  /* Thin Matte Borders */
+  --border:          rgba(255, 255, 255, 0.08);
+  --border-subtle:   rgba(255, 255, 255, 0.05);
+  --border-strong:   rgba(255, 255, 255, 0.16);
+  --border-accent:   #3B82F6;
+
+  /* Precise Accents */
+  --primary:         #3B82F6;
+  --primary-hover:   #2563EB;
+  --primary-subtle:  rgba(59, 130, 246, 0.12);
+  --accent-orange:   #F59E0B;
+  --accent-green:    #10B981;
+  --accent-red:      #EF4444;
+
+  /* High Contrast Typography */
+  --text-primary:    #FFFFFF;
+  --text-secondary:  #94A3B8;
+  --text-muted:      #64748B;
+  --text-faint:      #475569;
+
+  /* Dimensions & Spacing */
+  --sidebar-w:       240px;
+  --radius-sm:       4px;
+  --radius-md:       6px;
+  --radius-lg:       8px;
+  --radius-pill:     9999px;
+  --transition:      150ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* --- Reset & Base --- */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  background-color: var(--bg);
+}
 
 body {
   background-color: var(--bg);
   color: var(--text-primary);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 13.5px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 13px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
 }
 
-/* --- Custom Scrollbar --- */
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+/* --- Crisp Terminal Scrollbars --- */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: #1E222D;
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2E3444;
+}
 
-/* --- Typography --- */
-.font-headline, h1, h2, h3 { font-family: 'Inter', 'Sora', sans-serif; letter-spacing: -0.3px; }
-.font-label, .font-mono { font-family: 'Space Mono', monospace; }
+/* --- Typography Hierarchy --- */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--text-primary);
+}
 
-/* --- Material Icons --- */
+.font-mono, .font-label {
+  font-family: 'Space Mono', monospace;
+}
+
+/* --- Material Symbols --- */
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined';
   font-weight: normal;
   font-style: normal;
-  font-size: 20px;
+  font-size: 18px;
   line-height: 1;
   display: inline-block;
   white-space: nowrap;
   vertical-align: middle;
 }
 
-/* --- Parcl Ticker Animation --- */
+/* --- Top Moving Ticker --- */
 @keyframes marqueeScroll {
-  0% { transform: translateX(0%); }
+  0%   { transform: translateX(0%); }
   100% { transform: translateX(-50%); }
 }
 
@@ -88,30 +125,38 @@ body {
   animation-play-state: paused;
 }
 
-/* --- Glass Panels & Cards --- */
+/* --- Matte Financial Terminal Cards & Inputs --- */
 .parcl-card {
-  background-color: var(--surface1);
+  background-color: var(--surface-card);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  transition: border-color var(--transition), box-shadow var(--transition);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition);
 }
 
 .parcl-card:hover {
   border-color: var(--border-strong);
 }
 
-.parcl-glow-card {
-  background-color: var(--surface1);
-  border: 1px solid rgba(59, 130, 246, 0.4);
-  border-radius: var(--radius);
-  box-shadow: 0 0 30px rgba(37, 99, 235, 0.15);
+.parcl-input {
+  background-color: var(--surface-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  transition: border-color var(--transition);
+  outline: none;
 }
 
-/* --- Layout Utility --- */
+.parcl-input:focus {
+  border-color: var(--primary);
+}
+
+/* --- Main Layout Wrapper --- */
 .parcl-main-content {
   flex: 1;
   overflow-y: auto;
-  padding: 24px 32px;
+  padding: 20px 28px 48px 28px;
   background-color: var(--bg);
   min-height: 100vh;
 }
