@@ -216,62 +216,83 @@ export default function Topbar({ title, subtitle, onOpenProfile }) {
 
       </div>
 
-      {/* 2. SUB HEADER NAVIGATION & SEARCH BAR (EXACT STRAIGHT-LINE ALIGNMENT WITH SIDEBAR) */}
-      <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 24px 0 0' }}>
+      {/* 2. SUB HEADER NAVIGATION & SEARCH BAR (EXACT SCREENSHOT MATCH) */}
+      <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 24px 0 20px', height: '48px' }}>
         
-        {/* Left: PARCL Logo Container (220px with borderRight) + Workspace Nav Tabs */}
-        <div style={{ display: 'flex', alignItems: 'center', height: '48px' }}>
+        {/* Left: PARCL Official Logo + Vertical Divider + Workspace Nav Tabs */}
+        <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
           
-          <div style={{ width: '220px', display: 'flex', alignItems: 'center', padding: '0 18px', borderRight: '1px solid rgba(255, 255, 255, 0.18)', height: '100%', boxSizing: 'border-box' }}>
-            <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '7px', textDecoration: 'none' }}>
-              <span style={{ fontSize: '14px', fontWeight: '900', color: '#FFFFFF', letterSpacing: '0.8px' }}>▲ PARCL</span>
-            </Link>
-          </div>
+          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', paddingRight: '4px' }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+              <path d="M4 11L12 4L20 11" stroke="#FFFFFF" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M12 12C10.6 12 9.5 13.1 9.5 14.5C9.5 16.5 12 19.5 12 19.5C12 19.5 14.5 16.5 14.5 14.5C14.5 13.1 13.4 12 12 12Z" fill="#FFFFFF" />
+            </svg>
+            <span style={{ fontSize: '15px', fontWeight: '800', color: '#FFFFFF', letterSpacing: '0.8px' }}>PARCL</span>
+          </Link>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', paddingLeft: '24px' }}>
+          {/* Short vertical divider matching screenshot */}
+          <span style={{ height: '18px', width: '1px', backgroundColor: 'rgba(255, 255, 255, 0.15)', margin: '0 22px 0 18px' }} />
+
+          {/* Nav Tabs with bottom-flush active indicator */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '22px', height: '100%' }}>
             <Link
               href="/overview"
               style={{
-                fontSize: '13px',
-                fontWeight: pathname === '/overview' ? '700' : '500',
+                position: 'relative',
+                display: 'inline-flex',
+                alignItems: 'center',
+                height: '100%',
+                fontSize: '13.5px',
+                fontWeight: pathname === '/overview' ? '800' : '500',
                 color: pathname === '/overview' ? '#FFFFFF' : '#94A3B8',
                 textDecoration: 'none',
-                borderBottom: pathname === '/overview' ? '2px solid #3B82F6' : '2px solid transparent',
-                paddingBottom: '4px',
                 transition: 'color 0.15s'
               }}
             >
               Parcl HQ
+              {pathname === '/overview' && (
+                <span style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '2px', backgroundColor: '#3B82F6' }} />
+              )}
             </Link>
 
             <Link
               href="/reports"
               style={{
+                position: 'relative',
+                display: 'inline-flex',
+                alignItems: 'center',
+                height: '100%',
                 fontSize: '13px',
-                fontWeight: pathname === '/reports' ? '700' : '500',
+                fontWeight: pathname === '/reports' ? '800' : '500',
                 color: pathname === '/reports' ? '#FFFFFF' : '#94A3B8',
                 textDecoration: 'none',
-                borderBottom: pathname === '/reports' ? '2px solid #3B82F6' : '2px solid transparent',
-                paddingBottom: '4px',
                 transition: 'color 0.15s'
               }}
             >
               Research
+              {pathname === '/reports' && (
+                <span style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '2px', backgroundColor: '#3B82F6' }} />
+              )}
             </Link>
 
             <Link
               href="/segments"
               style={{
+                position: 'relative',
+                display: 'inline-flex',
+                alignItems: 'center',
+                height: '100%',
                 fontSize: '13px',
-                fontWeight: (pathname === '/segments' || pathname === '/market-rankings') ? '700' : '500',
+                fontWeight: (pathname === '/segments' || pathname === '/market-rankings') ? '800' : '500',
                 color: (pathname === '/segments' || pathname === '/market-rankings') ? '#FFFFFF' : '#94A3B8',
                 textDecoration: 'none',
-                borderBottom: (pathname === '/segments' || pathname === '/market-rankings') ? '2px solid #3B82F6' : '2px solid transparent',
-                paddingBottom: '4px',
                 transition: 'color 0.15s'
               }}
             >
               Trackers
+              {(pathname === '/segments' || pathname === '/market-rankings') && (
+                <span style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '2px', backgroundColor: '#3B82F6' }} />
+              )}
             </Link>
           </div>
         </div>
