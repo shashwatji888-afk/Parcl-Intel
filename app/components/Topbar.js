@@ -115,7 +115,7 @@ export default function Topbar({ title, subtitle, onOpenProfile }) {
   };
 
   return (
-    <header style={{ position: 'fixed', top: 0, right: 0, left: '220px', zIndex: 30, backgroundColor: '#000000', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', minHeight: '76px', display: 'flex', flexDirection: 'column' }}>
+    <header style={{ position: 'fixed', top: 0, right: 0, left: 0, width: '100%', zIndex: 50, backgroundColor: '#000000', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', minHeight: '76px', display: 'flex', flexDirection: 'column' }}>
       
       {/* 1. TOP TICKER STRIP: STATIONARY U.S. CELL ON LEFT + MARQUEE SCROLLING METROS ON RIGHT */}
       <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#000000', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', height: '28px', fontSize: '11px', fontFamily: "'Space Mono', monospace" }}>
@@ -216,15 +216,15 @@ export default function Topbar({ title, subtitle, onOpenProfile }) {
       </div>
 
       {/* 2. SUB HEADER NAVIGATION & SEARCH BAR (EXACT SCREENSHOT MATCH) */}
-      <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 24px' }}>
+      <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 20px' }}>
         
         {/* Left: PARCL Logo with Divider + Workspace Nav Tabs */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', width: '180px' }}>
             <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '7px', textDecoration: 'none' }}>
               <span style={{ fontSize: '14px', fontWeight: '900', color: '#FFFFFF', letterSpacing: '0.8px' }}>▲ PARCL</span>
             </Link>
-            <span style={{ height: '16px', width: '1px', backgroundColor: 'rgba(255, 255, 255, 0.1)' }} />
+            <span style={{ height: '16px', width: '1px', backgroundColor: 'rgba(255, 255, 255, 0.1)', marginLeft: 'auto' }} />
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>

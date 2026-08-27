@@ -8,20 +8,10 @@ export default function Sidebar({ onOpenUpgrade, onOpenProfile }) {
   const { user, profile } = useAuth();
 
   return (
-    <aside style={{ width: '220px', backgroundColor: '#070709', borderRight: '1px solid rgba(255, 255, 255, 0.08)', height: '100vh', display: 'flex', flexDirection: 'column', position: 'fixed', top: 0, left: 0, zIndex: 40, overflowY: 'auto' }}>
+    <aside style={{ width: '220px', backgroundColor: '#070709', borderRight: '1px solid rgba(255, 255, 255, 0.08)', height: 'calc(100vh - 76px)', display: 'flex', flexDirection: 'column', position: 'fixed', top: '76px', left: 0, zIndex: 40, overflowY: 'auto' }}>
       
-      {/* Brand Header */}
-      <div style={{ padding: '14px 18px', borderBottom: '1px solid rgba(255, 255, 255, 0.06)', backgroundColor: '#000000', display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#FFFFFF" />
-          <path d="M2 17L12 22L22 17" stroke="#3B82F6" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M2 12L12 17L22 12" stroke="#FFFFFF" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-        <span style={{ fontSize: '15px', fontWeight: '800', color: '#FFFFFF', letterSpacing: '0.6px' }}>PARCL</span>
-      </div>
-
       {/* Nav List */}
-      <div style={{ flex: 1, padding: '12px 0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div style={{ flex: 1, padding: '14px 0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
         
         {/* SECTION 1: DEFAULT */}
         <div>
