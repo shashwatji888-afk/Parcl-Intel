@@ -8,7 +8,7 @@ export default function Sidebar({ onOpenUpgrade, onOpenProfile }) {
   const { user, profile } = useAuth();
 
   return (
-    <aside style={{ width: '220px', backgroundColor: '#070709', borderRight: '1px solid rgba(255, 255, 255, 0.08)', height: 'calc(100vh - 76px)', display: 'flex', flexDirection: 'column', position: 'fixed', top: '76px', left: 0, zIndex: 40, overflowY: 'auto' }}>
+    <aside style={{ width: '220px', backgroundColor: '#070709', borderRight: '1px solid rgba(255, 255, 255, 0.08)', height: 'calc(100vh - 82px)', display: 'flex', flexDirection: 'column', position: 'fixed', top: '82px', left: 0, zIndex: 40, overflowY: 'auto' }}>
       
       {/* Nav List */}
       <div style={{ flex: 1, padding: '14px 0', display: 'flex', flexDirection: 'column', gap: '16px' }}>

@@ -115,18 +115,18 @@ export default function Topbar({ title, subtitle, onOpenProfile }) {
   };
 
   return (
-    <header style={{ position: 'fixed', top: 0, right: 0, left: 0, width: '100%', zIndex: 50, backgroundColor: '#000000', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', minHeight: '76px', display: 'flex', flexDirection: 'column' }}>
+    <header style={{ position: 'fixed', top: 0, right: 0, left: 0, width: '100%', zIndex: 50, backgroundColor: '#000000', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', minHeight: '82px', display: 'flex', flexDirection: 'column' }}>
       
-      {/* 1. TOP TICKER STRIP: STATIONARY U.S. CELL ON LEFT + MARQUEE SCROLLING METROS ON RIGHT */}
-      <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#000000', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', height: '28px', fontSize: '11px', fontFamily: "'Space Mono', monospace" }}>
+      {/* 1. TOP TICKER STRIP (SCALED UP BY 20%): STATIONARY U.S. CELL ON LEFT + MARQUEE METROS ON RIGHT */}
+      <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#000000', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', height: '34px', fontSize: '13px', fontFamily: "'Space Mono', monospace" }}>
         
         {/* STATIONARY U.S. CELL (NEVER MOVES) */}
         <div
           style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '8px',
-            padding: '0 16px',
+            gap: '10px',
+            padding: '0 20px',
             backgroundColor: '#000000',
             borderRight: '1px solid rgba(255, 255, 255, 0.12)',
             flexShrink: 0,
@@ -135,14 +135,14 @@ export default function Topbar({ title, subtitle, onOpenProfile }) {
             whiteSpace: 'nowrap'
           }}
         >
-          <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10B981', display: 'inline-block' }} />
+          <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#10B981', display: 'inline-block' }} />
           <span style={{ fontWeight: '700', color: '#FFFFFF', letterSpacing: '0.4px' }}>
             {nationalData.city}
           </span>
-          <span style={{ fontWeight: '700', color: nationalData.isPositive ? '#10B981' : '#EF4444', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+          <span style={{ fontWeight: '700', color: nationalData.isPositive ? '#10B981' : '#EF4444', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
             <span>{nationalData.arrow}</span>
             <span>{nationalData.trend}</span>
-            <span style={{ color: '#64748B', fontWeight: '400', fontSize: '10px', marginLeft: '2px' }}>YoY</span>
+            <span style={{ color: '#64748B', fontWeight: '400', fontSize: '11px', marginLeft: '2px' }}>YoY</span>
           </span>
           <span style={{ color: '#64748B', fontWeight: '500' }}>MSI</span>
           <span style={{ color: '#FFFFFF', fontWeight: '700' }}>{nationalData.msi}</span>
@@ -162,15 +162,15 @@ export default function Topbar({ title, subtitle, onOpenProfile }) {
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '8px',
-                    padding: '0 20px',
+                    gap: '10px',
+                    padding: '0 24px',
                     borderRight: '1px solid rgba(255, 255, 255, 0.1)'
                   }}
                 >
                   <span style={{ fontWeight: '700', color: '#FFFFFF', letterSpacing: '0.4px' }}>
                     {item.city}
                   </span>
-                  <span style={{ fontWeight: '700', color: item.isPositive ? '#10B981' : '#EF4444', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+                  <span style={{ fontWeight: '700', color: item.isPositive ? '#10B981' : '#EF4444', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
                     <span>{item.arrow}</span>
                     <span>{item.trend}</span>
                   </span>
@@ -190,15 +190,15 @@ export default function Topbar({ title, subtitle, onOpenProfile }) {
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '8px',
-                    padding: '0 20px',
+                    gap: '10px',
+                    padding: '0 24px',
                     borderRight: '1px solid rgba(255, 255, 255, 0.1)'
                   }}
                 >
                   <span style={{ fontWeight: '700', color: '#FFFFFF', letterSpacing: '0.4px' }}>
                     {item.city}
                   </span>
-                  <span style={{ fontWeight: '700', color: item.isPositive ? '#10B981' : '#EF4444', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+                  <span style={{ fontWeight: '700', color: item.isPositive ? '#10B981' : '#EF4444', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
                     <span>{item.arrow}</span>
                     <span>{item.trend}</span>
                   </span>

@@ -57,8 +57,8 @@ export default function DashboardLayout({ title, subtitle, children, actions }) 
           onOpenProfile={() => setIsProfileOpen(true)}
         />
 
-        {/* INNER SCROLLABLE PAGE CONTENT (PADDING FOR 76px TOPBAR + BREATHING SPACE) */}
-        <main style={{ flex: 1, paddingTop: '98px', paddingBottom: '36px', paddingLeft: '28px', paddingRight: '28px', backgroundColor: '#0E0E0E' }}>
+        {/* INNER SCROLLABLE PAGE CONTENT (PADDING FOR 82px TOPBAR + BREATHING SPACE) */}
+        <main style={{ flex: 1, paddingTop: '104px', paddingBottom: '36px', paddingLeft: '28px', paddingRight: '28px', backgroundColor: '#0E0E0E' }}>
           {children}
         </main>
 
