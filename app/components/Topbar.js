@@ -115,12 +115,12 @@ export default function Topbar({ title, subtitle, onOpenProfile }) {
   };
 
   return (
-    <header style={{ position: 'fixed', top: 0, right: 0, left: 0, width: '100%', zIndex: 50, backgroundColor: '#000000', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', minHeight: '82px', display: 'flex', flexDirection: 'column' }}>
+    <header style={{ position: 'fixed', top: 0, right: 0, left: 0, width: '100%', zIndex: 50, backgroundColor: '#000000', borderBottom: '1px solid rgba(255, 255, 255, 0.18)', minHeight: '82px', display: 'flex', flexDirection: 'column' }}>
       
       {/* 1. TOP TICKER STRIP: STATIONARY U.S. CELL ON LEFT + MARQUEE METROS ON RIGHT */}
-      <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#000000', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', height: '34px', fontSize: '13px', fontFamily: "'Space Mono', monospace" }}>
+      <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#000000', borderBottom: '1px solid rgba(255, 255, 255, 0.18)', height: '34px', fontSize: '13px', fontFamily: "'Space Mono', monospace" }}>
         
-        {/* STATIONARY U.S. CELL (WIDE ENOUGH TO FIT FULL METRICS COMFORTABLY) */}
+        {/* STATIONARY U.S. CELL (CLEARLY VISIBLE SEPARATOR) */}
         <div
           style={{
             display: 'inline-flex',
@@ -128,7 +128,7 @@ export default function Topbar({ title, subtitle, onOpenProfile }) {
             gap: '8px',
             padding: '0 20px',
             backgroundColor: '#000000',
-            borderRight: '1px solid rgba(255, 255, 255, 0.12)',
+            borderRight: '1px solid rgba(255, 255, 255, 0.22)',
             flexShrink: 0,
             zIndex: 10,
             height: '100%',
@@ -165,7 +165,7 @@ export default function Topbar({ title, subtitle, onOpenProfile }) {
                     alignItems: 'center',
                     gap: '10px',
                     padding: '0 24px',
-                    borderRight: '1px solid rgba(255, 255, 255, 0.1)'
+                    borderRight: '1px solid rgba(255, 255, 255, 0.22)'
                   }}
                 >
                   <span style={{ fontWeight: '700', color: '#FFFFFF', letterSpacing: '0.4px' }}>
@@ -193,7 +193,7 @@ export default function Topbar({ title, subtitle, onOpenProfile }) {
                     alignItems: 'center',
                     gap: '10px',
                     padding: '0 24px',
-                    borderRight: '1px solid rgba(255, 255, 255, 0.1)'
+                    borderRight: '1px solid rgba(255, 255, 255, 0.22)'
                   }}
                 >
                   <span style={{ fontWeight: '700', color: '#FFFFFF', letterSpacing: '0.4px' }}>
@@ -222,7 +222,7 @@ export default function Topbar({ title, subtitle, onOpenProfile }) {
         {/* Left: PARCL Logo Container (220px with borderRight) + Workspace Nav Tabs */}
         <div style={{ display: 'flex', alignItems: 'center', height: '48px' }}>
           
-          <div style={{ width: '220px', display: 'flex', alignItems: 'center', padding: '0 18px', borderRight: '1px solid rgba(255, 255, 255, 0.08)', height: '100%', boxSizing: 'border-box' }}>
+          <div style={{ width: '220px', display: 'flex', alignItems: 'center', padding: '0 18px', borderRight: '1px solid rgba(255, 255, 255, 0.18)', height: '100%', boxSizing: 'border-box' }}>
             <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '7px', textDecoration: 'none' }}>
               <span style={{ fontSize: '14px', fontWeight: '900', color: '#FFFFFF', letterSpacing: '0.8px' }}>▲ PARCL</span>
             </Link>
