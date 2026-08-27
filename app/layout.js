@@ -1,5 +1,6 @@
 import './globals.css';
 import { AuthProvider } from '../context/AuthContext';
+import AgentationProvider from './components/AgentationProvider';
 
 export const metadata = {
   title: 'Parcl Intel — Real Estate ML Intelligence',
@@ -97,6 +98,7 @@ export default function RootLayout({ children }) {
       <body className="dark" suppressHydrationWarning style={{ margin: 0, padding: 0, overflowX: 'hidden' }}>
         <AuthProvider>
           {children}
+          <AgentationProvider />
         </AuthProvider>
       </body>
     </html>
