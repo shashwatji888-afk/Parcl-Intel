@@ -1,21 +1,22 @@
-/* =============================================
-   PARCL INTEL — Premium Financial Intelligence Terminal Theme
-   Matte Black, High-Contrast White, Restrained Blue Accent & Orange Metrics
-   Clean, Dense, Professional, Non-Neon Aesthetic
-   ============================================= */
+/* ==========================================================================
+   PARCL INTEL — Institutional Financial Intelligence Terminal Theme
+   Matte Black (#000000), Deep Charcoal (#090A0E), High-Contrast Typography
+   Subtle Hairline Borders, Precise Blue Accent & Institutional Orange Metrics
+   ========================================================================== */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 
 :root {
-  /* Matte Surfaces */
+  /* Matte Terminal Surfaces */
   --bg:              #000000;
-  --bg-sidebar:      #08090C;
+  --bg-sidebar:      #07080B;
   --bg-header:       #000000;
   --surface-card:    #090A0E;
-  --surface-subtle:  #0F1117;
+  --surface-card-alt:#0C0E14;
+  --surface-subtle:  #11131A;
   --surface-input:   #090A0E;
-  --surface-hover:   #151821;
+  --surface-hover:   #151722;
 
   /* Thin Matte Borders */
   --border:          rgba(255, 255, 255, 0.08);
@@ -23,13 +24,14 @@
   --border-strong:   rgba(255, 255, 255, 0.16);
   --border-accent:   #3B82F6;
 
-  /* Precise Accents */
+  /* Precision Accents */
   --primary:         #3B82F6;
   --primary-hover:   #2563EB;
   --primary-subtle:  rgba(59, 130, 246, 0.12);
   --accent-orange:   #F59E0B;
   --accent-green:    #10B981;
   --accent-red:      #EF4444;
+  --accent-purple:   #8B5CF6;
 
   /* High Contrast Typography */
   --text-primary:    #FFFFFF;
@@ -78,7 +80,7 @@ body {
   background: var(--bg);
 }
 ::-webkit-scrollbar-thumb {
-  background: #1E222D;
+  background: #1B1E28;
   border-radius: 2px;
 }
 ::-webkit-scrollbar-thumb:hover {
@@ -143,9 +145,10 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: var(--radius-md);
   color: var(--text-primary);
   font-family: inherit;
-  font-size: 13px;
+  font-size: 12.5px;
   transition: border-color var(--transition);
   outline: none;
+  padding: 6px 12px;
 }
 
 .parcl-input:focus {

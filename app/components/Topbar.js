@@ -79,10 +79,10 @@ export default function Topbar({ title, subtitle, onOpenProfile }) {
   };
 
   return (
-    <header style={{ position: 'fixed', top: 0, right: 0, left: '240px', zIndex: 30, backgroundColor: '#000000', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', minHeight: '78px', display: 'flex', flexDirection: 'column' }}>
+    <header style={{ position: 'fixed', top: 0, right: 0, left: '240px', zIndex: 30, backgroundColor: '#000000', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', minHeight: '76px', display: 'flex', flexDirection: 'column' }}>
       
-      {/* 1. TOP MARKET TICKER — CLEAN MATTE BLACK & HIGH CONTRAST */}
-      <div style={{ backgroundColor: '#000000', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', overflow: 'hidden', whiteSpace: 'nowrap', padding: '6px 0', fontSize: '11px', fontFamily: "'Space Mono', monospace" }}>
+      {/* 1. STREAMING MARKET TICKER */}
+      <div style={{ backgroundColor: '#000000', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', overflow: 'hidden', whiteSpace: 'nowrap', padding: '5px 0', fontSize: '11px', fontFamily: "'Space Mono', monospace" }}>
         <div className="parcl-ticker-track">
           <div style={{ display: 'flex', alignItems: 'center' }}>
             {tickerItems.map((item, idx) => (
@@ -144,15 +144,15 @@ export default function Topbar({ title, subtitle, onOpenProfile }) {
         </div>
       </div>
 
-      {/* 2. SUB HEADER NAVIGATION & SEARCH */}
+      {/* 2. SUB HEADER WORKSPACE TABS & COMMAND SEARCH */}
       <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 24px' }}>
         
-        {/* Left Tab Navigation */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+        {/* Left Workspace Tabs */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
           <Link
             href="/overview"
             style={{
-              fontSize: '13px',
+              fontSize: '12.5px',
               fontWeight: pathname === '/overview' ? '700' : '500',
               color: pathname === '/overview' ? '#FFFFFF' : '#94A3B8',
               textDecoration: 'none',
@@ -165,24 +165,9 @@ export default function Topbar({ title, subtitle, onOpenProfile }) {
           </Link>
 
           <Link
-            href="/reports"
-            style={{
-              fontSize: '13px',
-              fontWeight: pathname === '/reports' ? '700' : '500',
-              color: pathname === '/reports' ? '#FFFFFF' : '#94A3B8',
-              textDecoration: 'none',
-              borderBottom: pathname === '/reports' ? '2px solid #3B82F6' : '2px solid transparent',
-              paddingBottom: '4px',
-              transition: 'color 0.15s'
-            }}
-          >
-            Research
-          </Link>
-
-          <Link
             href="/segments"
             style={{
-              fontSize: '13px',
+              fontSize: '12.5px',
               fontWeight: (pathname === '/segments' || pathname === '/market-rankings') ? '700' : '500',
               color: (pathname === '/segments' || pathname === '/market-rankings') ? '#FFFFFF' : '#94A3B8',
               textDecoration: 'none',
@@ -191,14 +176,44 @@ export default function Topbar({ title, subtitle, onOpenProfile }) {
               transition: 'color 0.15s'
             }}
           >
-            Trackers
+            Price Feeds
+          </Link>
+
+          <Link
+            href="/profiler"
+            style={{
+              fontSize: '12.5px',
+              fontWeight: (pathname === '/profiler' || pathname === '/insights') ? '700' : '500',
+              color: (pathname === '/profiler' || pathname === '/insights') ? '#FFFFFF' : '#94A3B8',
+              textDecoration: 'none',
+              borderBottom: (pathname === '/profiler' || pathname === '/insights') ? '2px solid #3B82F6' : '2px solid transparent',
+              paddingBottom: '4px',
+              transition: 'color 0.15s'
+            }}
+          >
+            Buyer Intelligence
+          </Link>
+
+          <Link
+            href="/reports"
+            style={{
+              fontSize: '12.5px',
+              fontWeight: pathname === '/reports' ? '700' : '500',
+              color: pathname === '/reports' ? '#FFFFFF' : '#94A3B8',
+              textDecoration: 'none',
+              borderBottom: pathname === '/reports' ? '2px solid #3B82F6' : '2px solid transparent',
+              paddingBottom: '4px',
+              transition: 'color 0.15s'
+            }}
+          >
+            Research & Export
           </Link>
         </div>
 
         {/* Right Search Input & Profile */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <form onSubmit={handleSearch} style={{ position: 'relative' }}>
-            <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#090A0E', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '6px', padding: '4px 12px', width: '270px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#090A0E', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '4px', padding: '4px 10px', width: '260px' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '15px', color: '#64748B', marginRight: '6px' }}>search</span>
               <input
                 type="text"
@@ -207,22 +222,25 @@ export default function Topbar({ title, subtitle, onOpenProfile }) {
                 placeholder="Search any metro, county, or zip"
                 style={{ background: 'transparent', border: 'none', outline: 'none', color: '#FFFFFF', fontSize: '12px', width: '100%', fontFamily: 'inherit' }}
               />
+              <span style={{ fontSize: '9px', fontFamily: "'Space Mono', monospace", color: '#64748B', backgroundColor: 'rgba(255, 255, 255, 0.06)', padding: '1px 4px', borderRadius: '2px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                ⌘K
+              </span>
             </div>
           </form>
 
           <button
             type="button"
             onClick={onOpenProfile}
-            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 10px', borderRadius: '9999px', backgroundColor: '#090A0E', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#FFFFFF', cursor: 'pointer' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '3px 8px', borderRadius: '9999px', backgroundColor: '#090A0E', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#FFFFFF', cursor: 'pointer' }}
           >
             {avatarUrl ? (
-              <img src={avatarUrl} alt={userName} style={{ width: '20px', height: '20px', borderRadius: '50%', objectFit: 'cover' }} />
+              <img src={avatarUrl} alt={userName} style={{ width: '18px', height: '18px', borderRadius: '50%', objectFit: 'cover' }} />
             ) : (
-              <div style={{ width: '20px', height: '20px', borderRadius: '50%', backgroundColor: '#1E222D', border: '1px solid rgba(255, 255, 255, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFFFFF', fontWeight: 'bold', fontSize: '10px' }}>
+              <div style={{ width: '18px', height: '18px', borderRadius: '50%', backgroundColor: '#1E222D', border: '1px solid rgba(255, 255, 255, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFFFFF', fontWeight: 'bold', fontSize: '9.5px' }}>
                 {userInitial}
               </div>
             )}
-            <span style={{ fontSize: '12px', fontWeight: '600', color: '#FFFFFF' }}>{userName}</span>
+            <span style={{ fontSize: '11.5px', fontWeight: '600', color: '#FFFFFF' }}>{userName}</span>
           </button>
         </div>
 

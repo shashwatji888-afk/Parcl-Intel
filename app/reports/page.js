@@ -1,42 +1,61 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
 import { fetchLiveBuyerMetrics } from '../../lib/dataService';
 
 export default function ReportsPage() {
   const [metrics, setMetrics] = useState(null);
-  const [exportFormat, setExportFormat] = useState('pdf'); // 'csv' | 'json' | 'pdf'
-  const [clusterFilter, setClusterFilter] = useState('all'); // 'all' | 'C1' | 'C2' | 'C3' | 'C4'
-  const [timeHorizon, setTimeHorizon] = useState('30d');
+  const [exportFormat, setExportFormat] = useState('pdf');
+  const [clusterFilter, setClusterFilter] = useState('all');
+  const [searchTable, setSearchTable] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [downloadNotice, setDownloadNotice] = useState('');
 
   useEffect(() => {
     fetchLiveBuyerMetrics().then((data) => {
-      setMetrics(data);
+      if (data) setMetrics(data);
     });
   }, []);
+
+  const rawRecords = useMemo(() => {
+    return metrics?.rawBuyers?.length ? metrics.rawBuyers : [
+      { id: 'REC-001', client_type: 'Individual', country: 'UAE', region: 'Dubai', acquisition_purpose: 'Investment', loan_applied: false, predicted_cluster_id: 'C1', satisfaction_score: 8.7 },
+      { id: 'REC-002', client_type: 'Individual', country: 'United States', region: 'California', acquisition_purpose: 'Personal Use', loan_applied: true, predicted_cluster_id: 'C2', satisfaction_score: 7.8 },
+      { id: 'REC-003', client_type: 'Corporate', country: 'United Kingdom', region: 'London', acquisition_purpose: 'Investment', loan_applied: false, predicted_cluster_id: 'C3', satisfaction_score: 9.1 },
+      { id: 'REC-004', client_type: 'Individual', country: 'France', region: 'Paris', acquisition_purpose: 'Investment', loan_applied: false, predicted_cluster_id: 'C4', satisfaction_score: 9.6 },
+      { id: 'REC-005', client_type: 'Individual', country: 'Singapore', region: 'Sentosa', acquisition_purpose: 'Investment', loan_applied: false, predicted_cluster_id: 'C1', satisfaction_score: 8.9 },
+      { id: 'REC-006', client_type: 'Individual', country: 'United States', region: 'Texas', acquisition_purpose: 'Personal Use', loan_applied: true, predicted_cluster_id: 'C2', satisfaction_score: 8.1 },
+    ];
+  }, [metrics]);
+
+  const filteredRecords = useMemo(() => {
+    let list = rawRecords;
+    if (clusterFilter !== 'all') {
+      list = list.filter((r) => r.predicted_cluster_id === clusterFilter);
+    }
+    if (searchTable.trim()) {
+      const q = searchTable.toLowerCase();
+      list = list.filter((r) => 
+        (r.country || '').toLowerCase().includes(q) ||
+        (r.region || '').toLowerCase().includes(q) ||
+        (r.client_type || '').toLowerCase().includes(q) ||
+        (r.acquisition_purpose || '').toLowerCase().includes(q)
+      );
+    }
+    return list;
+  }, [rawRecords, clusterFilter, searchTable]);
 
   const triggerCsvDownload = () => {
     setIsGenerating(true);
     setDownloadNotice('');
 
     setTimeout(() => {
-      const records = metrics?.rawBuyers?.length ? metrics.rawBuyers : [
-        { client_type: 'Individual', country: 'UAE', acquisition_purpose: 'Investment', loan_applied: false, predicted_cluster_id: 'C1', satisfaction_score: 8.7 },
-        { client_type: 'Individual', country: 'United States', acquisition_purpose: 'Personal Use', loan_applied: true, predicted_cluster_id: 'C2', satisfaction_score: 7.8 },
-        { client_type: 'Corporate', country: 'United Kingdom', acquisition_purpose: 'Investment', loan_applied: false, predicted_cluster_id: 'C3', satisfaction_score: 9.1 },
-        { client_type: 'Individual', country: 'France', acquisition_purpose: 'Investment', loan_applied: false, predicted_cluster_id: 'C4', satisfaction_score: 9.6 },
-      ];
-
-      const filtered = clusterFilter === 'all'
-        ? records
-        : records.filter((r) => r.predicted_cluster_id === clusterFilter);
-
-      const headers = ['Client Type', 'Country', 'Purpose', 'Loan Applied', 'Cluster ID', 'Satisfaction Score'];
-      const rows = filtered.map((r) => [
+      const headers = ['Record ID', 'Client Type', 'Country', 'Region', 'Purpose', 'Loan Applied', 'Cluster ID', 'Satisfaction Score'];
+      const rows = filteredRecords.map((r, i) => [
+        r.id || `REC-${1000 + i}`,
         r.client_type || 'Individual',
         r.country || 'United States',
+        r.region || 'California',
         r.acquisition_purpose || 'Investment',
         r.loan_applied ? 'Yes' : 'No',
         r.predicted_cluster_id || 'C1',
@@ -48,14 +67,14 @@ export default function ReportsPage() {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `Parcl_Intel_Buyers_Report_${clusterFilter}_${Date.now()}.csv`);
+      link.setAttribute('download', `Parcl_Intel_Buyer_Dataset_${clusterFilter}_${Date.now()}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
 
       setIsGenerating(false);
-      setDownloadNotice(`Exported ${filtered.length} records to CSV successfully!`);
-    }, 600);
+      setDownloadNotice(`✓ Exported ${filteredRecords.length} records to CSV successfully.`);
+    }, 450);
   };
 
   const triggerJsonDownload = () => {
@@ -63,501 +82,277 @@ export default function ReportsPage() {
     setDownloadNotice('');
 
     setTimeout(() => {
-      const records = metrics?.rawBuyers?.length ? metrics.rawBuyers : [
-        { client_type: 'Individual', country: 'UAE', acquisition_purpose: 'Investment', loan_applied: false, predicted_cluster_id: 'C1' },
-      ];
-
       const jsonString = JSON.stringify({
-        generated_at: new Date().toISOString(),
-        engine: 'Parcl-KMeans-v2.4',
-        filter: clusterFilter,
-        total_records: records.length,
-        data: records,
+        export_timestamp: new Date().toISOString(),
+        engine: 'Parcl-KMeans-v3.0',
+        cluster_filter: clusterFilter,
+        total_records: filteredRecords.length,
+        dataset: filteredRecords,
       }, null, 2);
 
       const blob = new Blob([jsonString], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `Parcl_Intel_Market_Report_${Date.now()}.json`);
+      link.setAttribute('download', `Parcl_Intel_Payload_${Date.now()}.json`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
 
       setIsGenerating(false);
-      setDownloadNotice('JSON report exported successfully!');
-    }, 600);
+      setDownloadNotice(`✓ Exported JSON API payload (${filteredRecords.length} records).`);
+    }, 450);
   };
 
   const triggerPdfReport = () => {
     setIsGenerating(true);
     setDownloadNotice('');
 
-    // Generate a styled PDF Print View Document
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
-      alert('Pop-up blocked. Please allow pop-ups for localhost to download the PDF report.');
+      alert('Please allow popups to open the Executive PDF Report.');
       setIsGenerating(false);
       return;
     }
+
+    const totalB = metrics?.totalBuyers || 2000;
+    const c1Count = metrics?.c1Count || 542;
+    const c2Count = metrics?.c2Count || 764;
+    const c3Count = metrics?.c3Count || 53;
+    const c4Count = metrics?.c4Count || 641;
+    const cashPct = metrics?.cashPct || 62;
 
     const htmlContent = `
       <!DOCTYPE html>
       <html>
       <head>
-        <title>Parcl Intel - Executive Intelligence Report</title>
+        <title>Parcl Intel - Executive Buyer Intelligence Report</title>
         <style>
-          body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            background: #ffffff;
-            color: #0F172A;
-            padding: 40px;
-            margin: 0;
-          }
-          .header {
-            border-b: 3px solid #2563EB;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-          }
-          .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: #2563EB;
-            letter-spacing: -0.5px;
-          }
-          .tagline {
-            font-size: 12px;
-            color: #64748B;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-          }
-          .title {
-            font-size: 28px;
-            font-weight: bold;
-            color: #0F172A;
-            margin-bottom: 10px;
-          }
-          .meta {
-            font-size: 12px;
-            color: #64748B;
-            margin-bottom: 30px;
-          }
-          .grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin-bottom: 30px;
-          }
-          .card {
-            background: #F8FAFC;
-            border: 1px solid #E2E8F0;
-            border-radius: 8px;
-            padding: 15px;
-          }
-          .card-title {
-            font-size: 10px;
-            text-transform: uppercase;
-            color: #64748B;
-            font-weight: bold;
-            margin-bottom: 5px;
-          }
-          .card-value {
-            font-size: 24px;
-            font-weight: bold;
-            color: #0F172A;
-          }
-          .section-heading {
-            font-size: 16px;
-            font-weight: bold;
-            color: #2563EB;
-            border-bottom: 1px solid #E2E8F0;
-            padding-bottom: 8px;
-            margin-top: 30px;
-            margin-bottom: 15px;
-          }
-          table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-          }
-          th, td {
-            text-align: left;
-            padding: 10px;
-            border-bottom: 1px solid #E2E8F0;
-            font-size: 13px;
-          }
-          th {
-            background: #F1F5F9;
-            color: #475569;
-            font-weight: bold;
-          }
-          .footer {
-            margin-top: 50px;
-            border-top: 1px solid #E2E8F0;
-            padding-top: 15px;
-            font-size: 10px;
-            color: #94A3B8;
-            text-align: center;
-          }
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #000000; color: #FFFFFF; padding: 40px; }
+          h1 { font-size: 28px; margin-bottom: 4px; }
+          .header { border-bottom: 2px solid #3B82F6; padding-bottom: 16px; margin-bottom: 24px; }
+          .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+          .card { background: #090A0E; border: 1px solid #27272A; padding: 16px; border-radius: 6px; }
+          .label { font-size: 11px; color: #94A3B8; text-transform: uppercase; }
+          .value { font-size: 24px; font-weight: bold; margin-top: 4px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 12px; }
+          th { text-align: left; background: #11131A; padding: 10px; border-bottom: 1px solid #27272A; color: #94A3B8; }
+          td { padding: 10px; border-bottom: 1px solid #1E222D; }
         </style>
       </head>
       <body>
         <div class="header">
-          <div>
-            <div class="logo">PARCL INTEL</div>
-            <div class="tagline">Real Estate Machine Learning Intelligence</div>
-          </div>
-          <div style="text-align: right; font-size: 12px; color: #64748B;">
-            <div>CONFIDENTIAL REPORT</div>
-            <div>Date: ${new Date().toLocaleDateString()}</div>
-          </div>
+          <h1>PARCL INTEL // EXECUTIVE INTELLIGENCE REPORT</h1>
+          <p style="color:#94A3B8; font-size:13px; margin:0;">Generated on ${new Date().toLocaleDateString()} · Sourced from Live Supabase Database</p>
         </div>
-
-        <div class="title">Executive Buyer Segmentation Report</div>
-        <div class="meta">Generated via Parcl ML K-Means Engine v2.4 · Live Supabase Dataset</div>
-
         <div class="grid">
-          <div class="card">
-            <div class="card-title">Total Buyers</div>
-            <div class="card-value">${metrics?.formattedTotalBuyers || '16'}</div>
-          </div>
-          <div class="card">
-            <div class="card-title">Active Clusters</div>
-            <div class="card-value">4</div>
-          </div>
-          <div class="card">
-            <div class="card-title">Avg Satisfaction</div>
-            <div class="card-value">${metrics?.avgSatScore || '8.9'} / 10</div>
-          </div>
-          <div class="card">
-            <div class="card-title">Cash Ratio</div>
-            <div class="card-value">${metrics?.cashPct || 75}%</div>
-          </div>
+          <div class="card"><div class="label">Total Buyers</div><div class="value">${totalB.toLocaleString()}</div></div>
+          <div class="card"><div class="label">Cash Mix</div><div class="value" style="color:#10B981">${cashPct}%</div></div>
+          <div class="card"><div class="label">Global Investors (C1)</div><div class="value" style="color:#3B82F6">${c1Count}</div></div>
+          <div class="card"><div class="label">First-Time (C2)</div><div class="value" style="color:#10B981">${c2Count}</div></div>
         </div>
-
-        <div class="section-heading">Cluster Distribution Breakdown</div>
+        <h3>Live Database Sample Preview</h3>
         <table>
           <thead>
-            <tr>
-              <th>Cluster ID</th>
-              <th>Buyer Segment Persona</th>
-              <th>Share (%)</th>
-              <th>Buyer Records</th>
-              <th>Key Behavioral Characteristics</th>
-            </tr>
+            <tr><th>Country</th><th>Purpose</th><th>Financing</th><th>Cluster</th><th>Satisfaction</th></tr>
           </thead>
           <tbody>
-            <tr>
-              <td><strong>C1</strong></td>
-              <td>Global Investors</td>
-              <td>${metrics?.c1Pct || 31}%</td>
-              <td>${metrics?.c1Count || 5}</td>
-              <td>High liquidity, cash payments, Tier-1 commercial focus</td>
-            </tr>
-            <tr>
-              <td><strong>C2</strong></td>
-              <td>First-Time Buyers</td>
-              <td>${metrics?.c2Pct || 25}%</td>
-              <td>${metrics?.c2Count || 4}</td>
-              <td>Personal use, mortgage financing dependent</td>
-            </tr>
-            <tr>
-              <td><strong>C3</strong></td>
-              <td>Corporate Buyers</td>
-              <td>${metrics?.c3Pct || 19}%</td>
-              <td>${metrics?.c3Count || 3}</td>
-              <td>Institutional acquisitions, corporate channel focus</td>
-            </tr>
-            <tr>
-              <td><strong>C4</strong></td>
-              <td>Luxury Investors</td>
-              <td>${metrics?.c4Pct || 25}%</td>
-              <td>${metrics?.c4Count || 4}</td>
-              <td>High satisfaction, cross-border premium properties</td>
-            </tr>
+            ${filteredRecords.slice(0, 15).map(r => `
+              <tr>
+                <td>${r.country || 'USA'}</td>
+                <td>${r.acquisition_purpose || 'Investment'}</td>
+                <td>${r.loan_applied ? 'Mortgage Loan' : '100% Cash'}</td>
+                <td>${r.predicted_cluster_id || 'C1'}</td>
+                <td>${r.satisfaction_score || 8.5}/10</td>
+              </tr>
+            `).join('')}
           </tbody>
         </table>
-
-        <div class="footer">
-          © ${new Date().getFullYear()} Parcl Intel Engine · 256-Bit Encrypted Data Export · Confidential Report
-        </div>
-
-        <script>
-          window.onload = function() {
-            window.print();
-          };
-        </script>
       </body>
       </html>
     `;
 
     printWindow.document.write(htmlContent);
     printWindow.document.close();
-
-    setIsGenerating(false);
-    setDownloadNotice('PDF report window opened! Save directly as PDF in your print dialog.');
-  };
-
-  const handleCustomGenerate = (e) => {
-    e.preventDefault();
-    if (exportFormat === 'csv') triggerCsvDownload();
-    else if (exportFormat === 'json') triggerJsonDownload();
-    else triggerPdfReport();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+      setIsGenerating(false);
+      setDownloadNotice('✓ Executive PDF Dossier opened in print view.');
+    }, 400);
   };
 
   return (
-    <DashboardLayout
-      title="Reports & Export Engine"
-      subtitle="Download segmentation results, export custom datasets, and generate market research papers"
-    >
-      <div className="max-w-7xl mx-auto space-y-8 pb-16">
-        
-        {/* Top Row Quick Action Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <DashboardLayout title="Reports & Export" subtitle="Institutional Data Export Studio">
+      <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+        {/* Page Header */}
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#64748B', fontSize: '10.5px', fontFamily: "'Space Mono', monospace", textTransform: 'uppercase', fontWeight: 'bold', marginBottom: '4px' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>assessment</span>
+            <span>DATA EXPORT & REPORTING</span>
+          </div>
+          <h1 style={{ fontSize: '28px', fontWeight: '800', color: '#FFFFFF', letterSpacing: '-0.5px', margin: 0 }}>
+            Reports & Export Studio
+          </h1>
+          <p style={{ fontSize: '13px', color: '#94A3B8', margin: '4px 0 0 0' }}>
+            Extract normalized buyer transaction records, cluster assignments, and formatted executive research summaries.
+          </p>
+        </div>
+
+        {/* Top 3 Quick Export Cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px' }}>
           
-          {/* CSV Export Card */}
-          <button
-            type="button"
-            onClick={triggerCsvDownload}
-            disabled={isGenerating}
-            className="glass-panel rounded-2xl p-6 text-left group border border-primary/30 hover:border-primary/70 transition-all duration-300 relative overflow-hidden bg-surface2/60 cursor-pointer shadow-lg hover:shadow-[0_0_25px_rgba(37,99,235,0.3)]"
-          >
-            <div className="flex items-center justify-between mb-4 relative z-10">
-              <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center border border-primary/40 text-primary shadow-glow-primary">
-                <span className="material-symbols-outlined text-2xl">download</span>
+          {/* 1. CSV DATA DUMP */}
+          <div style={{ backgroundColor: '#090A0E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '6px', padding: '18px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '20px' }}>📊</span>
+              <div>
+                <div style={{ fontSize: '14px', fontWeight: '700', color: '#FFFFFF' }}>CSV Data Dump</div>
+                <div style={{ fontSize: '11px', color: '#94A3B8' }}>Full relational buyer dataset with headers</div>
               </div>
-              <span className="font-label text-[10px] font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-full uppercase border border-primary/30">
-                CSV DATASET
-              </span>
             </div>
-            <h3 className="font-headline font-bold text-xl text-white mb-1 relative z-10">Export CSV</h3>
-            <p className="text-xs text-slate-400 relative z-10">Download full classified buyer dataset ({metrics?.formattedTotalBuyers || '16'} rows).</p>
-          </button>
+            <button
+              type="button"
+              onClick={triggerCsvDownload}
+              disabled={isGenerating}
+              style={{ marginTop: 'auto', padding: '8px', borderRadius: '4px', border: '1px solid rgba(59, 130, 246, 0.3)', backgroundColor: 'rgba(59, 130, 246, 0.12)', color: '#60A5FA', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}
+            >
+              ↓ Download CSV ({filteredRecords.length.toLocaleString()} rows)
+            </button>
+          </div>
 
-          {/* JSON Export Card */}
-          <button
-            type="button"
-            onClick={triggerJsonDownload}
-            disabled={isGenerating}
-            className="glass-panel rounded-2xl p-6 text-left group border border-secondary/30 hover:border-secondary/70 transition-all duration-300 relative overflow-hidden bg-surface2/60 cursor-pointer shadow-lg hover:shadow-[0_0_25px_rgba(139,92,246,0.3)]"
-          >
-            <div className="flex items-center justify-between mb-4 relative z-10">
-              <div className="w-12 h-12 rounded-xl bg-secondary/20 flex items-center justify-center border border-secondary/40 text-secondary shadow-[0_0_15px_rgba(139,92,246,0.3)]">
-                <span className="material-symbols-outlined text-2xl">code</span>
+          {/* 2. JSON API PAYLOAD */}
+          <div style={{ backgroundColor: '#090A0E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '6px', padding: '18px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '20px' }}>⚡</span>
+              <div>
+                <div style={{ fontSize: '14px', fontWeight: '700', color: '#FFFFFF' }}>JSON REST Payload</div>
+                <div style={{ fontSize: '11px', color: '#94A3B8' }}>Structured API object with model metadata</div>
               </div>
-              <span className="font-label text-[10px] font-bold text-secondary bg-secondary/10 px-2.5 py-1 rounded-full uppercase border border-secondary/30">
-                JSON PAYLOAD
-              </span>
             </div>
-            <h3 className="font-headline font-bold text-xl text-white mb-1 relative z-10">Export JSON</h3>
-            <p className="text-xs text-slate-400 relative z-10">Download structured API schema payload for developers.</p>
-          </button>
+            <button
+              type="button"
+              onClick={triggerJsonDownload}
+              disabled={isGenerating}
+              style={{ marginTop: 'auto', padding: '8px', borderRadius: '4px', border: '1px solid rgba(255, 255, 255, 0.1)', backgroundColor: '#000000', color: '#FFFFFF', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}
+            >
+              ↓ Download JSON File
+            </button>
+          </div>
 
-          {/* PDF Executive Summary Card */}
-          <button
-            type="button"
-            onClick={triggerPdfReport}
-            disabled={isGenerating}
-            className="glass-panel rounded-2xl p-6 text-left group border border-accent/30 hover:border-accent/70 transition-all duration-300 relative overflow-hidden bg-surface2/60 cursor-pointer shadow-lg hover:shadow-[0_0_25px_rgba(16,185,129,0.3)]"
-          >
-            <div className="flex items-center justify-between mb-4 relative z-10">
-              <div className="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center border border-accent/40 text-accent shadow-[0_0_15px_rgba(16,185,129,0.3)]">
-                <span className="material-symbols-outlined text-2xl">picture_as_pdf</span>
+          {/* 3. EXECUTIVE PDF DOSSIER */}
+          <div style={{ backgroundColor: '#090A0E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '6px', padding: '18px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '20px' }}>📑</span>
+              <div>
+                <div style={{ fontSize: '14px', fontWeight: '700', color: '#FFFFFF' }}>Executive PDF Dossier</div>
+                <div style={{ fontSize: '11px', color: '#94A3B8' }}>Formatted print report with KPI summaries</div>
               </div>
-              <span className="font-label text-[10px] font-bold text-accent bg-accent/10 px-2.5 py-1 rounded-full uppercase border border-accent/30">
-                PDF DOCUMENT
-              </span>
             </div>
-            <h3 className="font-headline font-bold text-xl text-white mb-1 relative z-10">Executive PDF Report</h3>
-            <p className="text-xs text-slate-400 relative z-10">Generate & print/download clean PDF research paper.</p>
-          </button>
+            <button
+              type="button"
+              onClick={triggerPdfReport}
+              disabled={isGenerating}
+              style={{ marginTop: 'auto', padding: '8px', borderRadius: '4px', border: '1px solid #3B82F6', backgroundColor: '#3B82F6', color: '#FFFFFF', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}
+            >
+              Print / Save PDF Dossier
+            </button>
+          </div>
 
         </div>
 
         {downloadNotice && (
-          <div className="p-4 rounded-xl bg-accent/15 border border-accent/40 text-accent text-xs font-label flex items-center gap-2 animate-fadeIn shadow-lg">
-            <span className="material-symbols-outlined text-base">check_circle</span>
+          <div style={{ padding: '10px 14px', borderRadius: '4px', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#10B981', fontSize: '12px', fontFamily: "'Space Mono', monospace" }}>
             {downloadNotice}
           </div>
         )}
 
-        {/* Main Custom Export Builder Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Live Data Preview Grid */}
+        <div style={{ backgroundColor: '#090A0E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '6px', padding: '20px' }}>
           
-          {/* Custom Builder Form (2 Cols) */}
-          <div className="lg:col-span-2 glass-panel rounded-2xl p-6 sm:p-8 border border-white/10 bg-surface2/80 space-y-6">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
             <div>
-              <h3 className="font-headline font-bold text-xl text-white mb-1">Custom Intelligence Export Builder</h3>
-              <p className="text-xs text-slate-400">Configure parameters, apply cluster filters, and export customized market reports.</p>
+              <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#FFFFFF', margin: 0 }}>
+                Live Database Records Preview
+              </h3>
+              <p style={{ fontSize: '12px', color: '#94A3B8', margin: '2px 0 0 0' }}>
+                Showing {filteredRecords.length.toLocaleString()} matching profiles from Supabase database.
+              </p>
             </div>
 
-            <form onSubmit={handleCustomGenerate} className="space-y-6">
-              
-              {/* Export Format Selector */}
-              <div>
-                <label className="block text-xs font-label text-slate-300 uppercase tracking-wider mb-2">Export Format</label>
-                <div className="grid grid-cols-3 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setExportFormat('csv')}
-                    className={`py-3 px-4 rounded-xl border text-xs font-headline font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 ${
-                      exportFormat === 'csv'
-                        ? 'bg-primary text-white border-primary shadow-glow-primary'
-                        : 'bg-surface1 text-slate-400 border-white/10 hover:border-white/20'
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-base">table_chart</span>
-                    CSV Dataset
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setExportFormat('json')}
-                    className={`py-3 px-4 rounded-xl border text-xs font-headline font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 ${
-                      exportFormat === 'json'
-                        ? 'bg-secondary text-white border-secondary shadow-[0_0_20px_rgba(139,92,246,0.4)]'
-                        : 'bg-surface1 text-slate-400 border-white/10 hover:border-white/20'
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-base">data_object</span>
-                    JSON Schema
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setExportFormat('pdf')}
-                    className={`py-3 px-4 rounded-xl border text-xs font-headline font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2 ${
-                      exportFormat === 'pdf'
-                        ? 'bg-accent text-white border-accent shadow-[0_0_20px_rgba(16,185,129,0.4)]'
-                        : 'bg-surface1 text-slate-400 border-white/10 hover:border-white/20'
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-base">picture_as_pdf</span>
-                    PDF Report
-                  </button>
-                </div>
-              </div>
-
-              {/* Cluster Filter Selector */}
-              <div>
-                <label className="block text-xs font-label text-slate-300 uppercase tracking-wider mb-2">Cluster Segment Filter</label>
-                <select
-                  value={clusterFilter}
-                  onChange={(e) => setClusterFilter(e.target.value)}
-                  className="w-full bg-surface1 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-primary"
-                >
-                  <option value="all">All Buyer Segments (Full Dataset)</option>
-                  <option value="C1">C1: Global Investors ({metrics?.c1Count || 5} Records)</option>
-                  <option value="C2">C2: First-Time Buyers ({metrics?.c2Count || 4} Records)</option>
-                  <option value="C3">C3: Corporate Buyers ({metrics?.c3Count || 3} Records)</option>
-                  <option value="C4">C4: Luxury Investors ({metrics?.c4Count || 4} Records)</option>
-                </select>
-              </div>
-
-              {/* Time Horizon Selector */}
-              <div>
-                <label className="block text-xs font-label text-slate-300 uppercase tracking-wider mb-2">Time Horizon</label>
-                <div className="grid grid-cols-3 gap-3">
-                  {['7d', '30d', 'all'].map((t) => (
-                    <button
-                      key={t}
-                      type="button"
-                      onClick={() => setTimeHorizon(t)}
-                      className={`py-2.5 px-3 rounded-lg border text-xs font-label uppercase font-bold transition-all cursor-pointer ${
-                        timeHorizon === t
-                          ? 'bg-surface3 text-white border-white/30'
-                          : 'bg-surface1 text-slate-400 border-white/5 hover:border-white/10'
-                      }`}
-                    >
-                      {t === '7d' ? 'Last 7 Days' : t === '30d' ? 'Last 30 Days' : 'Full History'}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Submit CTA */}
-              <button
-                type="submit"
-                disabled={isGenerating}
-                className="w-full py-3.5 bg-gradient-to-r from-primary to-secondary hover:opacity-90 disabled:opacity-50 text-white font-headline font-bold text-xs uppercase tracking-wider rounded-xl shadow-glow-primary transition-all flex items-center justify-center gap-2 cursor-pointer"
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <select
+                value={clusterFilter}
+                onChange={(e) => setClusterFilter(e.target.value)}
+                style={{ padding: '5px 10px', backgroundColor: '#000000', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '4px', color: '#FFFFFF', fontSize: '12px', outline: 'none', cursor: 'pointer' }}
               >
-                {isGenerating ? (
-                  <>
-                    <span className="material-symbols-outlined animate-spin text-base">sync</span>
-                    Generating PDF Report...
-                  </>
-                ) : (
-                  <>
-                    <span className="material-symbols-outlined text-base">picture_as_pdf</span>
-                    Generate & Print / Save PDF Report
-                  </>
-                )}
-              </button>
+                <option value="all">All Clusters (C1 - C4)</option>
+                <option value="C1">C1 Global Investors</option>
+                <option value="C2">C2 First-Time Buyers</option>
+                <option value="C3">C3 Corporate Entities</option>
+                <option value="C4">C4 Luxury Investors</option>
+              </select>
 
-            </form>
+              <input
+                type="text"
+                value={searchTable}
+                onChange={(e) => setSearchTable(e.target.value)}
+                placeholder="Filter table..."
+                style={{ padding: '5px 10px', backgroundColor: '#000000', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '4px', color: '#FFFFFF', fontSize: '12px', outline: 'none', width: '160px' }}
+              />
+            </div>
           </div>
 
-          {/* Saved Intelligence Reports Archive (1 Col) */}
-          <div className="glass-panel rounded-2xl p-6 border border-white/10 bg-surface2/80 flex flex-col justify-between space-y-4">
-            <div>
-              <h3 className="font-headline font-bold text-lg text-white mb-1">Report Archives</h3>
-              <p className="text-xs text-slate-400 mb-4">Pre-generated intelligence summaries ready for instant download.</p>
-
-              <div className="space-y-3">
-                <div className="p-3.5 rounded-xl bg-surface1 border border-white/5 flex items-center justify-between">
-                  <div>
-                    <div className="font-headline font-bold text-xs text-white">Q3 Global Capital Report</div>
-                    <div className="text-[10px] text-slate-400">PDF • 50k Profiles Analyzed</div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={triggerPdfReport}
-                    className="p-2 rounded-lg bg-surface3 hover:bg-white/10 text-white transition-colors cursor-pointer"
-                    title="Print / Save PDF Report"
+          {/* Table */}
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px', textAlign: 'left' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.08)', color: '#64748B', fontFamily: "'Space Mono', monospace", fontSize: '10.5px' }}>
+                  <th style={{ padding: '8px 12px' }}>RECORD ID</th>
+                  <th style={{ padding: '8px 12px' }}>CLIENT TYPE</th>
+                  <th style={{ padding: '8px 12px' }}>JURISDICTION</th>
+                  <th style={{ padding: '8px 12px' }}>PURPOSE</th>
+                  <th style={{ padding: '8px 12px' }}>FINANCING</th>
+                  <th style={{ padding: '8px 12px' }}>CLUSTER</th>
+                  <th style={{ padding: '8px 12px', textAlign: 'right' }}>SAT SCORE</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredRecords.slice(0, 20).map((r, idx) => (
+                  <tr
+                    key={r.id || idx}
+                    style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.04)', color: '#CBD5E1' }}
                   >
-                    <span className="material-symbols-outlined text-base">picture_as_pdf</span>
-                  </button>
-                </div>
-
-                <div className="p-3.5 rounded-xl bg-surface1 border border-white/5 flex items-center justify-between">
-                  <div>
-                    <div className="font-headline font-bold text-xs text-white">C4 Luxury Investor Insights</div>
-                    <div className="text-[10px] text-slate-400">CSV • UAE & US Luxury Hubs</div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={triggerCsvDownload}
-                    className="p-2 rounded-lg bg-surface3 hover:bg-white/10 text-white transition-colors cursor-pointer"
-                    title="Download CSV"
-                  >
-                    <span className="material-symbols-outlined text-base">download</span>
-                  </button>
-                </div>
-
-                <div className="p-3.5 rounded-xl bg-surface1 border border-white/5 flex items-center justify-between">
-                  <div>
-                    <div className="font-headline font-bold text-xs text-white">K-Means Model Audit Log</div>
-                    <div className="text-[10px] text-slate-400">JSON • Full Cluster Metrics</div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={triggerJsonDownload}
-                    className="p-2 rounded-lg bg-surface3 hover:bg-white/10 text-white transition-colors cursor-pointer"
-                    title="Download JSON"
-                  >
-                    <span className="material-symbols-outlined text-base">download</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-white/10 text-[10px] font-mono text-slate-500 flex justify-between">
-              <span>SECURITY: 256-BIT SSL</span>
-              <span>SUPABASE READY</span>
-            </div>
+                    <td style={{ padding: '9px 12px', fontFamily: "'Space Mono', monospace", color: '#64748B' }}>
+                      {r.id || `REC-${1000 + idx}`}
+                    </td>
+                    <td style={{ padding: '9px 12px', fontWeight: '600', color: '#FFFFFF' }}>
+                      {r.client_type || 'Individual'}
+                    </td>
+                    <td style={{ padding: '9px 12px' }}>
+                      {r.country || 'USA'} <span style={{ color: '#64748B', fontSize: '11px' }}>({r.region || 'CA'})</span>
+                    </td>
+                    <td style={{ padding: '9px 12px' }}>
+                      {r.acquisition_purpose || 'Investment'}
+                    </td>
+                    <td style={{ padding: '9px 12px' }}>
+                      <span style={{ color: r.loan_applied ? '#3B82F6' : '#10B981', fontWeight: '600' }}>
+                        {r.loan_applied ? 'Mortgage Loan' : '100% Cash'}
+                      </span>
+                    </td>
+                    <td style={{ padding: '9px 12px' }}>
+                      <span style={{ padding: '2px 6px', borderRadius: '3px', backgroundColor: 'rgba(59, 130, 246, 0.12)', color: '#60A5FA', fontFamily: "'Space Mono', monospace", fontSize: '11px', fontWeight: 'bold' }}>
+                        {r.predicted_cluster_id || 'C1'}
+                      </span>
+                    </td>
+                    <td style={{ padding: '9px 12px', textAlign: 'right', fontFamily: "'Space Mono', monospace", fontWeight: 'bold', color: '#F59E0B' }}>
+                      {r.satisfaction_score ? parseFloat(r.satisfaction_score).toFixed(1) : '8.5'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
 
         </div>
