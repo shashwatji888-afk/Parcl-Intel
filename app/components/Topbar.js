@@ -120,18 +120,17 @@ export default function Topbar({ title, subtitle, onOpenProfile }) {
       {/* 1. TOP TICKER STRIP: STATIONARY U.S. CELL ON LEFT + MARQUEE METROS ON RIGHT */}
       <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#000000', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', height: '34px', fontSize: '13px', fontFamily: "'Space Mono', monospace" }}>
         
-        {/* STATIONARY U.S. CELL (EXACTLY 220px WIDE TO ALIGN WITH SIDEBAR) */}
+        {/* STATIONARY U.S. CELL (WIDE ENOUGH TO FIT FULL METRICS COMFORTABLY) */}
         <div
           style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '10px',
-            width: '220px',
-            padding: '0 18px',
+            gap: '8px',
+            padding: '0 20px',
             backgroundColor: '#000000',
-            borderRight: '1px solid rgba(255, 255, 255, 0.08)',
+            borderRight: '1px solid rgba(255, 255, 255, 0.12)',
             flexShrink: 0,
-            zIndex: 5,
+            zIndex: 10,
             height: '100%',
             whiteSpace: 'nowrap',
             boxSizing: 'border-box'
