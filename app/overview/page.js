@@ -439,34 +439,35 @@ export default function OverviewPage() {
         {/* 1. HERO TITLE, SEARCH BAR & METADATA */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', paddingTop: '10px' }}>
           
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
-            <div>
-              <h1 style={{ fontSize: '38px', fontWeight: '800', color: '#FFFFFF', letterSpacing: '-0.8px', margin: 0, lineHeight: '1.1' }}>
-                Parcl HQ
-              </h1>
-              <p style={{ fontSize: '13.5px', color: '#94A3B8', margin: '6px 0 0 0' }}>
-                Prices, rents, supply, and seller motivation across every US market - updated daily, down to the ZIP code.
-              </p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '8px', fontSize: '11.5px', fontFamily: "'Inter', sans-serif" }}>
-                <span style={{ color: '#FFFFFF', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10B981' }} />
-                  <span style={{ fontWeight: '600' }}>Updated Aug 28, 2026</span>
-                  <span style={{ color: '#64748B' }}>· refreshed daily</span>
-                </span>
-                <a href="#national-rankings" style={{ color: '#94A3B8', textDecoration: 'none', cursor: 'pointer', marginLeft: '4px' }}>
-                  View market rankings ↓
-                </a>
-              </div>
+          <div>
+            <h1 style={{ fontSize: '38px', fontWeight: '800', color: '#FFFFFF', letterSpacing: '-0.8px', margin: 0, lineHeight: '1.1' }}>
+              Parcl HQ
+            </h1>
+            <p style={{ fontSize: '13.5px', color: '#94A3B8', margin: '6px 0 0 0' }}>
+              Prices, rents, supply, and seller motivation across every US market - updated daily, down to the ZIP code.
+            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '8px', fontSize: '11.5px', fontFamily: "'Inter', sans-serif" }}>
+              <span style={{ color: '#FFFFFF', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10B981' }} />
+                <span style={{ fontWeight: '600' }}>Updated Aug 28, 2026</span>
+                <span style={{ color: '#64748B' }}>· refreshed daily</span>
+              </span>
+              <a href="#national-rankings" style={{ color: '#94A3B8', textDecoration: 'none', cursor: 'pointer', marginLeft: '4px' }}>
+                View market rankings ↓
+              </a>
             </div>
 
-            <button
-              type="button"
-              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 14px', borderRadius: '9999px', backgroundColor: '#090A0E', border: '1px solid rgba(59, 130, 246, 0.35)', color: '#FFFFFF', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}
-            >
-              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: '#3B82F6', color: '#FFFFFF', fontSize: '8px' }}>▶</span>
-              <span style={{ color: '#3B82F6' }}>Video</span>
-              <span>How to use Parcl HQ</span>
-            </button>
+            {/* Video Button directly below the update line */}
+            <div style={{ marginTop: '10px' }}>
+              <button
+                type="button"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 14px', borderRadius: '9999px', backgroundColor: '#090D18', border: '1px solid rgba(59, 130, 246, 0.35)', color: '#FFFFFF', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}
+              >
+                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '16px', height: '16px', borderRadius: '50%', backgroundColor: '#3B82F6', color: '#FFFFFF', fontSize: '8px' }}>▶</span>
+                <span style={{ color: '#3B82F6' }}>Video</span>
+                <span>How to use Parcl HQ</span>
+              </button>
+            </div>
           </div>
 
           {/* Clean High-Contrast Search Capsule (Exact Screenshot Styling) */}
