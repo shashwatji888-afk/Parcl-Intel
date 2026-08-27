@@ -490,8 +490,8 @@ export default function OverviewPage() {
           
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
             <span style={{ fontSize: '10.5px', fontFamily: "'Space Mono', monospace", color: '#64748B', letterSpacing: '0.8px', textTransform: 'uppercase' }}>UNITED STATES</span>
-            <span style={{ fontSize: '34px', fontWeight: '900', color: '#F59E0B', letterSpacing: '-0.8px', lineHeight: 1 }}>5.51</span>
-            <span style={{ fontSize: '15px', fontWeight: '700', color: '#F59E0B' }}>Motivated</span>
+            <span style={{ fontSize: '34px', fontWeight: '900', color: '#F1701D', letterSpacing: '-0.8px', lineHeight: 1 }}>5.51</span>
+            <span style={{ fontSize: '15px', fontWeight: '700', color: '#F1701D' }}>Motivated</span>
             <span style={{ fontSize: '11.5px', fontWeight: '800', color: '#3B82F6', fontFamily: "'Space Mono', monospace" }}>MSI</span>
           </div>
 
