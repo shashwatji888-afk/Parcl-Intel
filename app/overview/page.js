@@ -953,12 +953,17 @@ export default function OverviewPage() {
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '12px' }}>
             <div>
-              <div style={{ fontSize: '11.5px', color: '#64748B', marginBottom: '4px' }}>Customize the table below</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10B981', boxShadow: '0 0 8px #10B981' }} />
+                <span style={{ fontSize: '11px', fontFamily: "'Space Mono', monospace", color: '#10B981', fontWeight: 'bold' }}>
+                  LIVE SUPABASE DATABASE ({liveMarkets.length.toLocaleString()} MARKETS SYNCED)
+                </span>
+              </div>
               <h2 style={{ fontSize: '26px', fontWeight: '800', color: '#FFFFFF', letterSpacing: '-0.5px', margin: 0 }}>
                 National: Most vs Least Motivated Metros
               </h2>
               <p style={{ fontSize: '13px', color: '#94A3B8', margin: '4px 0 0 0' }}>
-                Motivated Seller Index, 0 (holding firm) to 10 (fire sale) · {rankingMinListings.toLocaleString()}+ listings floor
+                Motivated Seller Index, 0 (holding firm) to 10 (fire sale) · {rankingMinListings.toLocaleString()}+ listings floor · Live Supabase Realtime
               </p>
             </div>
 
