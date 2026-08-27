@@ -1,14 +1,71 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
+import { fetchLiveMarketData, subscribeToLiveMarketUpdates } from '../../lib/dataService';
+
+const DEFAULT_TICKER = [
+  { city: 'MILWAUKEE', arrow: '▲', trend: '3.6%', isPositive: true, msi: '4.04', cuts: '28.1%' },
+  { city: 'CLEVELAND', arrow: '▲', trend: '4.3%', isPositive: true, msi: '5.49', cuts: '36.5%' },
+  { city: 'AUSTIN', arrow: '▲', trend: '5.1%', isPositive: true, msi: '7.29', cuts: '54.1%' },
+  { city: 'SAN ANTONIO', arrow: '▼', trend: '1.8%', isPositive: false, msi: '7.23', cuts: '54.5%' },
+  { city: 'KINGSPORT', arrow: '▲', trend: '2.4%', isPositive: true, msi: '7.39', cuts: '50.8%' },
+  { city: 'LAFAYETTE', arrow: '▲', trend: '3.7%', isPositive: true, msi: '2.41', cuts: '18.8%' },
+  { city: 'ROCHESTER', arrow: '▼', trend: '1.2%', isPositive: false, msi: '2.42', cuts: '16.9%' },
+  { city: 'CHARLESTON', arrow: '▲', trend: '1.9%', isPositive: true, msi: '6.21', cuts: '49.3%' },
+  { city: 'RALEIGH', arrow: '▼', trend: '1.4%', isPositive: false, msi: '5.89', cuts: '46.9%' },
+  { city: 'PHOENIX', arrow: '▲', trend: '3.2%', isPositive: true, msi: '6.56', cuts: '49.8%' }
+];
 
 export default function Topbar({ title, subtitle, onOpenProfile }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, profile } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
+  const [tickerItems, setTickerItems] = useState(DEFAULT_TICKER);
+
+  useEffect(() => {
+    fetchLiveMarketData().then((data) => {
+      if (data && data.length > 0) {
+        const mapped = data.slice(0, 15).map((m) => {
+          const rawTrend = m.rawChange1y !== undefined ? m.rawChange1y : 3.5;
+          const isPos = rawTrend >= 0;
+          return {
+            city: (m.name || 'METRO').toUpperCase(),
+            arrow: isPos ? '▲' : '▼',
+            trend: `${Math.abs(rawTrend).toFixed(1)}%`,
+            isPositive: isPos,
+            msi: (m.msi || 5.0).toFixed(2),
+            cuts: `${m.priceCutsPct || 35.0}%`
+          };
+        });
+        setTickerItems(mapped);
+      }
+    });
+
+    const unsub = subscribeToLiveMarketUpdates((fresh) => {
+      if (fresh && fresh.length > 0) {
+        const mapped = fresh.slice(0, 15).map((m) => {
+          const rawTrend = m.rawChange1y !== undefined ? m.rawChange1y : 3.5;
+          const isPos = rawTrend >= 0;
+          return {
+            city: (m.name || 'METRO').toUpperCase(),
+            arrow: isPos ? '▲' : '▼',
+            trend: `${Math.abs(rawTrend).toFixed(1)}%`,
+            isPositive: isPos,
+            msi: (m.msi || 5.0).toFixed(2),
+            cuts: `${m.priceCutsPct || 35.0}%`
+          };
+        });
+        setTickerItems(mapped);
+      }
+    });
+
+    return () => {
+      if (typeof unsub === 'function') unsub();
+    };
+  }, []);
 
   const userName = profile?.full_name || user?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Shashwat';
   const avatarUrl = user?.user_metadata?.avatar_url || profile?.avatar_url;
@@ -20,19 +77,6 @@ export default function Topbar({ title, subtitle, onOpenProfile }) {
       router.push(`/overview?q=${encodeURIComponent(searchQuery)}`);
     }
   };
-
-  const tickerItems = [
-    { city: 'MILWAUKEE', arrow: '▲', trend: '3.6%', isPositive: true, msi: '4.04', cuts: '28.1%' },
-    { city: 'CLEVELAND', arrow: '▲', trend: '4.3%', isPositive: true, msi: '5.49', cuts: '36.5%' },
-    { city: 'AUSTIN', arrow: '▲', trend: '5.1%', isPositive: true, msi: '7.29', cuts: '54.1%' },
-    { city: 'SAN ANTONIO', arrow: '▼', trend: '1.8%', isPositive: false, msi: '7.23', cuts: '54.5%' },
-    { city: 'KINGSPORT', arrow: '▲', trend: '2.4%', isPositive: true, msi: '7.39', cuts: '50.8%' },
-    { city: 'LAFAYETTE', arrow: '▲', trend: '3.7%', isPositive: true, msi: '2.41', cuts: '18.8%' },
-    { city: 'ROCHESTER', arrow: '▼', trend: '1.2%', isPositive: false, msi: '2.42', cuts: '16.9%' },
-    { city: 'CHARLESTON', arrow: '▲', trend: '1.9%', isPositive: true, msi: '6.21', cuts: '49.3%' },
-    { city: 'RALEIGH', arrow: '▼', trend: '1.4%', isPositive: false, msi: '5.89', cuts: '46.9%' },
-    { city: 'PHOENIX', arrow: '▲', trend: '3.2%', isPositive: true, msi: '6.56', cuts: '49.8%' }
-  ];
 
   return (
     <header style={{ position: 'fixed', top: 0, right: 0, left: '240px', zIndex: 30, backgroundColor: '#000000', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', minHeight: '80px', display: 'flex', flexDirection: 'column' }}>
