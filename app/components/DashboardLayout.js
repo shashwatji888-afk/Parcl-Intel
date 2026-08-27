@@ -28,27 +28,27 @@ export default function DashboardLayout({ title, subtitle, children, actions }) 
   // Loading state overlay
   if (loading || !user) {
     return (
-      <div style={{ minHeight: '100vh', backgroundColor: '#030712', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#FFFFFF', padding: '16px' }}>
-        <div style={{ width: '48px', height: '48px', borderRadius: '50%', border: '3px solid rgba(59, 130, 246, 0.2)', borderTopColor: '#3B82F6', animation: 'spin 1s linear infinite', marginBottom: '16px' }} />
-        <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0, marginBottom: '4px' }}>Loading Parcl Terminal...</h3>
-        <p style={{ fontSize: '12px', color: '#94A3B8', margin: 0 }}>Connecting to Live Database</p>
+      <div style={{ minHeight: '100vh', backgroundColor: '#0B0B0B', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#FFFFFF', padding: '16px' }}>
+        <div style={{ width: '40px', height: '40px', borderRadius: '50%', border: '2px solid rgba(59, 130, 246, 0.2)', borderTopColor: '#3B82F6', animation: 'spin 1s linear infinite', marginBottom: '14px' }} />
+        <h3 style={{ fontSize: '16px', fontWeight: '700', margin: 0, marginBottom: '4px' }}>Loading Parcl Terminal...</h3>
+        <p style={{ fontSize: '11.5px', color: '#64748B', margin: 0 }}>Connecting to Live Supabase Database</p>
       </div>
     );
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#030712', color: '#F8FAFC', overflowX: 'hidden' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#0B0B0B', color: '#FFFFFF', overflowX: 'hidden' }}>
       
-      {/* 1. FIXED LEFT SIDEBAR */}
+      {/* 1. FIXED LEFT SIDEBAR (EXACT MATCH TO SCREENSHOT) */}
       <Sidebar
         onOpenUpgrade={() => setIsUpgradeOpen(true)}
         onOpenProfile={() => setIsProfileOpen(true)}
       />
 
-      {/* 2. MAIN CONTENT AREA (OFFSET BY 240px FOR SIDEBAR) */}
-      <div style={{ flex: 1, marginLeft: '240px', display: 'flex', flexDirection: 'column', minHeight: '100vh', minWidth: 0 }}>
+      {/* 2. MAIN CONTENT AREA (OFFSET BY 220px) */}
+      <div style={{ flex: 1, marginLeft: '220px', display: 'flex', flexDirection: 'column', minHeight: '100vh', minWidth: 0, backgroundColor: '#0B0B0B' }}>
         
-        {/* FIXED TOPBAR (OFFSET BY 240px) */}
+        {/* FIXED TOPBAR (OFFSET BY 220px) */}
         <Topbar
           title={title}
           subtitle={subtitle}
@@ -57,12 +57,12 @@ export default function DashboardLayout({ title, subtitle, children, actions }) 
           onOpenProfile={() => setIsProfileOpen(true)}
         />
 
-        {/* INNER SCROLLABLE PAGE CONTENT (PADDING FOR 86px TOPBAR) */}
-        <main style={{ flex: 1, paddingTop: '92px', paddingBottom: '40px', paddingLeft: '32px', paddingRight: '32px', backgroundColor: '#030712' }}>
+        {/* INNER SCROLLABLE PAGE CONTENT (PADDING FOR 80px TOPBAR) */}
+        <main style={{ flex: 1, paddingTop: '86px', paddingBottom: '36px', paddingLeft: '28px', paddingRight: '28px', backgroundColor: '#0B0B0B' }}>
           {children}
         </main>
 
-        {/* IN-FLOW NON-OVERLAPPING TERMINAL FOOTER */}
+        {/* IN-FLOW TERMINAL FOOTER */}
         <Footer />
       </div>
 

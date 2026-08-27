@@ -469,9 +469,9 @@ export default function OverviewPage() {
             </button>
           </div>
 
-          {/* Clean High-Contrast Search Capsule */}
+          {/* Clean High-Contrast Search Capsule (Exact Screenshot Styling) */}
           <div style={{ maxWidth: '820px', width: '100%', marginTop: '2px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#FFFFFF', border: '1px solid #38BDF8', borderRadius: '6px', padding: '10px 16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#FFFFFF', border: '2px solid #38BDF8', borderRadius: '8px', padding: '11px 18px', boxShadow: '0 0 16px rgba(56, 189, 248, 0.5)' }}>
               <span className="material-symbols-outlined" style={{ color: '#0F172A', fontSize: '20px', marginRight: '10px' }}>search</span>
               <input
                 type="text"
@@ -486,7 +486,7 @@ export default function OverviewPage() {
         </div>
 
         {/* 2. EXACT UNITED STATES MACRO STRESS CARD */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', padding: '16px 20px', backgroundColor: '#090A0E', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '6px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', padding: '16px 20px', backgroundColor: '#000000', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '6px' }}>
           
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
             <span style={{ fontSize: '10.5px', fontFamily: "'Space Mono', monospace", color: '#64748B', letterSpacing: '0.8px', textTransform: 'uppercase' }}>UNITED STATES</span>
@@ -495,7 +495,7 @@ export default function OverviewPage() {
             <span style={{ fontSize: '11.5px', fontWeight: '800', color: '#3B82F6', fontFamily: "'Space Mono', monospace" }}>MSI</span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap', fontSize: '12.5px', borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap', fontSize: '12.5px', borderTop: '1px solid rgba(255, 255, 255, 0.06)', paddingTop: '8px' }}>
             <div>
               <span style={{ color: '#64748B' }}>Active listings </span>
               <span style={{ fontWeight: '700', color: '#FFFFFF' }}>16,01,310</span>

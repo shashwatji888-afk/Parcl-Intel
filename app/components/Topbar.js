@@ -7,13 +7,14 @@ import { fetchLiveMarketData, subscribeToLiveMarketUpdates } from '../../lib/dat
 
 const DEFAULT_TICKER = [
   { city: 'U.S.', arrow: '▼', trend: '-1.7%', isPositive: false, msi: '5.51', cuts: '41.7%', isNational: true },
+  { city: 'LAKELAND', arrow: '▼', trend: '-1.4%', isPositive: false, msi: '6.00', cuts: '45.8%' },
+  { city: 'SAN JOSE', arrow: '▼', trend: '-1.4%', isPositive: false, msi: '4.78', cuts: '30.2%' },
+  { city: 'DALLAS-FORT WORTH', arrow: '▼', trend: '-1.4%', isPositive: false, msi: '7.07', cuts: '52.1%' },
   { city: 'CHARLESTON', arrow: '▼', trend: '-1.6%', isPositive: false, msi: '6.23', cuts: '49.4%' },
   { city: 'PHOENIX', arrow: '▼', trend: '-1.5%', isPositive: false, msi: '6.56', cuts: '49.2%' },
-  { city: 'LAKELAND', arrow: '▼', trend: '-1.4%', isPositive: false, msi: '5.71', cuts: '44.5%' },
   { city: 'AUSTIN', arrow: '▲', trend: '+3.1%', isPositive: true, msi: '7.29', cuts: '54.1%' },
   { city: 'CLEVELAND', arrow: '▲', trend: '+4.3%', isPositive: true, msi: '5.49', cuts: '36.5%' },
   { city: 'MILWAUKEE', arrow: '▲', trend: '+3.6%', isPositive: true, msi: '4.04', cuts: '28.1%' },
-  { city: 'SAN ANTONIO', arrow: '▼', trend: '-1.8%', isPositive: false, msi: '7.23', cuts: '54.5%' },
 ];
 
 export default function Topbar({ title, subtitle, onOpenProfile }) {
@@ -67,10 +68,6 @@ export default function Topbar({ title, subtitle, onOpenProfile }) {
     };
   }, []);
 
-  const userName = profile?.full_name || user?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Shashwat';
-  const avatarUrl = user?.user_metadata?.avatar_url || profile?.avatar_url;
-  const userInitial = userName.charAt(0).toUpperCase();
-
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -79,9 +76,9 @@ export default function Topbar({ title, subtitle, onOpenProfile }) {
   };
 
   return (
-    <header style={{ position: 'fixed', top: 0, right: 0, left: '240px', zIndex: 30, backgroundColor: '#000000', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', minHeight: '76px', display: 'flex', flexDirection: 'column' }}>
+    <header style={{ position: 'fixed', top: 0, right: 0, left: '220px', zIndex: 30, backgroundColor: '#000000', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', minHeight: '76px', display: 'flex', flexDirection: 'column' }}>
       
-      {/* 1. STREAMING MARKET TICKER */}
+      {/* 1. TOP MOVING TICKER (EXACT MATCH TO REFERENCE SCREENSHOT) */}
       <div style={{ backgroundColor: '#000000', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', overflow: 'hidden', whiteSpace: 'nowrap', padding: '5px 0', fontSize: '11px', fontFamily: "'Space Mono', monospace" }}>
         <div className="parcl-ticker-track">
           <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -144,104 +141,77 @@ export default function Topbar({ title, subtitle, onOpenProfile }) {
         </div>
       </div>
 
-      {/* 2. SUB HEADER WORKSPACE TABS & COMMAND SEARCH */}
+      {/* 2. SUB HEADER NAVIGATION & SEARCH BAR (EXACT SCREENSHOT PROPORTIONS) */}
       <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 24px' }}>
         
-        {/* Left Workspace Tabs */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <Link
-            href="/overview"
-            style={{
-              fontSize: '12.5px',
-              fontWeight: pathname === '/overview' ? '700' : '500',
-              color: pathname === '/overview' ? '#FFFFFF' : '#94A3B8',
-              textDecoration: 'none',
-              borderBottom: pathname === '/overview' ? '2px solid #3B82F6' : '2px solid transparent',
-              paddingBottom: '4px',
-              transition: 'color 0.15s'
-            }}
-          >
-            Parcl HQ
+        {/* Left: PARCL Logo + Workspace Nav Tabs */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '7px', textDecoration: 'none' }}>
+            <span style={{ fontSize: '14px', fontWeight: '900', color: '#FFFFFF', letterSpacing: '0.8px' }}>▲ PARCL</span>
           </Link>
 
-          <Link
-            href="/segments"
-            style={{
-              fontSize: '12.5px',
-              fontWeight: (pathname === '/segments' || pathname === '/market-rankings') ? '700' : '500',
-              color: (pathname === '/segments' || pathname === '/market-rankings') ? '#FFFFFF' : '#94A3B8',
-              textDecoration: 'none',
-              borderBottom: (pathname === '/segments' || pathname === '/market-rankings') ? '2px solid #3B82F6' : '2px solid transparent',
-              paddingBottom: '4px',
-              transition: 'color 0.15s'
-            }}
-          >
-            Price Feeds
-          </Link>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <Link
+              href="/overview"
+              style={{
+                fontSize: '13px',
+                fontWeight: pathname === '/overview' ? '700' : '500',
+                color: pathname === '/overview' ? '#FFFFFF' : '#94A3B8',
+                textDecoration: 'none',
+                borderBottom: pathname === '/overview' ? '2px solid #3B82F6' : '2px solid transparent',
+                paddingBottom: '4px',
+                transition: 'color 0.15s'
+              }}
+            >
+              Parcl HQ
+            </Link>
 
-          <Link
-            href="/profiler"
-            style={{
-              fontSize: '12.5px',
-              fontWeight: (pathname === '/profiler' || pathname === '/insights') ? '700' : '500',
-              color: (pathname === '/profiler' || pathname === '/insights') ? '#FFFFFF' : '#94A3B8',
-              textDecoration: 'none',
-              borderBottom: (pathname === '/profiler' || pathname === '/insights') ? '2px solid #3B82F6' : '2px solid transparent',
-              paddingBottom: '4px',
-              transition: 'color 0.15s'
-            }}
-          >
-            Buyer Intelligence
-          </Link>
+            <Link
+              href="/reports"
+              style={{
+                fontSize: '13px',
+                fontWeight: pathname === '/reports' ? '700' : '500',
+                color: pathname === '/reports' ? '#FFFFFF' : '#94A3B8',
+                textDecoration: 'none',
+                borderBottom: pathname === '/reports' ? '2px solid #3B82F6' : '2px solid transparent',
+                paddingBottom: '4px',
+                transition: 'color 0.15s'
+              }}
+            >
+              Research
+            </Link>
 
-          <Link
-            href="/reports"
-            style={{
-              fontSize: '12.5px',
-              fontWeight: pathname === '/reports' ? '700' : '500',
-              color: pathname === '/reports' ? '#FFFFFF' : '#94A3B8',
-              textDecoration: 'none',
-              borderBottom: pathname === '/reports' ? '2px solid #3B82F6' : '2px solid transparent',
-              paddingBottom: '4px',
-              transition: 'color 0.15s'
-            }}
-          >
-            Research & Export
-          </Link>
+            <Link
+              href="/segments"
+              style={{
+                fontSize: '13px',
+                fontWeight: (pathname === '/segments' || pathname === '/market-rankings') ? '700' : '500',
+                color: (pathname === '/segments' || pathname === '/market-rankings') ? '#FFFFFF' : '#94A3B8',
+                textDecoration: 'none',
+                borderBottom: (pathname === '/segments' || pathname === '/market-rankings') ? '2px solid #3B82F6' : '2px solid transparent',
+                paddingBottom: '4px',
+                transition: 'color 0.15s'
+              }}
+            >
+              Trackers
+            </Link>
+          </div>
         </div>
 
-        {/* Right Search Input & Profile */}
+        {/* Right Search Field (Exact match to screenshot) */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <form onSubmit={handleSearch} style={{ position: 'relative' }}>
-            <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#090A0E', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '4px', padding: '4px 10px', width: '260px' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '15px', color: '#64748B', marginRight: '6px' }}>search</span>
+            <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#0F1015', border: '1px solid rgba(255, 255, 255, 0.12)', borderRadius: '6px', padding: '5px 12px', width: '340px' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#64748B', marginRight: '8px' }}>search</span>
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search any metro, county, or zip"
-                style={{ background: 'transparent', border: 'none', outline: 'none', color: '#FFFFFF', fontSize: '12px', width: '100%', fontFamily: 'inherit' }}
+                style={{ background: 'transparent', border: 'none', outline: 'none', color: '#FFFFFF', fontSize: '12.5px', width: '100%', fontFamily: 'inherit' }}
               />
-              <span style={{ fontSize: '9px', fontFamily: "'Space Mono', monospace", color: '#64748B', backgroundColor: 'rgba(255, 255, 255, 0.06)', padding: '1px 4px', borderRadius: '2px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                ⌘K
-              </span>
             </div>
           </form>
-
-          <button
-            type="button"
-            onClick={onOpenProfile}
-            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '3px 8px', borderRadius: '9999px', backgroundColor: '#090A0E', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#FFFFFF', cursor: 'pointer' }}
-          >
-            {avatarUrl ? (
-              <img src={avatarUrl} alt={userName} style={{ width: '18px', height: '18px', borderRadius: '50%', objectFit: 'cover' }} />
-            ) : (
-              <div style={{ width: '18px', height: '18px', borderRadius: '50%', backgroundColor: '#1E222D', border: '1px solid rgba(255, 255, 255, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFFFFF', fontWeight: 'bold', fontSize: '9.5px' }}>
-                {userInitial}
-              </div>
-            )}
-            <span style={{ fontSize: '11.5px', fontWeight: '600', color: '#FFFFFF' }}>{userName}</span>
-          </button>
         </div>
 
       </div>

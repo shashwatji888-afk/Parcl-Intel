@@ -3,226 +3,238 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 
-const MARKET_INTEL_NAV = [
-  { href: '/overview',  label: 'Motivated Sellers', icon: 'bar_chart', badge: 'Live' },
-  { href: '/segments',  label: 'Market Rankings',  icon: 'leaderboard' },
-  { href: '/investors', label: 'Investor Behavior',icon: 'bookmark' },
-];
-
-const FLAGSHIP_ANALYTICS_NAV = [
-  { href: '/profiler',  label: 'Buyer Profiler',   icon: 'psychology', badge: 'ML' },
-  { href: '/insights',  label: 'Segment Insights', icon: 'analytics' },
-  { href: '/reports',   label: 'Reports & Export', icon: 'assessment' },
-];
-
-const INFRASTRUCTURE_NAV = [
-  { href: '/pipeline',  label: 'Data Vault & Pipeline', icon: 'storage', hasArrow: true },
-];
-
 export default function Sidebar({ onOpenUpgrade, onOpenProfile }) {
   const pathname = usePathname();
   const { user, profile } = useAuth();
 
   return (
-    <aside style={{ width: '240px', backgroundColor: '#07080B', borderRight: '1px solid rgba(255, 255, 255, 0.08)', height: '100vh', display: 'flex', flexDirection: 'column', position: 'fixed', top: 0, left: 0, zIndex: 40, overflowY: 'auto' }}>
+    <aside style={{ width: '220px', backgroundColor: '#070709', borderRight: '1px solid rgba(255, 255, 255, 0.08)', height: '100vh', display: 'flex', flexDirection: 'column', position: 'fixed', top: 0, left: 0, zIndex: 40, overflowY: 'auto' }}>
       
       {/* Brand Header */}
-      <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255, 255, 255, 0.06)', backgroundColor: '#000000', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#FFFFFF" />
-            <path d="M2 17L12 22L22 17" stroke="#3B82F6" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M2 12L12 17L22 12" stroke="#FFFFFF" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          <span style={{ fontSize: '15px', fontWeight: '800', color: '#FFFFFF', letterSpacing: '0.6px' }}>PARCL</span>
-        </Link>
-        <span style={{ fontSize: '9.5px', fontFamily: "'Space Mono', monospace", color: '#3B82F6', backgroundColor: 'rgba(59, 130, 246, 0.15)', border: '1px solid rgba(59, 130, 246, 0.3)', padding: '2px 5px', borderRadius: '3px', fontWeight: 'bold' }}>
-          v3.0
-        </span>
+      <div style={{ padding: '14px 18px', borderBottom: '1px solid rgba(255, 255, 255, 0.06)', backgroundColor: '#000000', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#FFFFFF" />
+          <path d="M2 17L12 22L22 17" stroke="#3B82F6" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M2 12L12 17L22 12" stroke="#FFFFFF" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        <span style={{ fontSize: '15px', fontWeight: '800', color: '#FFFFFF', letterSpacing: '0.6px' }}>PARCL</span>
       </div>
 
-      {/* Navigation Groups */}
-      <div style={{ flex: 1, padding: '14px 0', display: 'flex', flexDirection: 'column', gap: '18px' }}>
+      {/* Nav List */}
+      <div style={{ flex: 1, padding: '12px 0', display: 'flex', flexDirection: 'column', gap: '16px' }}>
         
-        {/* SECTION 1: MARKET INTELLIGENCE */}
+        {/* SECTION 1: DEFAULT */}
         <div>
-          <div style={{ padding: '0 20px 6px 20px', fontSize: '10px', fontFamily: "'Space Mono', monospace", textTransform: 'uppercase', color: '#64748B', letterSpacing: '0.8px', fontWeight: '700' }}>
-            MARKET INTELLIGENCE
+          <div style={{ padding: '0 18px 4px 18px', fontSize: '10px', fontFamily: "'Space Mono', monospace", textTransform: 'uppercase', color: '#64748B', letterSpacing: '0.6px', fontWeight: '700', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>DEFAULT</span>
+            <span style={{ fontSize: '9px' }}>⌵</span>
+          </div>
+
+          <div style={{ padding: '2px 18px 8px 18px', fontSize: '11px', color: '#94A3B8', lineHeight: '1.35' }}>
+            No markets yet. Add one to watch its seller stress move.
+            <div style={{ marginTop: '3px', color: '#3B82F6', cursor: 'pointer', fontWeight: '600', fontSize: '11px' }}>+ Add a market</div>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
-            {MARKET_INTEL_NAV.map((item) => {
-              const isActive = pathname === item.href || (item.href === '/segments' && pathname === '/market-rankings');
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '8px 20px',
-                    fontSize: '12.5px',
-                    fontWeight: isActive ? '700' : '400',
-                    color: isActive ? '#FFFFFF' : '#94A3B8',
-                    backgroundColor: isActive ? 'rgba(59, 130, 246, 0.12)' : 'transparent',
-                    borderLeft: isActive ? '3px solid #3B82F6' : '3px solid transparent',
-                    textDecoration: 'none',
-                    transition: 'all 0.15s ease'
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '17px', color: isActive ? '#3B82F6' : '#64748B' }}>
-                      {item.icon}
-                    </span>
-                    <span>{item.label}</span>
-                  </div>
-                  {item.badge && (
-                    <span style={{ fontSize: '9px', fontFamily: "'Space Mono', monospace", color: '#10B981', backgroundColor: 'rgba(16, 185, 129, 0.12)', padding: '1px 5px', borderRadius: '3px', fontWeight: 'bold' }}>
-                      {item.badge}
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
+            
+            {/* Motivated Sellers */}
+            <Link
+              href="/overview"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '7px 18px',
+                fontSize: '12px',
+                fontWeight: pathname === '/overview' ? '700' : '400',
+                color: pathname === '/overview' ? '#FFFFFF' : '#94A3B8',
+                backgroundColor: pathname === '/overview' ? 'rgba(59, 130, 246, 0.14)' : 'transparent',
+                borderLeft: pathname === '/overview' ? '3px solid #3B82F6' : '3px solid transparent',
+                textDecoration: 'none',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '16px', color: pathname === '/overview' ? '#3B82F6' : '#64748B' }}>
+                bar_chart
+              </span>
+              <span>Motivated Sellers</span>
+            </Link>
+
+            {/* Market Rankings */}
+            <Link
+              href="/segments"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '7px 18px',
+                fontSize: '12px',
+                fontWeight: (pathname === '/segments' || pathname === '/market-rankings') ? '700' : '400',
+                color: (pathname === '/segments' || pathname === '/market-rankings') ? '#FFFFFF' : '#94A3B8',
+                backgroundColor: (pathname === '/segments' || pathname === '/market-rankings') ? 'rgba(59, 130, 246, 0.14)' : 'transparent',
+                borderLeft: (pathname === '/segments' || pathname === '/market-rankings') ? '3px solid #3B82F6' : '3px solid transparent',
+                textDecoration: 'none',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '16px', color: (pathname === '/segments' || pathname === '/market-rankings') ? '#3B82F6' : '#64748B' }}>
+                leaderboard
+              </span>
+              <span>Market Rankings</span>
+            </Link>
+
+            {/* Watchlists */}
+            <Link
+              href="/investors"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '7px 18px',
+                fontSize: '12px',
+                fontWeight: pathname === '/investors' ? '700' : '400',
+                color: pathname === '/investors' ? '#FFFFFF' : '#94A3B8',
+                backgroundColor: pathname === '/investors' ? 'rgba(59, 130, 246, 0.14)' : 'transparent',
+                borderLeft: pathname === '/investors' ? '3px solid #3B82F6' : '3px solid transparent',
+                textDecoration: 'none',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '16px', color: pathname === '/investors' ? '#3B82F6' : '#64748B' }}>
+                bookmark
+              </span>
+              <span>Watchlists</span>
+            </Link>
           </div>
         </div>
 
-        {/* SECTION 2: FLAGSHIP ANALYTICS (Required Core Features) */}
+        {/* SECTION 2: APPS (Includes the 3 Protected Required Features) */}
         <div>
-          <div style={{ padding: '0 20px 6px 20px', fontSize: '10px', fontFamily: "'Space Mono', monospace", textTransform: 'uppercase', color: '#64748B', letterSpacing: '0.8px', fontWeight: '700' }}>
-            FLAGSHIP ANALYTICS
+          <div style={{ padding: '0 18px 4px 18px', fontSize: '10px', fontFamily: "'Space Mono', monospace", textTransform: 'uppercase', color: '#64748B', letterSpacing: '0.6px', fontWeight: '700' }}>
+            APPS
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
-            {FLAGSHIP_ANALYTICS_NAV.map((item) => {
-              const isActive = pathname === item.href || pathname?.startsWith(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '8px 20px',
-                    fontSize: '12.5px',
-                    fontWeight: isActive ? '700' : '400',
-                    color: isActive ? '#FFFFFF' : '#94A3B8',
-                    backgroundColor: isActive ? 'rgba(59, 130, 246, 0.12)' : 'transparent',
-                    borderLeft: isActive ? '3px solid #3B82F6' : '3px solid transparent',
-                    textDecoration: 'none',
-                    transition: 'all 0.15s ease'
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '17px', color: isActive ? '#3B82F6' : '#64748B' }}>
-                      {item.icon}
-                    </span>
-                    <span>{item.label}</span>
-                  </div>
-                  {item.badge && (
-                    <span style={{ fontSize: '9px', fontFamily: "'Space Mono', monospace", color: '#3B82F6', backgroundColor: 'rgba(59, 130, 246, 0.15)', padding: '1px 5px', borderRadius: '3px', fontWeight: 'bold' }}>
-                      {item.badge}
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
+            
+            {/* Data Vault App */}
+            <Link
+              href="/pipeline"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '7px 18px',
+                fontSize: '12px',
+                fontWeight: pathname === '/pipeline' ? '700' : '400',
+                color: pathname === '/pipeline' ? '#FFFFFF' : '#94A3B8',
+                backgroundColor: pathname === '/pipeline' ? 'rgba(59, 130, 246, 0.14)' : 'transparent',
+                borderLeft: pathname === '/pipeline' ? '3px solid #3B82F6' : '3px solid transparent',
+                textDecoration: 'none',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '16px', color: pathname === '/pipeline' ? '#3B82F6' : '#64748B' }}>
+                  storage
+                </span>
+                <span>Data Vault App</span>
+              </div>
+              <span style={{ fontSize: '10px', color: '#64748B' }}>↗</span>
+            </Link>
 
-        {/* SECTION 3: INFRASTRUCTURE */}
-        <div>
-          <div style={{ padding: '0 20px 6px 20px', fontSize: '10px', fontFamily: "'Space Mono', monospace", textTransform: 'uppercase', color: '#64748B', letterSpacing: '0.8px', fontWeight: '700' }}>
-            INFRASTRUCTURE
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
-            {INFRASTRUCTURE_NAV.map((item) => {
-              const isActive = pathname === item.href || pathname?.startsWith(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '8px 20px',
-                    fontSize: '12.5px',
-                    fontWeight: isActive ? '700' : '400',
-                    color: isActive ? '#FFFFFF' : '#94A3B8',
-                    backgroundColor: isActive ? 'rgba(59, 130, 246, 0.12)' : 'transparent',
-                    borderLeft: isActive ? '3px solid #3B82F6' : '3px solid transparent',
-                    textDecoration: 'none',
-                    transition: 'all 0.15s ease'
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '17px', color: isActive ? '#3B82F6' : '#64748B' }}>
-                      {item.icon}
-                    </span>
-                    <span>{item.label}</span>
-                  </div>
-                  {item.hasArrow && <span style={{ fontSize: '11px', color: '#64748B' }}>›</span>}
-                </Link>
-              );
-            })}
+            {/* REQUIRED FEATURE 1: Buyer Profiler */}
+            <Link
+              href="/profiler"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '7px 18px',
+                fontSize: '12px',
+                fontWeight: pathname === '/profiler' ? '700' : '400',
+                color: pathname === '/profiler' ? '#FFFFFF' : '#94A3B8',
+                backgroundColor: pathname === '/profiler' ? 'rgba(59, 130, 246, 0.14)' : 'transparent',
+                borderLeft: pathname === '/profiler' ? '3px solid #3B82F6' : '3px solid transparent',
+                textDecoration: 'none',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '16px', color: pathname === '/profiler' ? '#3B82F6' : '#64748B' }}>
+                psychology
+              </span>
+              <span>Buyer Profiler</span>
+            </Link>
+
+            {/* REQUIRED FEATURE 2: Segment Insights */}
+            <Link
+              href="/insights"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '7px 18px',
+                fontSize: '12px',
+                fontWeight: pathname === '/insights' ? '700' : '400',
+                color: pathname === '/insights' ? '#FFFFFF' : '#94A3B8',
+                backgroundColor: pathname === '/insights' ? 'rgba(59, 130, 246, 0.14)' : 'transparent',
+                borderLeft: pathname === '/insights' ? '3px solid #3B82F6' : '3px solid transparent',
+                textDecoration: 'none',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '16px', color: pathname === '/insights' ? '#3B82F6' : '#64748B' }}>
+                analytics
+              </span>
+              <span>Segment Insights</span>
+            </Link>
+
+            {/* REQUIRED FEATURE 3: Reports & Export */}
+            <Link
+              href="/reports"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '7px 18px',
+                fontSize: '12px',
+                fontWeight: pathname === '/reports' ? '700' : '400',
+                color: pathname === '/reports' ? '#FFFFFF' : '#94A3B8',
+                backgroundColor: pathname === '/reports' ? 'rgba(59, 130, 246, 0.14)' : 'transparent',
+                borderLeft: pathname === '/reports' ? '3px solid #3B82F6' : '3px solid transparent',
+                textDecoration: 'none',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '16px', color: pathname === '/reports' ? '#3B82F6' : '#64748B' }}>
+                assessment
+              </span>
+              <span>Reports & Export</span>
+            </Link>
+
+            {/* Other Apps */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '7px 18px', fontSize: '12px', color: '#64748B', cursor: 'pointer' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '16px', color: '#64748B' }}>
+                grid_view
+              </span>
+              <span>Other Apps</span>
+            </div>
+
           </div>
         </div>
 
       </div>
 
-      {/* FREE PLAN / ACTIVATE PRO TERMINAL CARD */}
-      <div style={{ margin: '0 12px 14px 12px', padding: '12px 14px', borderRadius: '6px', border: '1px solid rgba(59, 130, 246, 0.25)', backgroundColor: '#090B12' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-          <span style={{ fontSize: '10px', fontFamily: "'Space Mono', monospace", color: '#3B82F6', textTransform: 'uppercase', fontWeight: 'bold' }}>
-            FREE TIER
-          </span>
-          <span style={{ fontSize: '9.5px', color: '#64748B' }}>$50/mo</span>
+      {/* FREE PLAN CARD (EXACT REPLICA OF SCREENSHOT) */}
+      <div style={{ margin: '0 10px 12px 10px', padding: '12px 14px', borderRadius: '6px', border: '1px solid rgba(59, 130, 246, 0.25)', backgroundColor: '#090D18' }}>
+        <div style={{ fontSize: '10px', fontFamily: "'Space Mono', monospace", color: '#3B82F6', textTransform: 'uppercase', fontWeight: 'bold', marginBottom: '3px' }}>
+          FREE PLAN
         </div>
-        <p style={{ fontSize: '11px', color: '#94A3B8', lineHeight: '1.35', margin: '0 0 10px 0' }}>
-          Unlock every county, ZIP code, and full historical buyer intelligence.
+        <p style={{ fontSize: '10.5px', color: '#94A3B8', lineHeight: '1.35', margin: '0 0 10px 0' }}>
+          Pro unlocks every county and zip, full history, and unlimited tracked markets. $50/mo.
         </p>
 
         <div
           onClick={onOpenUpgrade}
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 12px', borderRadius: '9999px', border: '1px solid #3B82F6', backgroundColor: '#07090F', color: '#FFFFFF', fontSize: '11.5px', fontWeight: '700', cursor: 'pointer' }}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '5px 10px', borderRadius: '9999px', border: '1px solid #3B82F6', backgroundColor: '#070C18', color: '#FFFFFF', fontSize: '11px', fontWeight: '700', cursor: 'pointer', boxShadow: '0 0 10px rgba(59, 130, 246, 0.3)' }}
         >
           <span>Activate Pro</span>
-          <span style={{ width: '26px', height: '14px', borderRadius: '9999px', backgroundColor: '#0B0D14', border: '1px solid #3B82F6', display: 'flex', alignItems: 'center', padding: '1.5px' }}>
+          <span style={{ width: '26px', height: '14px', borderRadius: '9999px', backgroundColor: '#090D16', border: '1px solid #3B82F6', display: 'flex', alignItems: 'center', padding: '1.5px' }}>
             <span style={{ width: '9px', height: '9px', borderRadius: '50%', backgroundColor: '#FFFFFF' }} />
           </span>
         </div>
-      </div>
-
-      {/* FOOTER ACTIONS */}
-      <div style={{ padding: '10px 20px', borderTop: '1px solid rgba(255, 255, 255, 0.06)', backgroundColor: '#000000', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#94A3B8', fontSize: '11.5px', cursor: 'pointer' }}>
-          <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>notifications</span>
-          <span>Alerts & Webhooks</span>
-        </div>
-
-        <div
-          onClick={onOpenProfile}
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#CBD5E1', fontSize: '11.5px', cursor: 'pointer' }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>account_circle</span>
-            <span>Account Setting</span>
-          </div>
-          <span style={{ fontSize: '10px', color: '#64748B' }}>^</span>
-        </div>
-
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '10px', color: '#64748B', marginTop: '2px' }}>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <span>in</span>
-            <span>𝕏</span>
-          </div>
-          <span>© 2026 Parcl Intel</span>
-        </div>
-
       </div>
 
     </aside>

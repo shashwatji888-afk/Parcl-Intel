@@ -462,7 +462,7 @@ export default function MarketRankingsPage() {
         {/* 4. SELECTED MARKET HERO CARD & 6-METRIC STRIP */}
         <div
           style={{
-            backgroundColor: '#040711',
+            backgroundColor: '#000000',
             border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '10px',
             padding: '24px',
@@ -617,7 +617,7 @@ export default function MarketRankingsPage() {
         {/* 5. INTERACTIVE PRICE PER SQUARE FOOT PERCENT CHANGE CHART WITH DYNAMIC HOVER POPUP */}
         <div
           style={{
-            backgroundColor: '#040711',
+            backgroundColor: '#000000',
             border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '10px',
             padding: '24px',
@@ -678,7 +678,7 @@ export default function MarketRankingsPage() {
               position: 'relative',
               width: '100%',
               height: '240px',
-              backgroundColor: '#02040A',
+              backgroundColor: '#000000',
               borderRadius: '8px',
               border: '1px solid rgba(255, 255, 255, 0.05)',
               overflow: 'hidden',
@@ -823,7 +823,7 @@ export default function MarketRankingsPage() {
         {/* 6. FULL MARKET RANKINGS TABLE (EXACT PARCL LABS STYLE & SCREENSHOT REPLICA) */}
         <div
           style={{
-            backgroundColor: '#040711',
+            backgroundColor: '#000000',
             border: '1px solid rgba(255, 255, 255, 0.08)',
             borderRadius: '10px',
             padding: '24px',

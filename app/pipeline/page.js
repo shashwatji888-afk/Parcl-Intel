@@ -9,15 +9,15 @@ export default function PipelinePage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [pipelineState, setPipelineState] = useState('idle'); // 'idle' | 'running' | 'success' | 'error'
   const [logs, setLogs] = useState([
-    '[INIT] ML Data Pipeline v2.4 initialized.',
+    '[INIT] ML Data Pipeline v3.0 initialized.',
     '[STATUS] Connected to Supabase Engine.',
     '[READY] Waiting for dataset upload...',
   ]);
   const [dataStats, setDataStats] = useState({
-    totalRecords: 16,
+    totalRecords: 2000,
     missingValues: 0,
     duplicates: 0,
-    validRecords: 16,
+    validRecords: 2000,
   });
   const [ingestSuccessMsg, setIngestSuccessMsg] = useState('');
 
@@ -63,7 +63,7 @@ export default function PipelinePage() {
       try {
         const text = event.target.result;
         const lines = text.split('\n').filter((l) => l.trim().length > 0);
-        const recordCount = Math.max(1, lines.length - 1); // Exclude header
+        const recordCount = Math.max(1, lines.length - 1);
 
         setDataStats({
           totalRecords: recordCount,
@@ -88,17 +88,16 @@ export default function PipelinePage() {
     addLog('--- STARTING PIPELINE EXECUTION ---');
     addLog('Step 1/4: Normalizing numerical features & SAT scores...');
 
-    await new Promise((r) => setTimeout(r, 600));
+    await new Promise((r) => setTimeout(r, 400));
     addLog('Step 2/4: Executing K-Means++ clustering algorithm (K=4)...');
 
-    await new Promise((r) => setTimeout(r, 800));
+    await new Promise((r) => setTimeout(r, 600));
     addLog('Step 3/4: Calculating silhouette separation score & cluster assignments...');
 
-    await new Promise((r) => setTimeout(r, 600));
+    await new Promise((r) => setTimeout(r, 400));
     addLog('Step 4/4: Ingesting classified buyer profiles into Supabase DB...');
 
     try {
-      // Build sample payload if no file loaded
       const payload = file
         ? [
             { clientType: 'Corporate', country: 'UAE', purpose: 'Investment', loanApplied: false, satScore: 9.2 },
@@ -146,54 +145,79 @@ export default function PipelinePage() {
 
   return (
     <DashboardLayout
-      title="ML Pipeline Engine"
+      title="Data Vault & Pipeline"
       subtitle="Upload buyer datasets, execute K-Means clustering, and ingest to Supabase"
     >
-      <div className="max-w-7xl mx-auto space-y-8 pb-16">
+      <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
         
+        {/* Page Header */}
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#64748B', fontSize: '10.5px', fontFamily: "'Space Mono', monospace", textTransform: 'uppercase', fontWeight: 'bold', marginBottom: '4px' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: '15px' }}>storage</span>
+            <span>DATA INGESTION & PIPELINE</span>
+          </div>
+          <h1 style={{ fontSize: '28px', fontWeight: '800', color: '#FFFFFF', letterSpacing: '-0.5px', margin: 0 }}>
+            Data Vault & ML Pipeline Engine
+          </h1>
+          <p style={{ fontSize: '13px', color: '#94A3B8', margin: '4px 0 0 0' }}>
+            Automated feature normalization, unsupervised clustering, and live database sync.
+          </p>
+        </div>
+
         {/* Hidden File Input */}
         <input
           type="file"
           ref={fileInputRef}
           onChange={handleFileSelect}
           accept=".csv"
-          className="hidden"
+          style={{ display: 'none' }}
         />
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '16px' }}>
           
-          {/* Main Column */}
-          <div className="xl:col-span-2 space-y-8">
+          {/* LEFT: DROPZONE & STATS */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             
             {/* Interactive Upload Drag & Drop Zone */}
             <div
               onClick={() => fileInputRef.current?.click()}
               onDragOver={(e) => e.preventDefault()}
               onDrop={handleDrop}
-              className="glass-card rounded-2xl p-10 flex flex-col items-center justify-center text-center cursor-pointer border-2 border-dashed border-primary/40 hover:border-primary hover:bg-primary/5 transition-all duration-300 group shadow-lg"
+              style={{
+                backgroundColor: '#000000',
+                border: '1px dashed rgba(59, 130, 246, 0.4)',
+                borderRadius: '6px',
+                padding: '32px 20px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                textAlign: 'center',
+                cursor: 'pointer'
+              }}
             >
-              <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-glow-primary">
-                <span className="material-symbols-outlined text-3xl text-primary">cloud_upload</span>
+              <div style={{ width: '48px', height: '48px', borderRadius: '6px', backgroundColor: 'rgba(59, 130, 246, 0.12)', border: '1px solid rgba(59, 130, 246, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '24px', color: '#3B82F6' }}>cloud_upload</span>
               </div>
               
-              <h3 className="font-headline font-bold text-xl text-white mb-2">
-                {file ? file.name : 'Upload Buyer Dataset'}
+              <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#FFFFFF', margin: '0 0 6px 0' }}>
+                {file ? file.name : 'Upload Buyer Dataset (CSV)'}
               </h3>
               
-              <p className="text-slate-400 text-sm mb-6 max-w-md">
+              <p style={{ fontSize: '12px', color: '#94A3B8', margin: '0 0 16px 0', maxWidth: '380px' }}>
                 {file
-                  ? `Selected File: ${(file.size / 1024).toFixed(1)} KB. Ready for pipeline execution.`
-                  : 'Drag and drop your CSV dataset here or click to browse files from your computer'}
+                  ? `Selected: ${(file.size / 1024).toFixed(1)} KB. Ready for K-Means clustering.`
+                  : 'Drag and drop your transaction CSV here or click to browse files'}
               </p>
 
-              <div className="flex gap-3">
+              <div style={{ display: 'flex', gap: '8px' }}>
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     fileInputRef.current?.click();
                   }}
-                  className="px-6 py-2.5 bg-primary hover:bg-blue-600 text-white text-xs font-headline font-bold uppercase tracking-wider rounded-lg shadow-glow-primary transition-all cursor-pointer"
+                  style={{ padding: '6px 14px', borderRadius: '4px', border: 'none', backgroundColor: '#3B82F6', color: '#FFFFFF', fontSize: '11.5px', fontWeight: '700', cursor: 'pointer' }}
                 >
                   Browse Files
                 </button>
@@ -206,104 +230,82 @@ export default function PipelinePage() {
                       setFile(null);
                       addLog('Cleared file selection.');
                     }}
-                    className="px-4 py-2.5 bg-surface3 hover:bg-white/10 text-slate-300 text-xs font-headline font-bold uppercase rounded-lg transition-colors cursor-pointer"
+                    style={{ padding: '6px 14px', borderRadius: '4px', border: '1px solid rgba(255, 255, 255, 0.1)', backgroundColor: '#090A0E', color: '#CBD5E1', fontSize: '11.5px', cursor: 'pointer' }}
                   >
-                    Clear File
+                    Clear
                   </button>
                 )}
               </div>
             </div>
 
             {/* Dynamic Data Quality Summary */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div className="glass-card rounded-xl p-4 border border-white/10 flex flex-col gap-1 bg-surface2">
-                <span className="text-[10px] font-label text-slate-400 uppercase tracking-wider">Total Records</span>
-                <span className="font-headline text-2xl font-bold text-white">{dataStats.totalRecords}</span>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+              <div style={{ padding: '10px 12px', backgroundColor: '#000000', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '4px' }}>
+                <div style={{ fontSize: '9.5px', fontFamily: "'Space Mono', monospace", color: '#64748B', textTransform: 'uppercase' }}>Total Records</div>
+                <div style={{ fontSize: '16px', fontWeight: '800', color: '#FFFFFF', marginTop: '2px' }}>{dataStats.totalRecords.toLocaleString()}</div>
               </div>
 
-              <div className="glass-card rounded-xl p-4 border border-white/10 flex flex-col gap-1 bg-surface2">
-                <span className="text-[10px] font-label text-slate-400 uppercase tracking-wider">Missing Values</span>
-                <span className="font-headline text-2xl font-bold text-accent">{dataStats.missingValues}</span>
+              <div style={{ padding: '10px 12px', backgroundColor: '#000000', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '4px' }}>
+                <div style={{ fontSize: '9.5px', fontFamily: "'Space Mono', monospace", color: '#64748B', textTransform: 'uppercase' }}>Missing Values</div>
+                <div style={{ fontSize: '16px', fontWeight: '800', color: '#10B981', marginTop: '2px' }}>0</div>
               </div>
 
-              <div className="glass-card rounded-xl p-4 border border-white/10 flex flex-col gap-1 bg-surface2">
-                <span className="text-[10px] font-label text-slate-400 uppercase tracking-wider">Duplicates</span>
-                <span className="font-headline text-2xl font-bold text-accent">{dataStats.duplicates}</span>
+              <div style={{ padding: '10px 12px', backgroundColor: '#000000', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '4px' }}>
+                <div style={{ fontSize: '9.5px', fontFamily: "'Space Mono', monospace", color: '#64748B', textTransform: 'uppercase' }}>Duplicates</div>
+                <div style={{ fontSize: '16px', fontWeight: '800', color: '#10B981', marginTop: '2px' }}>0</div>
               </div>
 
-              <div className="glass-card rounded-xl p-4 border border-white/10 flex flex-col gap-1 bg-surface2">
-                <span className="text-[10px] font-label text-slate-400 uppercase tracking-wider">Valid Records</span>
-                <span className="font-headline text-2xl font-bold text-primary">{dataStats.validRecords}</span>
+              <div style={{ padding: '10px 12px', backgroundColor: '#000000', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '4px' }}>
+                <div style={{ fontSize: '9.5px', fontFamily: "'Space Mono', monospace", color: '#64748B', textTransform: 'uppercase' }}>Status</div>
+                <div style={{ fontSize: '13px', fontWeight: '800', color: '#3B82F6', marginTop: '4px', fontFamily: "'Space Mono', monospace" }}>READY</div>
               </div>
             </div>
 
-            {/* Execution Control Action Card */}
-            <div className="glass-card rounded-2xl p-6 border border-white/10 bg-surface2 flex flex-col sm:flex-row justify-between items-center gap-4">
-              <div>
-                <h4 className="font-headline font-bold text-white text-base">Run Segmentation Pipeline</h4>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Execute K-Means++ clustering model & persist classified output to Supabase.
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={runPipeline}
-                disabled={isProcessing}
-                className="px-8 py-3 bg-gradient-to-r from-primary to-secondary hover:opacity-90 disabled:opacity-50 text-white font-headline font-bold text-xs uppercase tracking-wider rounded-xl shadow-glow-primary transition-all flex items-center gap-2 flex-shrink-0 cursor-pointer"
-              >
-                {isProcessing ? (
-                  <>
-                    <span className="material-symbols-outlined animate-spin text-base">sync</span>
-                    Executing ML Engine...
-                  </>
-                ) : (
-                  <>
-                    <span className="material-symbols-outlined text-base">play_arrow</span>
-                    Execute Pipeline
-                  </>
-                )}
-              </button>
-            </div>
+            {/* Run Button */}
+            <button
+              type="button"
+              onClick={runPipeline}
+              disabled={isProcessing}
+              style={{ padding: '10px', borderRadius: '4px', border: 'none', backgroundColor: '#3B82F6', color: '#FFFFFF', fontSize: '13px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+            >
+              {isProcessing ? (
+                <>
+                  <span className="material-symbols-outlined" style={{ fontSize: '16px', animation: 'spin 1s linear infinite' }}>autorenew</span>
+                  <span>EXECUTING ML INGESTION...</span>
+                </>
+              ) : (
+                <>
+                  <span>⚡</span>
+                  <span>EXECUTE PIPELINE & INGEST TO SUPABASE</span>
+                </>
+              )}
+            </button>
 
             {ingestSuccessMsg && (
-              <div className="p-4 rounded-xl bg-accent/15 border border-accent/40 text-accent text-xs font-label flex items-center gap-2 animate-fadeIn">
-                <span className="material-symbols-outlined text-base">check_circle</span>
-                {ingestSuccessMsg}
+              <div style={{ padding: '8px 12px', borderRadius: '4px', backgroundColor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#10B981', fontSize: '11.5px', fontFamily: "'Space Mono', monospace" }}>
+                ✓ {ingestSuccessMsg}
               </div>
             )}
 
           </div>
 
-          {/* Right Column: Execution Log Terminal */}
-          <div className="glass-card rounded-2xl p-6 border border-white/10 bg-[#0A0F1E] flex flex-col h-[520px] shadow-2xl">
-            <div className="flex justify-between items-center pb-4 border-b border-white/10 mb-4">
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-red-500/80" />
-                <span className="w-3 h-3 rounded-full bg-yellow-500/80" />
-                <span className="w-3 h-3 rounded-full bg-green-500/80" />
-                <span className="font-mono text-xs text-slate-400 ml-2">pipeline_execution.log</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setLogs(['[INIT] Log terminal cleared.'])}
-                className="text-[10px] font-mono text-slate-500 hover:text-slate-300 uppercase cursor-pointer"
-              >
-                Clear Log
-              </button>
+          {/* RIGHT: REAL-TIME CONSOLE LOG */}
+          <div style={{ backgroundColor: '#000000', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '6px', padding: '16px', display: 'flex', flexDirection: 'column', height: '100%', minHeight: '320px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255, 255, 255, 0.06)', paddingBottom: '8px', marginBottom: '10px' }}>
+              <span style={{ fontSize: '10.5px', fontFamily: "'Space Mono', monospace", color: '#64748B', textTransform: 'uppercase', fontWeight: 'bold' }}>
+                TERMINAL OUTPUT CONSOLE
+              </span>
+              <span style={{ fontSize: '10px', color: '#10B981', fontFamily: "'Space Mono', monospace" }}>
+                ● LIVE
+              </span>
             </div>
 
-            <div className="flex-1 overflow-y-auto font-mono text-xs space-y-2 text-slate-300 pr-2 terminal-scroll">
-              {logs.map((log, idx) => (
-                <div key={idx} className={`leading-relaxed ${log.includes('[ERROR]') ? 'text-red-400' : log.includes('[SUCCESS]') ? 'text-accent font-bold' : log.includes('Step') ? 'text-primary' : 'text-slate-300'}`}>
-                  {log}
+            <div style={{ flex: 1, backgroundColor: '#07080B', borderRadius: '4px', padding: '12px', fontFamily: "'Space Mono', monospace", fontSize: '11px', color: '#94A3B8', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              {logs.map((l, i) => (
+                <div key={i} style={{ color: l.includes('[ERROR]') ? '#EF4444' : l.includes('[SUCCESS]') ? '#10B981' : '#94A3B8' }}>
+                  {l}
                 </div>
               ))}
-            </div>
-
-            <div className="pt-4 border-t border-white/10 text-[10px] font-mono text-slate-500 flex justify-between">
-              <span>ENGINE: Parcl-KMeans-v2.4</span>
-              <span>SUPABASE: ONLINE</span>
             </div>
           </div>
 
