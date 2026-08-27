@@ -5,8 +5,10 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { fetchLiveMarketData, subscribeToLiveMarketUpdates } from '../../lib/dataService';
 
-const DEFAULT_TICKER = [
-  { city: 'U.S.', arrow: '▼', trend: '-1.7%', isPositive: false, msi: '5.51', cuts: '41.7%', isNational: true },
+const DEFAULT_METROS = [
+  { city: 'DETROIT', arrow: '▲', trend: '+2.8%', isPositive: true, msi: '5.41', cuts: '35.6%' },
+  { city: 'NEW YORK', arrow: '▲', trend: '+3.1%', isPositive: true, msi: '3.05', cuts: '26.3%' },
+  { city: 'MILWAUKEE', arrow: '▲', trend: '+3.5%', isPositive: true, msi: '4.06', cuts: '28.1%' },
   { city: 'LAKELAND', arrow: '▼', trend: '-1.4%', isPositive: false, msi: '6.00', cuts: '45.8%' },
   { city: 'SAN JOSE', arrow: '▼', trend: '-1.4%', isPositive: false, msi: '4.78', cuts: '30.2%' },
   { city: 'DALLAS-FORT WORTH', arrow: '▼', trend: '-1.4%', isPositive: false, msi: '7.07', cuts: '52.1%' },
@@ -14,7 +16,6 @@ const DEFAULT_TICKER = [
   { city: 'PHOENIX', arrow: '▼', trend: '-1.5%', isPositive: false, msi: '6.56', cuts: '49.2%' },
   { city: 'AUSTIN', arrow: '▲', trend: '+3.1%', isPositive: true, msi: '7.29', cuts: '54.1%' },
   { city: 'CLEVELAND', arrow: '▲', trend: '+4.3%', isPositive: true, msi: '5.49', cuts: '36.5%' },
-  { city: 'MILWAUKEE', arrow: '▲', trend: '+3.6%', isPositive: true, msi: '4.04', cuts: '28.1%' },
 ];
 
 export default function Topbar({ title, subtitle, onOpenProfile }) {
@@ -22,13 +23,36 @@ export default function Topbar({ title, subtitle, onOpenProfile }) {
   const router = useRouter();
   const { user, profile } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
-  const [tickerItems, setTickerItems] = useState(DEFAULT_TICKER);
+  const [nationalData, setNationalData] = useState({
+    city: 'U.S.',
+    arrow: '▼',
+    trend: '-1.7%',
+    isPositive: false,
+    msi: '5.51',
+    cuts: '41.7%',
+  });
+  const [metroItems, setMetroItems] = useState(DEFAULT_METROS);
 
   useEffect(() => {
     fetchLiveMarketData().then((data) => {
       if (data && data.length > 0) {
-        const mapped = data.slice(0, 12).map((m, idx) => {
-          const rawTrend = m.rawChange1y !== undefined ? m.rawChange1y : (idx % 2 === 0 ? 3.5 : -1.8);
+        // First item or national
+        const first = data[0];
+        if (first) {
+          const rawTrend = first.rawChange1y !== undefined ? first.rawChange1y : -1.7;
+          setNationalData({
+            city: 'U.S.',
+            arrow: rawTrend >= 0 ? '▲' : '▼',
+            trend: `${rawTrend >= 0 ? '+' : ''}${rawTrend.toFixed(1)}%`,
+            isPositive: rawTrend >= 0,
+            msi: (first.msi || 5.51).toFixed(2),
+            cuts: `${first.priceCutsPct || 41.7}%`,
+          });
+        }
+
+        // Rest of the metros
+        const mapped = data.slice(1, 15).map((m, idx) => {
+          const rawTrend = m.rawChange1y !== undefined ? m.rawChange1y : (idx % 2 === 0 ? 3.1 : -1.4);
           const isPos = rawTrend >= 0;
           return {
             city: (m.name || 'METRO').toUpperCase(),
@@ -37,17 +61,31 @@ export default function Topbar({ title, subtitle, onOpenProfile }) {
             isPositive: isPos,
             msi: (m.msi || 5.0).toFixed(2),
             cuts: `${m.priceCutsPct || 41.7}%`,
-            isNational: idx === 0
           };
         });
-        setTickerItems(mapped);
+        if (mapped.length > 0) {
+          setMetroItems(mapped);
+        }
       }
     });
 
     const unsub = subscribeToLiveMarketUpdates((fresh) => {
       if (fresh && fresh.length > 0) {
-        const mapped = fresh.slice(0, 12).map((m, idx) => {
-          const rawTrend = m.rawChange1y !== undefined ? m.rawChange1y : 3.5;
+        const first = fresh[0];
+        if (first) {
+          const rawTrend = first.rawChange1y !== undefined ? first.rawChange1y : -1.7;
+          setNationalData({
+            city: 'U.S.',
+            arrow: rawTrend >= 0 ? '▲' : '▼',
+            trend: `${rawTrend >= 0 ? '+' : ''}${rawTrend.toFixed(1)}%`,
+            isPositive: rawTrend >= 0,
+            msi: (first.msi || 5.51).toFixed(2),
+            cuts: `${first.priceCutsPct || 41.7}%`,
+          });
+        }
+
+        const mapped = fresh.slice(1, 15).map((m, idx) => {
+          const rawTrend = m.rawChange1y !== undefined ? m.rawChange1y : 3.1;
           const isPos = rawTrend >= 0;
           return {
             city: (m.name || 'METRO').toUpperCase(),
@@ -56,10 +94,11 @@ export default function Topbar({ title, subtitle, onOpenProfile }) {
             isPositive: isPos,
             msi: (m.msi || 5.0).toFixed(2),
             cuts: `${m.priceCutsPct || 41.7}%`,
-            isNational: idx === 0
           };
         });
-        setTickerItems(mapped);
+        if (mapped.length > 0) {
+          setMetroItems(mapped);
+        }
       }
     });
 
@@ -78,77 +117,115 @@ export default function Topbar({ title, subtitle, onOpenProfile }) {
   return (
     <header style={{ position: 'fixed', top: 0, right: 0, left: '220px', zIndex: 30, backgroundColor: '#000000', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', minHeight: '76px', display: 'flex', flexDirection: 'column' }}>
       
-      {/* 1. TOP MOVING TICKER (EXACT MATCH TO REFERENCE SCREENSHOT) */}
-      <div style={{ backgroundColor: '#000000', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', overflow: 'hidden', whiteSpace: 'nowrap', padding: '5px 0', fontSize: '11px', fontFamily: "'Space Mono', monospace" }}>
-        <div className="parcl-ticker-track">
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            {tickerItems.map((item, idx) => (
-              <div
-                key={idx}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '0 20px',
-                  borderRight: '1px solid rgba(255, 255, 255, 0.1)'
-                }}
-              >
-                {item.isNational && <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10B981' }} />}
-                <span style={{ fontWeight: '700', color: '#FFFFFF', letterSpacing: '0.4px' }}>
-                  {item.city}
-                </span>
-                <span style={{ fontWeight: '700', color: item.isPositive ? '#10B981' : '#EF4444', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
-                  <span>{item.arrow}</span>
-                  <span>{item.trend}</span>
-                  {item.isNational && <span style={{ color: '#64748B', fontWeight: '400', fontSize: '10px' }}>YoY</span>}
-                </span>
-                <span style={{ color: '#64748B', fontWeight: '500' }}>MSI</span>
-                <span style={{ color: '#FFFFFF', fontWeight: '700' }}>{item.msi}</span>
-                <span style={{ color: '#64748B', fontWeight: '500' }}>CUTS</span>
-                <span style={{ color: '#FFFFFF', fontWeight: '700' }}>{item.cuts}</span>
-              </div>
-            ))}
-          </div>
+      {/* 1. TOP TICKER STRIP: STATIONARY U.S. CELL ON LEFT + MARQUEE SCROLLING METROS ON RIGHT */}
+      <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#000000', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', height: '28px', fontSize: '11px', fontFamily: "'Space Mono', monospace" }}>
+        
+        {/* STATIONARY U.S. CELL (NEVER MOVES) */}
+        <div
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '0 16px',
+            backgroundColor: '#000000',
+            borderRight: '1px solid rgba(255, 255, 255, 0.12)',
+            flexShrink: 0,
+            zIndex: 5,
+            height: '100%',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10B981', display: 'inline-block' }} />
+          <span style={{ fontWeight: '700', color: '#FFFFFF', letterSpacing: '0.4px' }}>
+            {nationalData.city}
+          </span>
+          <span style={{ fontWeight: '700', color: nationalData.isPositive ? '#10B981' : '#EF4444', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+            <span>{nationalData.arrow}</span>
+            <span>{nationalData.trend}</span>
+            <span style={{ color: '#64748B', fontWeight: '400', fontSize: '10px', marginLeft: '2px' }}>YoY</span>
+          </span>
+          <span style={{ color: '#64748B', fontWeight: '500' }}>MSI</span>
+          <span style={{ color: '#FFFFFF', fontWeight: '700' }}>{nationalData.msi}</span>
+          <span style={{ color: '#64748B', fontWeight: '500' }}>CUTS</span>
+          <span style={{ color: '#FFFFFF', fontWeight: '700' }}>{nationalData.cuts}</span>
+        </div>
 
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            {tickerItems.map((item, idx) => (
-              <div
-                key={`dup-${idx}`}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '0 20px',
-                  borderRight: '1px solid rgba(255, 255, 255, 0.1)'
-                }}
-              >
-                {item.isNational && <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10B981' }} />}
-                <span style={{ fontWeight: '700', color: '#FFFFFF', letterSpacing: '0.4px' }}>
-                  {item.city}
-                </span>
-                <span style={{ fontWeight: '700', color: item.isPositive ? '#10B981' : '#EF4444', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
-                  <span>{item.arrow}</span>
-                  <span>{item.trend}</span>
-                  {item.isNational && <span style={{ color: '#64748B', fontWeight: '400', fontSize: '10px' }}>YoY</span>}
-                </span>
-                <span style={{ color: '#64748B', fontWeight: '500' }}>MSI</span>
-                <span style={{ color: '#FFFFFF', fontWeight: '700' }}>{item.msi}</span>
-                <span style={{ color: '#64748B', fontWeight: '500' }}>CUTS</span>
-                <span style={{ color: '#FFFFFF', fontWeight: '700' }}>{item.cuts}</span>
-              </div>
-            ))}
+        {/* MARQUEE SCROLLING TRACK FOR ALL METROS ON THE RIGHT */}
+        <div style={{ flex: 1, overflow: 'hidden', whiteSpace: 'nowrap', position: 'relative', height: '100%', display: 'flex', alignItems: 'center' }}>
+          <div className="parcl-ticker-track" style={{ display: 'flex', alignItems: 'center' }}>
+            
+            {/* FIRST PASS */}
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              {metroItems.map((item, idx) => (
+                <div
+                  key={`metro-${idx}`}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '0 20px',
+                    borderRight: '1px solid rgba(255, 255, 255, 0.1)'
+                  }}
+                >
+                  <span style={{ fontWeight: '700', color: '#FFFFFF', letterSpacing: '0.4px' }}>
+                    {item.city}
+                  </span>
+                  <span style={{ fontWeight: '700', color: item.isPositive ? '#10B981' : '#EF4444', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+                    <span>{item.arrow}</span>
+                    <span>{item.trend}</span>
+                  </span>
+                  <span style={{ color: '#64748B', fontWeight: '500' }}>MSI</span>
+                  <span style={{ color: '#FFFFFF', fontWeight: '700' }}>{item.msi}</span>
+                  <span style={{ color: '#64748B', fontWeight: '500' }}>CUTS</span>
+                  <span style={{ color: '#FFFFFF', fontWeight: '700' }}>{item.cuts}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* SEAMLESS LOOP SECOND PASS */}
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              {metroItems.map((item, idx) => (
+                <div
+                  key={`metro-dup-${idx}`}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '0 20px',
+                    borderRight: '1px solid rgba(255, 255, 255, 0.1)'
+                  }}
+                >
+                  <span style={{ fontWeight: '700', color: '#FFFFFF', letterSpacing: '0.4px' }}>
+                    {item.city}
+                  </span>
+                  <span style={{ fontWeight: '700', color: item.isPositive ? '#10B981' : '#EF4444', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+                    <span>{item.arrow}</span>
+                    <span>{item.trend}</span>
+                  </span>
+                  <span style={{ color: '#64748B', fontWeight: '500' }}>MSI</span>
+                  <span style={{ color: '#FFFFFF', fontWeight: '700' }}>{item.msi}</span>
+                  <span style={{ color: '#64748B', fontWeight: '500' }}>CUTS</span>
+                  <span style={{ color: '#FFFFFF', fontWeight: '700' }}>{item.cuts}</span>
+                </div>
+              ))}
+            </div>
+
           </div>
         </div>
+
       </div>
 
-      {/* 2. SUB HEADER NAVIGATION & SEARCH BAR (EXACT SCREENSHOT PROPORTIONS) */}
+      {/* 2. SUB HEADER NAVIGATION & SEARCH BAR (EXACT SCREENSHOT MATCH) */}
       <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 24px' }}>
         
-        {/* Left: PARCL Logo + Workspace Nav Tabs */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '7px', textDecoration: 'none' }}>
-            <span style={{ fontSize: '14px', fontWeight: '900', color: '#FFFFFF', letterSpacing: '0.8px' }}>▲ PARCL</span>
-          </Link>
+        {/* Left: PARCL Logo with Divider + Workspace Nav Tabs */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '7px', textDecoration: 'none' }}>
+              <span style={{ fontSize: '14px', fontWeight: '900', color: '#FFFFFF', letterSpacing: '0.8px' }}>▲ PARCL</span>
+            </Link>
+            <span style={{ height: '16px', width: '1px', backgroundColor: 'rgba(255, 255, 255, 0.1)' }} />
+          </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
             <Link
