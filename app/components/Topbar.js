@@ -117,22 +117,24 @@ export default function Topbar({ title, subtitle, onOpenProfile }) {
   return (
     <header style={{ position: 'fixed', top: 0, right: 0, left: 0, width: '100%', zIndex: 50, backgroundColor: '#000000', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', minHeight: '82px', display: 'flex', flexDirection: 'column' }}>
       
-      {/* 1. TOP TICKER STRIP (SCALED UP BY 20%): STATIONARY U.S. CELL ON LEFT + MARQUEE METROS ON RIGHT */}
+      {/* 1. TOP TICKER STRIP: STATIONARY U.S. CELL ON LEFT + MARQUEE METROS ON RIGHT */}
       <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#000000', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', height: '34px', fontSize: '13px', fontFamily: "'Space Mono', monospace" }}>
         
-        {/* STATIONARY U.S. CELL (NEVER MOVES) */}
+        {/* STATIONARY U.S. CELL (EXACTLY 220px WIDE TO ALIGN WITH SIDEBAR) */}
         <div
           style={{
             display: 'inline-flex',
             alignItems: 'center',
             gap: '10px',
-            padding: '0 20px',
+            width: '220px',
+            padding: '0 18px',
             backgroundColor: '#000000',
-            borderRight: '1px solid rgba(255, 255, 255, 0.12)',
+            borderRight: '1px solid rgba(255, 255, 255, 0.08)',
             flexShrink: 0,
             zIndex: 5,
             height: '100%',
-            whiteSpace: 'nowrap'
+            whiteSpace: 'nowrap',
+            boxSizing: 'border-box'
           }}
         >
           <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#10B981', display: 'inline-block' }} />
@@ -215,19 +217,19 @@ export default function Topbar({ title, subtitle, onOpenProfile }) {
 
       </div>
 
-      {/* 2. SUB HEADER NAVIGATION & SEARCH BAR (EXACT SCREENSHOT MATCH) */}
-      <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 20px' }}>
+      {/* 2. SUB HEADER NAVIGATION & SEARCH BAR (EXACT STRAIGHT-LINE ALIGNMENT WITH SIDEBAR) */}
+      <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 24px 0 0' }}>
         
-        {/* Left: PARCL Logo with Divider + Workspace Nav Tabs */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', width: '180px' }}>
+        {/* Left: PARCL Logo Container (220px with borderRight) + Workspace Nav Tabs */}
+        <div style={{ display: 'flex', alignItems: 'center', height: '48px' }}>
+          
+          <div style={{ width: '220px', display: 'flex', alignItems: 'center', padding: '0 18px', borderRight: '1px solid rgba(255, 255, 255, 0.08)', height: '100%', boxSizing: 'border-box' }}>
             <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '7px', textDecoration: 'none' }}>
               <span style={{ fontSize: '14px', fontWeight: '900', color: '#FFFFFF', letterSpacing: '0.8px' }}>▲ PARCL</span>
             </Link>
-            <span style={{ height: '16px', width: '1px', backgroundColor: 'rgba(255, 255, 255, 0.1)', marginLeft: 'auto' }} />
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', paddingLeft: '24px' }}>
             <Link
               href="/overview"
               style={{
