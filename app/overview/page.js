@@ -437,7 +437,7 @@ export default function OverviewPage() {
       <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '28px' }}>
 
         {/* 1. HERO TITLE, SEARCH BAR & METADATA */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '4px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', paddingTop: '10px' }}>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
             <div>
